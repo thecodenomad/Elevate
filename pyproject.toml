@@ -24,17 +24,10 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
-testpaths = ["tests"] # Directory where tests are located
-pythonpath = ["."] # If your source code is in src/
-addopts = "--cov=src -s --ignore=subprojects"
-markers = [
-    "api",
-    "models",
-    "data_manager",
-    "rate_manager",
-    "ui",                          # UI Based tests
-    "wip: work in progress tests",
-]
+testpaths = ["tests"]                                           # Directory where tests are located
+pythonpath = ["."]                                              # If your source code is in src/
+addopts = "--cov=src -s --ignore=subprojects --ignore=src/view"
+markers = ["wip: work in progress tests"]
 
 [tool.pyright]
 venvPath = "."
