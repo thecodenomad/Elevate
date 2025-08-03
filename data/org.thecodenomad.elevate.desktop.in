@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=elevate
+Exec=elevate
+Icon=org.thecodenomad.elevate
+Terminal=false
+Type=Application
+Categories=Utility;
+Keywords=GTK;
+StartupNotify=true
+DBusActivatable=true
