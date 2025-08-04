@@ -1,0 +1,37 @@
+# UI Context
+- Layout: Single window with Adw.NavigationSplitView, header bar, sidebar, and GL-based main content
+- Components:
+  - ElevateWindow (Adw.ApplicationWindow): Main window with header bar and split view
+    - Adw.HeaderBar: Sidebar button, play/pause/stop buttons, expand icon, settings, close button
+    - Adw.NavigationSplitView: Sidebar (ControlSidebar) and main content (StimuliRenderer)
+  - ControlSidebar (Adw.StatusPage): Sidebar with audio/visual controls
+    - Adw.PreferencesGroup (Induce State, vertical, h-expand):
+      - Gtk.ComboRow (State Outcome): Select "Sleep", "Focus"
+      - Adw.ExpanderRow (Advanced):
+        - Gtk.ComboRow (Brainwave State): Select "Delta", "Theta", "Gamma"
+        - Gtk.SpinRow (Target Frequency): Set Hz (0.5–13 Hz, 0.1 increments)
+    - Adw.PreferencesGroup (Audio Stimuli, vertical, h-expand):
+      - Gtk.Label: "Base Frequency"
+      - Gtk.Scale (Base Frequency): 100–300 Hz
+      - Gtk.Label: "Channel Offset"
+      - Gtk.Scale (Channel Offset): 1–20 Hz
+    - Adw.PreferencesGroup (Visual Stimuli, vertical, h-expand):
+      - Gtk.Switch (Visual Stimuli Enabled)
+      - Gtk.ComboRow (Visual Stimuli Type): Select "Color", "Breath Pattern"
+      - Gtk.ComboRow (Breath Pattern): Select "4-7-8", "Box" (visible if Breath Pattern selected)
+      - Gtk.Box (linked, halign center): Gtk.Entry for "Breath In", "Hold", "Breath Out", "Hold"
+    - Adw.PreferencesGroup (Advanced, vertical, h-expand):
+      - Gtk.ToggleButton (Show EEG)
+      - Gtk.ToggleButton (Record Session)
+  - EpilepticWarningDialog (Adw.MessageDialog): Warning with "I Acknowledge"/"Cancel" buttons
+    - Message: "Visual stimuli may trigger seizures in individuals with epilepsy. Proceed with caution."
+  - StimuliRenderer (Gtk.GLArea): Renders visual stimuli (color, breath patterns)
+  - PreferencesWindow (Adw.Window): Language selection (Dutch, English, German, Spanish)
+- Design: Libadwaita, primary color #007BFF, font: Cantarell
+- Blueprint Templates:
+  - src/blueprints/main_window.blp
+  - src/blueprints/control_sidebar.blp
+  - src/blueprints/epileptic_warning_dialog.blp
+  - src/blueprints/main_content.blp
+  - src/blueprints/preferences_window.blp
+- Resources: data/gnome.elevate.org.desktop.in, data/gnome.elevate.org.gschema.xml, data/icons/

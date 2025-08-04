@@ -1,0 +1,2 @@
+# Project Summary
+Elevate is a desktop application for inducing mental states (e.g., Sleep, Focus) through audio (binaural beats) and visual stimuli. It targets Linux users with a modern, adaptive GNOME interface using GTK4 and Libadwaita. Key features include state induction controls, customizable audio/visual stimuli, user settings (language, window size), and an epilepsy warning dialog. The app is packaged as a Flatpak for distribution.
