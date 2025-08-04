@@ -1,9 +1,10 @@
 # Technologies
 - Language: Python 3.12
 - UI: GTK4 4.12, Libadwaita 1.6
-- Dependency Management: Poetry 1.8
-- Build: Meson 1.4, Ninja
+- Dependency Management: Poetry 2.1.3
+- Build: Foundry
 - Packaging: Flatpak (org.gnome.Platform//47)
 - Testing: pytest 8.3
-- Linting: flake8
+- Linting: pylint
+- Formating: black
 - Translations: gettext
