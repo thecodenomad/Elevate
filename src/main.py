@@ -1,6 +1,6 @@
 # main.py
 #
-# Copyright 2025 Ray
+# Copyright 2025 thecodenomad
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -53,10 +53,10 @@ class ElevateApplication(Adw.Application):
         """Callback for the app.about action."""
         about = Adw.AboutDialog(application_name='elevate',
                                 application_icon='org.thecodenomad.elevate',
-                                developer_name='Ray',
+                                developer_name='thecodenomad',
                                 version='0.1.0',
-                                developers=['Ray'],
-                                copyright='© 2025 Ray')
+                                developers=['thecodenomad'],
+                                copyright='© 2025 thecodenomad')
         # Translators: Replace "translator-credits" with your name/username, and optionally an email or URL.
         about.set_translator_credits(_('translator-credits'))
         about.present(self.props.active_window)
