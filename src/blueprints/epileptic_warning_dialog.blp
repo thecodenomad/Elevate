@@ -1,0 +1,13 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $EpilepticWarningDialog : Adw.MessageDialog {
+  heading: "Epileptic Warning";
+  body: "This application generates visual stimuli that may trigger seizures in people with photosensitive epilepsy. User discretion is advised.";
+  close-response: "cancel";
+  
+  responses [
+    cancel: "Cancel" suggested,
+    proceed: "I Understand",
+  ]
+}

@@ -17,14 +17,159 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw
-from gi.repository import Gtk
+from gi.repository import Adw, Gtk, Gio, GLib
+from .backend.state_induction_controller import StateInductionController
+from .view.stimuli_renderer import StimuliRenderer
+
 
 @Gtk.Template(resource_path='/org/thecodenomad/elevate/window.ui')
-class ElevateWindow(Adw.ApplicationWindow):
+class ElevateWindow(Adw.Window):
     __gtype_name__ = 'ElevateWindow'
 
-    label = Gtk.Template.Child()
+    # Header bar and buttons
+    header_bar = Gtk.Template.Child()
+    sidebar_toggle_button = Gtk.Template.Child()
+    play_button = Gtk.Template.Child()
+    stop_button = Gtk.Template.Child()
+
+    # Sidebar controls
+    split_view = Gtk.Template.Child()
+    frequency_scale = Gtk.Template.Child()
+    channel_offset_scale = Gtk.Template.Child()
+    visual_stimuli_switch = Gtk.Template.Child()
+    stimuli_type_combo = Gtk.Template.Child()
+
+    # Main content area
+    toolbar = Gtk.Template.Child()
+    content_area = Gtk.Template.Child()
+    stimuli_renderer = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        # Initialize controller
+        self.controller = StateInductionController()
+
+        # Setup UI bindings
+        self._setup_bindings()
+
+        # Setup signal handlers
+        self._setup_signals()
+
+        # Set initial opacity
+        self.toolbar.set_opacity(1.0)
+
+        # Animation target for opacity
+        animation_target = Adw.PropertyAnimationTarget.new(self.toolbar, "opacity")
+
+        # Animation setup
+        self.fade_out_animation = Adw.TimedAnimation(
+            widget=self.toolbar,
+            value_from=1.0,
+            value_to=0.0,
+            duration=3000,  # 3000ms fade-out
+            easing=Adw.Easing.EASE_IN_OUT_CUBIC,
+            target=animation_target
+        )
+        self.fade_in_animation = Adw.TimedAnimation(
+            widget=self.toolbar,
+            value_from=0.0,
+            value_to=1.0,
+            duration=500,  # 500ms fade-in
+            easing=Adw.Easing.EASE_IN_OUT_CUBIC,
+            target=animation_target
+        )
+
+        # Set up motion controller
+        self.motion_controller = Gtk.EventControllerMotion()
+        self.motion_controller.connect("motion", self._on_mouse_motion)
+        self.content_area.add_controller(self.motion_controller)
+
+        # Track toolbar visibility state
+        self.toolbar_visible = True
+
+    def _setup_bindings(self):
+        """Setup property bindings between UI and controller settings."""
+        # Bind frequency scale to controller settings
+        self.controller._settings.bind_property(
+            "base-frequency",
+            self.frequency_scale.get_adjustment(),
+            "value",
+            Gio.SettingsBindFlags.DEFAULT
+        )
+
+        # Bind channel offset scale to controller settings
+        self.controller._settings.bind_property(
+            "channel-offset",
+            self.channel_offset_scale.get_adjustment(),
+            "value",
+            Gio.SettingsBindFlags.DEFAULT
+        )
+
+        # Bind visual stimuli switch to controller settings
+        self.controller._settings.bind_property(
+            "enable-visual-stimuli",
+            self.visual_stimuli_switch,
+            "active",
+            Gio.SettingsBindFlags.DEFAULT
+        )
+
+    def _setup_signals(self):
+        """Setup signal handlers for UI elements."""
+        # Connect button signals
+        self.sidebar_toggle_button.connect("clicked", self._on_sidebar_toggle_clicked)
+        self.play_button.connect("toggled", self._on_play_toggled)
+        self.stop_button.connect("clicked", self._on_stop_clicked)
+
+        # Connect controller property changes
+        self.controller.connect("notify::is-playing", self._on_playing_state_changed)
+
+    def on_fade_animation_update(self, value):
+        """Callback to update toolbar opacity during animation."""
+        self.toolbar.set_opacity(value)
+
+    def _on_mouse_motion(self, controller, x, y):
+        if self.play_button.get_active():
+            self.fade_in_animation.pause()
+            self.fade_in_animation.reset()
+            self.fade_out_animation.play()
+            self.toolbar_visible = False
+        elif not self.toolbar_visible:
+            self.fade_out_animation.pause()
+            self.fade_out_animation.reset()
+            self.toolbar.set_opacity(1.0)
+            self.toolbar_visible = True
+
+    def _on_sidebar_toggle_clicked(self, button):
+        """Handler for sidebar toggle button click."""
+        self.split_view.set_show_sidebar(button.get_active())
+
+    def _on_play_toggled(self, button):
+        """Handler for play button click."""
+        if button.get_active():
+            button.set_icon_name("media-playback-pause-symbolic")
+            self.sidebar_toggle_button.set_active(False)
+            self.split_view.set_show_sidebar(False)
+            self.controller.play()
+        else:
+            button.set_icon_name("media-playback-start-symbolic")
+            self.controller.pause()
+
+        # Trigger the animations
+        self._on_mouse_motion(None, None, None)
+
+    def _on_stop_clicked(self, button):
+        """Handler for stop button click."""
+        self.controller.stop()
+        # User clicked stop, so update play
+        if self.play_button.get_active():
+            self.play_button.set_active(False)
+
+        # Trigger the animations
+        self._on_mouse_motion(None, None, None)
+
+    def _on_playing_state_changed(self, controller, param):
+        """Handler for controller playing state changes."""
+        is_playing = controller.is_playing
+        # Update button sensitivity based on playing state
+        self.stop_button.set_sensitive(is_playing)

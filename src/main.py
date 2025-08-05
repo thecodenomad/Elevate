@@ -32,9 +32,8 @@ class ElevateApplication(Adw.Application):
 
     def __init__(self):
         super().__init__(application_id='org.thecodenomad.elevate',
-                         flags=Gio.ApplicationFlags.DEFAULT_FLAGS,
-                         resource_base_path='/org/thecodenomad/elevate')
-        self.create_action('quit', lambda *_: self.quit(), ['<primary>q'])
+                         flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
+        self.create_action('quit', self.on_quit_action, ['<primary>q'])
         self.create_action('about', self.on_about_action)
         self.create_action('preferences', self.on_preferences_action)
 
@@ -49,21 +48,29 @@ class ElevateApplication(Adw.Application):
             win = ElevateWindow(application=self)
         win.present()
 
+    def on_quit_action(self, *args):
+        """Callback for the app.quit action."""
+        self.quit()
+
     def on_about_action(self, *args):
         """Callback for the app.about action."""
-        about = Adw.AboutDialog(application_name='elevate',
-                                application_icon='org.thecodenomad.elevate',
-                                developer_name='thecodenomad',
-                                version='0.1.0',
-                                developers=['thecodenomad'],
-                                copyright='© 2025 thecodenomad')
+        about = Adw.AboutDialog.new()
+        about.set_application_name('Elevate')
+        about.set_application_icon('org.thecodenomad.elevate')
+        about.set_developer_name('thecodenomad')
+        about.set_version('0.1.0')
+        about.set_developers(['thecodenomad'])
+        about.set_copyright('© 2025 thecodenomad')
         # Translators: Replace "translator-credits" with your name/username, and optionally an email or URL.
-        about.set_translator_credits(_('translator-credits'))
+        # about.set_translator_credits(_('translator-credits'))
         about.present(self.props.active_window)
 
     def on_preferences_action(self, widget, _):
         """Callback for the app.preferences action."""
-        print('app.preferences action activated')
+        from .view.preferences_window import PreferencesWindow
+        win = PreferencesWindow()
+        win.set_transient_for(self.props.active_window)
+        win.present()
 
     def create_action(self, name, callback, shortcuts=None):
         """Add an application action.

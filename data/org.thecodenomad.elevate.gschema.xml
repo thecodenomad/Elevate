@@ -1,5 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="elevate">
 	<schema id="org.thecodenomad.elevate" path="/org/thecodenomad/elevate/">
+		<key name="base-frequency" type="d">
+			<default>200.0</default>
+			<summary>Base frequency for audio stimuli</summary>
+			<description>The base frequency in Hz for binaural beats (100-300 Hz range)</description>
+		</key>
+		<key name="channel-offset" type="d">
+			<default>10.0</default>
+			<summary>Channel offset for audio stimuli</summary>
+			<description>The channel offset in Hz for binaural beats (1-20 Hz range)</description>
+		</key>
+		<key name="enable-visual-stimuli" type="b">
+			<default>false</default>
+			<summary>Enable visual stimuli</summary>
+			<description>Whether to enable visual stimuli for mental state induction</description>
+		</key>
+		<key name="stimuli-type" type="i">
+			<default>0</default>
+			<summary>Type of visual stimuli</summary>
+			<description>The type of visual stimuli to use (e.g., 0 for color, 1 for breath patterns)</description>
+		</key>
 	</schema>
 </schemalist>

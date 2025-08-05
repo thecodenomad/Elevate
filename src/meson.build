@@ -39,7 +39,10 @@ endforeach
 ui_file_entries = []
 foreach ui_file : ui_files
   filename = ui_file.full_path().split('/')[-1]
-  ui_file_entries += '    <file preprocess="xml-stripblanks">' + filename + '</file>'
+  # Skip window.ui as it's handled separately
+  if filename != 'window.ui'
+    ui_file_entries += '    <file preprocess="xml-stripblanks">' + filename + '</file>'
+  endif
 endforeach
 
 # Generate elevate.gresource.xml

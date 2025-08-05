@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/thecodenomad/elevate">
+    <file preprocess="xml-stripblanks">window.ui</file>
+    <file preprocess="xml-stripblanks">view/control_sidebar.ui</file>
+    <file preprocess="xml-stripblanks">view/stimuli_renderer.ui</file>
+    <file preprocess="xml-stripblanks">view/preferences_window.ui</file>
+    <file preprocess="xml-stripblanks">view/epileptic_warning_dialog.ui</file>
+  </gresource>
+</gresources>

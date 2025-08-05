@@ -1,3 +1,4 @@
 .crush
 .foundry
 subprojects
+**/__pycache__

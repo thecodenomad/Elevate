@@ -1,6 +1,7 @@
 # Technologies
 - Language: Python 3.12
 - UI: GTK4 4.12, Libadwaita 1.6
+- Audio: GStreamer 
 - Dependency Management: Poetry 2.1.3
 - Build: Foundry
 - Packaging: Flatpak (org.gnome.Platform//47)

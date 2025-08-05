@@ -1,0 +1,19 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $ControlSidebar : Box {
+  orientation: vertical;
+  vexpand: true;
+
+  Adw.Clamp {
+    Adw.PreferencesGroup {
+      title: "Audio Settings";
+      Adw.ActionRow {
+        title: "Base Frequency";
+        child: Scale frequency_scale {
+          orientation: horizontal;
+        };
+      }
+    }
+  }
+}

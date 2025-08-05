@@ -10,11 +10,15 @@ readme = "README.md"
 python = "^3.12"
 muselsl = "^2.3.1"
 bitarray = "^3.6.0"
+PyGObject = "^3.46.0"
+numpy = "^2.3.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.1"
 pytest-mock = "^3.14.1"
 pytest-cov = "^6.2.1"
+black = "^25.1.0"
+pylint = "^3.3.7"
 
 [tool.poetry.requires-plugins]
 poetry-plugin-export = ">=1.8"
@@ -39,8 +43,8 @@ source = []
 omit = []
 
 [tool.coverage.report]
-fail_under = 80
+fail_under = 90
 show_missing = true
 
 [tool.black]
-line-length = 127
+line-length = 105
