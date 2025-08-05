@@ -1,6 +1,13 @@
 # Data Context
-- Data Store: In-memory settings via Gio.Settings (data/gnome.elevate.org.gschema.xml)
+- Data Store: In-memory settings via Gio.Settings (data/org.thecodenomad.elevate.gschema.xml)
 - Schema:
-  - Settings: { language: string, window_width: int, window_height: int, base_frequency: float, channel_offset: float, stimuli_type: string, breath_pattern: string, breath_in_interval: float, breath_in_hold_interval: float, breath_out_interval: float, breath_out_hold_interval: float, show_eeg: bool, record_session: bool }
-  - Session: { state_outcome: string, brainwave_state: string, target_frequency: float }
+  - Settings: { base_frequency: double, channel_offset: double, enable_visual_stimuli: boolean, stimuli_type: int }
 - No persistent database or external APIs
+
+The GSettings schema defines the following keys:
+- base-frequency (double): Base frequency for audio stimuli (default: 200.0)
+- channel-offset (double): Channel offset for audio stimuli (default: 10.0)
+- enable-visual-stimuli (boolean): Whether to enable visual stimuli (default: false)
+- stimuli-type (int): Type of visual stimuli to use (default: 0)
+
+These settings are automatically persisted by the GSettings system and loaded on application startup.

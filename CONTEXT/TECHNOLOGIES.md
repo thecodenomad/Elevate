@@ -2,10 +2,11 @@
 - Language: Python 3.12
 - UI: GTK4 4.12, Libadwaita 1.6
 - Audio: GStreamer 
+- Graphics: Cairo (via GTK DrawingArea)
 - Dependency Management: Poetry 2.1.3
-- Build: Foundry
+- Build: Meson (with Foundry for development workflow)
 - Packaging: Flatpak (org.gnome.Platform//47)
 - Testing: pytest 8.3
 - Linting: pylint
-- Formating: black
+- Formatting: black
 - Translations: gettext

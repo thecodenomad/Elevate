@@ -1,9 +1,15 @@
 # Testing Strategy
 - Framework: pytest 8.3
 - Types: Unit tests for backend logic
-- Coverage: 90% for /src/elevate (exclude /src/elevate/view)
+- Coverage: 90% for /src (exclude /src/view)
 - Test Cases:
-  - Test StateInductionController: Initialization, frequency/offset settings, start/pause/stop
-  - Test AudioStimulus: Parameter setting, playback start/stop
-  - Test VisualStimulus: Color/breath pattern setting, rendering start/stop
-  - Test ElevateSettings: Language and control settings persistence
+  - Test StateInductionController: Initialization, property settings, play/pause/stop functionality
+  - Test AudioStimulus: Parameter setting, playback start/stop, frequency generation
+  - Test VisualStimulus: Parameter setting, rendering start/stop, stimulus type selection
+  - Test ElevateSettings: GSettings binding, property getting/setting
+- Test Files:
+  - tests/test_state_induction_controller.py
+  - tests/test_audio_stimulus.py
+  - tests/test_visual_stimulus.py
+  - tests/test_elevate_settings.py
+- Running Tests: `poetry run pytest` or `poetry run pytest --cov=src -s --ignore=src/view`

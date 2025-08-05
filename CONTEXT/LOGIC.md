@@ -1,21 +1,24 @@
 # Logic Context
 - Mental State Induction Workflow:
-  1. User selects state outcome ("Sleep" → Delta, 0.5–4 Hz; "Focus" → Theta, 5–13 Hz)
-  2. Configure audio (base frequency 100–300 Hz, channel offset 1–20 Hz) and visual stimuli (type, breath pattern)
-  3. Start induction via play button
-  4. Pause/stop induction as needed
+  1. User configures audio (base frequency 100–1000 Hz, channel offset 0.5–50 Hz) and visual stimuli (type)
+  2. Start induction via play button
+  3. Pause/stop induction as needed
+- Component Interactions:
+  - ElevateWindow ↔ StateInductionController: User actions trigger controller methods
+  - StateInductionController ↔ AudioStimulus: Controller manages audio playback
+  - StateInductionController ↔ VisualStimulus: Controller manages visual rendering
+  - ElevateSettings ↔ All Components: Settings provide configuration values
 - Widget Bindings:
-  - Gtk.Scale (Base Frequency) → StateInductionController.base_frequency
-  - Gtk.Scale (Channel Offset) → StateInductionController.channel_offset
-  - Gtk.ComboRow (Stimuli Type) → StateInductionController.stimuli_type
-  - Gtk.ComboRow (Breath Pattern) → StateInductionController.breath_pattern
-  - Gtk.Entry (Breath In/Out/Hold) → StateInductionController.breath_*_interval
-  - Gtk.ToggleButton (Show EEG/Record Session) → StateInductionController.show_eeg/record_session
+  - Gtk.SpinRow (Base Frequency) → ElevateSettings.base_frequency
+  - Gtk.SpinRow (Channel Offset) → ElevateSettings.channel_offset
+  - Gtk.Switch (Enable Visual Stimuli) → ElevateSettings.enable_visual_stimuli
+  - Gtk.ComboRow (Stimuli Type) → ElevateSettings.stimuli_type
 - Signals:
-  - Expand Icon (Gtk.Button): "toggled" → ElevateWindow.on_fullscreen_toggled
-  - Play/Pause/Stop Buttons: "clicked" → StateInductionController.start/pause/stop_induction
-  - Visual Stimuli Switch: "notify::active" → ControlSidebar.on_visual_stimuli_toggled
-  - Settings Button: "clicked" → PreferencesWindow.present
+  - Play/Pause ToggleButton: "toggled" → ElevateWindow._on_play_toggled
+  - Stop Button: "clicked" → ElevateWindow._on_stop_clicked
+  - Sidebar Toggle Button: "clicked" → ElevateWindow._on_sidebar_toggle_clicked
+  - Preferences Button: "clicked" → ElevateApplication.on_preferences_action
+  - Controller "notify::is-playing": → ElevateWindow._on_playing_state_changed
 - Error Handling:
-  - Visual Stimuli Switch: Show EpilepticWarningDialog on enable
-  - Invalid inputs: Disable play button for invalid frequencies/offsets
+  - Visual Stimuli Switch: Show EpilepticWarningDialog before enabling
+  - GStreamer errors: Logged to console with user-friendly messages
