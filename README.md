@@ -66,6 +66,41 @@ To format the code:
 poetry run black src/
 ```
 
+## Project Structure
+
+```
+.
+├── src/
+│   ├── backend/              # Core logic
+│   │   ├── audio_stimulus.py
+│   │   ├── elevate_settings.py
+│   │   ├── state_induction_controller.py
+│   │   └── visual_stimulus.py
+│   ├── blueprints/           # UI definitions
+│   │   ├── control_sidebar.blp
+│   │   ├── epileptic_warning_dialog.blp
+│   │   ├── preferences_window.blp
+│   │   ├── stimuli_renderer.blp
+│   │   └── window.blp
+│   ├── view/                 # UI components
+│   │   ├── control_sidebar.py
+│   │   ├── epileptic_warning_dialog.py
+│   │   ├── preferences_window.py
+│   │   └── stimuli_renderer.py
+│   ├── main.py
+│   └── window.py
+├── data/                     # Application resources
+│   ├── org.thecodenomad.elevate.gschema.xml
+│   └── org.thecodenomad.elevate.desktop.in
+├── tests/                    # Unit tests
+├── CONTEXT/                  # Project documentation
+├── po/                       # Translation files
+├── .github/workflows/        # CI/CD
+├── org.thecodenomad.elevate.json  # Flatpak manifest
+├── pyproject.toml            # Poetry configuration
+└── meson.build               # Build system
+```
+
 ## License
 
-This project is licensed under the GPL-3.0 License - see the LICENSE file for details.
+This project is licensed under the GPL-3.0 License - see the COPYING file for details.
