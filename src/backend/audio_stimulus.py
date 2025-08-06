@@ -39,6 +39,7 @@ class AudioStimulus(GObject.Object):
         self._is_playing = False
         self._sample_rate = 44100
         self._buffer_size = 1024
+        self._volume = 0.5
         
         # Initialize GStreamer
         Gst.init(None)
@@ -47,6 +48,7 @@ class AudioStimulus(GObject.Object):
         self._source_right = None
         self._mixer = None
         self._audioconvert = None
+        self._volume_element = None
         self._sink = None
 
     @GObject.Property(type=float, default=200.0)
@@ -107,27 +109,31 @@ class AudioStimulus(GObject.Object):
         self._source_right = Gst.ElementFactory.make("audiotestsrc", "src_right")
         self._mixer = Gst.ElementFactory.make("audiomixer", "mixer")
         self._audioconvert = Gst.ElementFactory.make("audioconvert", "convert")
+        self._volume_element = Gst.ElementFactory.make("volume", "volume")
         self._sink = Gst.ElementFactory.make("autoaudiosink", "audio-sink")
 
-        if not all([self._pipeline, self._source_left, self._source_right, self._mixer, self._audioconvert, self._sink]):
+        if not all([self._pipeline, self._source_left, self._source_right, self._mixer, self._audioconvert, self._volume_element, self._sink]):
             raise Exception("Failed to create GStreamer elements")
 
         self._pipeline.add(self._source_left)
         self._pipeline.add(self._source_right)
         self._pipeline.add(self._mixer)
         self._pipeline.add(self._audioconvert)
+        self._pipeline.add(self._volume_element)
         self._pipeline.add(self._sink)
 
         self._source_left.link_pads("src", self._mixer, "sink_0")
         self._source_right.link_pads("src", self._mixer, "sink_1")
         self._mixer.link(self._audioconvert)
-        self._audioconvert.link(self._sink)
+        self._audioconvert.link(self._volume_element)
+        self._volume_element.link(self._sink)
 
         # Configure defaults
         for src in (self._source_left, self._source_right):
             src.set_property("wave", 0)
-            src.set_property("volume", 0.5)
+            src.set_property("volume", 1.0)
             src.set_property("is-live", True)
+        self._volume_element.set_property("volume", float(self._volume))
 
         # Probe example hook (no-op handler)
         try:
@@ -167,3 +173,14 @@ class AudioStimulus(GObject.Object):
             self._pipeline.set_state(Gst.State.NULL)
             self._pipeline = None
         self._is_playing = False
+
+    def set_volume(self, value: float):
+        self._volume = max(0.0, min(1.0, float(value)))
+        try:
+            if self._volume_element:
+                self._volume_element.set_property("volume", float(self._volume))
+        except Exception:
+            pass
+
+    def get_volume(self) -> float:
+        return float(self._volume)

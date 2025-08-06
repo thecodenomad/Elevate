@@ -31,6 +31,8 @@ class ElevateWindow(Adw.Window):
     sidebar_toggle_button = Gtk.Template.Child()
     play_button = Gtk.Template.Child()
     stop_button = Gtk.Template.Child()
+    volume_button = Gtk.Template.Child()
+    volume_scale = Gtk.Template.Child()
 
     # Sidebar controls
     split_view = Gtk.Template.Child()
@@ -43,6 +45,7 @@ class ElevateWindow(Adw.Window):
     toolbar = Gtk.Template.Child()
     content_area = Gtk.Template.Child()
     stimuli_renderer = Gtk.Template.Child()
+    volume_popover = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -56,6 +59,9 @@ class ElevateWindow(Adw.Window):
         self.controller._visual_stimulus.set_widget(self.stimuli_renderer)
         self.stimuli_renderer.connect("resize", self._on_renderer_resize)
         self.stimuli_renderer.set_draw_func(self._on_draw)
+
+        # Bind volume scale to controller/audio
+        self._bind_volume()
 
         # Set initial opacity
         self.toolbar.set_opacity(1.0)
@@ -86,8 +92,20 @@ class ElevateWindow(Adw.Window):
         self.motion_controller.connect("motion", self._on_mouse_motion)
         self.content_area.add_controller(self.motion_controller)
 
-        # Track toolbar visibility state
+        # Pointer tracking over toolbar using motion + leave
+        self._toolbar_motion = Gtk.EventControllerMotion()
+        self._toolbar_motion.connect("motion", self._on_toolbar_motion)
+        self.toolbar.add_controller(self._toolbar_motion)
+
+        self._toolbar_motion_outside = Gtk.EventControllerMotion()
+        self._toolbar_motion_outside.set_propagation_phase(Gtk.PropagationPhase.BUBBLE)
+        self._toolbar_motion_outside.connect("motion", self._on_global_motion)
+        self.content_area.add_controller(self._toolbar_motion_outside)
+
+        # Track toolbar visibility/state
         self.toolbar_visible = True
+        self._pointer_in_toolbar = False
+        self._volume_popover_open = False
 
     def _setup_bindings(self):
         """Setup property bindings between UI and controller settings."""
@@ -122,16 +140,24 @@ class ElevateWindow(Adw.Window):
         self.sidebar_toggle_button.connect("clicked", self._on_sidebar_toggle_clicked)
         self.play_button.connect("toggled", self._on_play_toggled)
         self.stop_button.connect("clicked", self._on_stop_clicked)
+        self.volume_scale.connect("value-changed", self._on_volume_changed)
 
         # Connect controller property changes
         self.controller.connect("notify::is-playing", self._on_playing_state_changed)
         self.stimuli_type_combo.connect("notify::selected", self._on_stimuli_type_changed)
+        self.volume_button.connect("notify::active", self._on_volume_popover_active)
 
     def on_fade_animation_update(self, value):
         self.toolbar.set_opacity(value)
 
     def _on_stimuli_type_changed(self, *_):
         self.controller._settings.set_stimuli_type(self.stimuli_type_combo.get_selected())
+
+    def _bind_volume(self):
+        try:
+            self.volume_scale.set_value(self.controller._audio_stimulus.get_volume())
+        except Exception:
+            pass
 
     def _init_stimuli_type_binding(self):
         try:
@@ -147,6 +173,12 @@ class ElevateWindow(Adw.Window):
         self.stimuli_renderer.queue_draw()
 
     def _on_mouse_motion(self, controller, x, y):
+        if self._pointer_in_toolbar or self._volume_popover_open:
+            self.fade_out_animation.pause()
+            self.fade_out_animation.reset()
+            self.toolbar.set_opacity(1.0)
+            self.toolbar_visible = True
+            return
         if self.play_button.get_active():
             self.fade_in_animation.pause()
             self.fade_in_animation.reset()
@@ -189,3 +221,37 @@ class ElevateWindow(Adw.Window):
     def _on_playing_state_changed(self, controller, param):
         is_playing = controller.is_playing
         self.stop_button.set_sensitive(is_playing)
+
+    def _on_volume_changed(self, scale):
+        self.controller._audio_stimulus.set_volume(scale.get_value())
+        self.toolbar.set_opacity(1.0)
+        self.toolbar_visible = True
+
+    def _on_toolbar_motion(self, *_):
+        self._pointer_in_toolbar = True
+        self.fade_out_animation.pause()
+        self.fade_out_animation.reset()
+        self.toolbar.set_opacity(1.0)
+
+    def _on_global_motion(self, controller, x, y):
+        alloc = self.toolbar.get_allocation()
+        in_x = alloc.x <= x <= alloc.x + alloc.width
+        in_y = alloc.y <= y <= alloc.y + alloc.height
+        inside = in_x and in_y
+        if not inside:
+            self._pointer_in_toolbar = False
+            if self.play_button.get_active() and not self._volume_popover_open:
+                self.fade_out_animation.play()
+                self.toolbar_visible = False
+
+    def _on_volume_popover_active(self, *_):
+        # MenuButton.active reflects popover visibility
+        self._volume_popover_open = self.volume_button.get_active()
+        if self._volume_popover_open:
+            self.fade_out_animation.pause()
+            self.fade_out_animation.reset()
+            self.toolbar.set_opacity(1.0)
+            self.toolbar_visible = True
+        elif self.play_button.get_active() and not self._pointer_in_toolbar:
+            self.fade_out_animation.play()
+            self.toolbar_visible = False

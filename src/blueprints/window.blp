@@ -165,6 +165,42 @@ template $ElevateWindow: Adw.Window {
                 tooltip-text: "Play";
               }
 
+              MenuButton volume_button {
+                icon-name: "audio-volume-high-symbolic";
+                tooltip-text: "Volume";
+                primary: true;
+                direction: up;
+
+                popover: Popover volume_popover {
+                  has-arrow: false;
+                  autohide: true;
+
+                  Box {
+                    orientation: vertical;
+                    margin-start: 8;
+                    margin-end: 8;
+                    margin-top: 8;
+                    margin-bottom: 8;
+
+                    Scale volume_scale {
+                      height-request: 160;
+                      orientation: vertical;
+                      inverted: true;
+                      show-fill-level: true;
+                      draw-value: false;
+
+                      adjustment: Adjustment {
+                        lower: 0.0;
+                        upper: 1.0;
+                        step-increment: 0.01;
+                        page-increment: 0.1;
+                        value: 0.5;
+                      };
+                    }
+                  }
+                };
+              }
+
               Scale time {
                 hexpand: true;
                 orientation: horizontal;
