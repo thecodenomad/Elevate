@@ -50,11 +50,12 @@ class ElevateWindow(Adw.Window):
         # Initialize controller
         self.controller = StateInductionController()
 
-        # Setup UI bindings
         self._setup_bindings()
-
-        # Setup signal handlers
         self._setup_signals()
+
+        self.controller._visual_stimulus.set_widget(self.stimuli_renderer)
+        self.stimuli_renderer.connect("resize", self._on_renderer_resize)
+        self.stimuli_renderer.set_draw_func(self._on_draw)
 
         # Set initial opacity
         self.toolbar.set_opacity(1.0)
@@ -113,6 +114,7 @@ class ElevateWindow(Adw.Window):
             "active",
             Gio.SettingsBindFlags.DEFAULT
         )
+        self._init_stimuli_type_binding()
 
     def _setup_signals(self):
         """Setup signal handlers for UI elements."""
@@ -123,10 +125,26 @@ class ElevateWindow(Adw.Window):
 
         # Connect controller property changes
         self.controller.connect("notify::is-playing", self._on_playing_state_changed)
+        self.stimuli_type_combo.connect("notify::selected", self._on_stimuli_type_changed)
 
     def on_fade_animation_update(self, value):
-        """Callback to update toolbar opacity during animation."""
         self.toolbar.set_opacity(value)
+
+    def _on_stimuli_type_changed(self, *_):
+        self.controller._settings.set_stimuli_type(self.stimuli_type_combo.get_selected())
+
+    def _init_stimuli_type_binding(self):
+        try:
+            sel = self.controller._settings.get_stimuli_type()
+        except Exception:
+            sel = 0
+        self.stimuli_type_combo.set_selected(int(sel))
+
+    def _on_draw(self, widget, cr, width, height):
+        self.controller._visual_stimulus.render(widget, cr, width, height)
+
+    def _on_renderer_resize(self, *_args):
+        self.stimuli_renderer.queue_draw()
 
     def _on_mouse_motion(self, controller, x, y):
         if self.play_button.get_active():
@@ -169,7 +187,5 @@ class ElevateWindow(Adw.Window):
         self._on_mouse_motion(None, None, None)
 
     def _on_playing_state_changed(self, controller, param):
-        """Handler for controller playing state changes."""
         is_playing = controller.is_playing
-        # Update button sensitivity based on playing state
         self.stop_button.set_sensitive(is_playing)

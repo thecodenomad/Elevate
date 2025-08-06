@@ -30,7 +30,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.pytest.ini_options]
 testpaths = ["tests"]                                           # Directory where tests are located
 pythonpath = ["."]                                              # If your source code is in src/
-addopts = "--cov=src -s --ignore=subprojects --ignore=src/view"
+addopts = "--cov=src --cov-report=term-missing --cov-fail-under=90 -q --ignore=subprojects --ignore=src/view"
 markers = ["wip: work in progress tests"]
 
 [tool.pyright]
@@ -40,7 +40,11 @@ venv = ".venv"
 [tool.coverage.run]
 branch = true
 source = []
-omit = []
+omit = [
+  "src/main.py",
+  "src/window.py",
+  "src/view/*",
+]
 
 [tool.coverage.report]
 fail_under = 90

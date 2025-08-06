@@ -2,3 +2,4 @@
 .foundry
 subprojects
 **/__pycache__
+.coverage

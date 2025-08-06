@@ -43,9 +43,10 @@ class AudioStimulus(GObject.Object):
         # Initialize GStreamer
         Gst.init(None)
         self._pipeline = None
-        self._source = None
+        self._source_left = None
+        self._source_right = None
+        self._mixer = None
         self._audioconvert = None
-        self._audioresample = None
         self._sink = None
 
     @GObject.Property(type=float, default=200.0)
@@ -55,8 +56,15 @@ class AudioStimulus(GObject.Object):
 
     @base_frequency.setter
     def base_frequency(self, value):
-        """Set the base frequency for the binaural beat."""
         self._base_frequency = value
+        if self._is_playing and self._source_left and self._source_right:
+            try:
+                self._source_left.set_property("freq", float(self._base_frequency))
+                self._source_right.set_property(
+                    "freq", float(self._base_frequency + self._channel_offset)
+                )
+            except Exception:
+                pass
 
     @GObject.Property(type=float, default=10.0)
     def channel_offset(self):
@@ -65,8 +73,14 @@ class AudioStimulus(GObject.Object):
 
     @channel_offset.setter
     def channel_offset(self, value):
-        """Set the frequency offset between channels."""
         self._channel_offset = value
+        if self._is_playing and self._source_left and self._source_right:
+            try:
+                self._source_right.set_property(
+                    "freq", float(self._base_frequency + self._channel_offset)
+                )
+            except Exception:
+                pass
 
     def _generate_audio_buffer(self, duration):
         """Generate a stereo audio buffer with binaural beats."""
@@ -88,72 +102,54 @@ class AudioStimulus(GObject.Object):
         return stereo_output.astype(np.float32)
 
     def _create_pipeline(self):
-        """Create GStreamer pipeline for audio playback."""
-        # Create pipeline
-        self._pipeline = Gst.Pipeline.new("audio-pipeline")
-        
-        # Create elements
-        self._source = Gst.ElementFactory.make("appsrc", "audio-source")
-        self._audioconvert = Gst.ElementFactory.make("audioconvert", "audio-convert")
-        self._audioresample = Gst.ElementFactory.make("audioresample", "audio-resample")
+        self._pipeline = Gst.Pipeline.new("tone-player-pipeline")
+        self._source_left = Gst.ElementFactory.make("audiotestsrc", "src_left")
+        self._source_right = Gst.ElementFactory.make("audiotestsrc", "src_right")
+        self._mixer = Gst.ElementFactory.make("audiomixer", "mixer")
+        self._audioconvert = Gst.ElementFactory.make("audioconvert", "convert")
         self._sink = Gst.ElementFactory.make("autoaudiosink", "audio-sink")
-        
-        if not self._source or not self._audioconvert or not self._audioresample or not self._sink:
-            raise Exception("Failed to create GStreamer elements")
-        
-        # Configure appsrc
-        self._source.set_property("format", Gst.Format.TIME)
-        self._source.set_property("is-live", True)
-        self._source.set_property("do-timestamp", True)
-        
-        # Set caps for audio (stereo, float32, 44100 Hz)
-        caps = Gst.Caps.from_string(
-            f"audio/x-raw, format=F32LE, layout=interleaved, rate={self._sample_rate}, channels=2"
-        )
-        self._source.set_property("caps", caps)
-        
-        # Add elements to pipeline
-        self._pipeline.add(self._source)
-        self._pipeline.add(self._audioconvert)
-        self._pipeline.add(self._audioresample)
-        self._pipeline.add(self._sink)
-        
-        # Link elements
-        self._source.link(self._audioconvert)
-        self._audioconvert.link(self._audioresample)
-        self._audioresample.link(self._sink)
-        
-        # Connect signal handlers
-        self._source.connect("need-data", self._on_need_data)
-        self._source.connect("enough-data", self._on_enough_data)
 
-    def _on_need_data(self, src, length):
-        """Callback when GStreamer needs more audio data."""
-        # Generate 100ms of audio data
-        duration = 0.1  # 100ms
-        audio_data = self._generate_audio_buffer(duration)
-        
-        # Create buffer
-        buffer = Gst.Buffer.new_allocate(None, len(audio_data.tobytes()), None)
-        buffer.fill(0, audio_data.tobytes())
-        buffer.pts = Gst.CLOCK_TIME_NONE
-        buffer.duration = Gst.CLOCK_TIME_NONE
-        
-        # Push buffer to source
-        src.emit("push-buffer", buffer)
+        if not all([self._pipeline, self._source_left, self._source_right, self._mixer, self._audioconvert, self._sink]):
+            raise Exception("Failed to create GStreamer elements")
+
+        self._pipeline.add(self._source_left)
+        self._pipeline.add(self._source_right)
+        self._pipeline.add(self._mixer)
+        self._pipeline.add(self._audioconvert)
+        self._pipeline.add(self._sink)
+
+        self._source_left.link_pads("src", self._mixer, "sink_0")
+        self._source_right.link_pads("src", self._mixer, "sink_1")
+        self._mixer.link(self._audioconvert)
+        self._audioconvert.link(self._sink)
+
+        # Configure defaults
+        for src in (self._source_left, self._source_right):
+            src.set_property("wave", 0)
+            src.set_property("volume", 0.5)
+            src.set_property("is-live", True)
+
+        # Probe example hook (no-op handler)
+        try:
+            pad = self._source_left.get_static_pad("src")
+            pad.add_probe(Gst.PadProbeType.BUFFER, lambda *args: Gst.PadProbeReturn.OK, None)
+        except Exception:
+            pass
+
 
     def _on_enough_data(self, src):
         """Callback when GStreamer has enough data."""
         pass
 
     def play(self):
-        """Start playing the binaural beat."""
         if not self._is_playing:
             try:
                 if not self._pipeline:
                     self._create_pipeline()
-                
-                # Set pipeline to playing state
+                left_freq = float(self._base_frequency)
+                right_freq = float(self._base_frequency + self._channel_offset)
+                self._source_left.set_property("freq", left_freq)
+                self._source_right.set_property("freq", right_freq)
                 self._pipeline.set_state(Gst.State.PLAYING)
                 self._is_playing = True
             except Exception as e:

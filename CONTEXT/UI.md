@@ -11,8 +11,10 @@
   - Toolbar with playback controls that auto-hides during playback
   - Responsive design with breakpoint for mobile devices
 - Blueprint Files:
-  - window.blp: Main window layout
+  - window.blp: Main window layout; ids: sidebar_toggle_button, preferences_button, split_view, frequency_scale, channel_offset_scale, visual_stimuli_switch, stimuli_type_combo, stimuli_renderer, play_button, stop_button
   - control_sidebar.blp: Sidebar controls
   - stimuli_renderer.blp: Visual stimuli rendering area
   - preferences_window.blp: Preferences dialog
   - epileptic_warning_dialog.blp: Warning dialog
+- Wiring:
+  - window.py binds SpinRows/Switch to ElevateSettings, hooks ComboRow.selected to stimuli-type, sets draw func to VisualStimulus.render, and controls playback

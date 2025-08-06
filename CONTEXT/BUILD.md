@@ -8,4 +8,8 @@
 - Formatting: `poetry run black src/`
 - Test: `poetry run pytest`
 
-The build process uses Meson for compiling resources and Python files. Blueprint files (.blp) are compiled to UI files, which are then bundled into a GResource file. The application is installed with proper directory structure preservation for Python modules.
+Notes:
+- Audio in dev/CI: if no audio device, set `ALSOFT_DRIVERS=null` or `GST_AUDIO_SINK=fakesink` to avoid backend errors
+- PipeWire recommended for Flatpak: ensure `--socket=pipewire` in manifest
+- Coverage excludes UI paths; see pyproject.toml for pytest/coverage config
+- Blueprint files (.blp) are compiled and bundled via Meson into GResources; window.blp ids must match window.py Gtk.Template.Child names

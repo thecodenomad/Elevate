@@ -9,16 +9,18 @@
   - StateInductionController ↔ VisualStimulus: Controller manages visual rendering
   - ElevateSettings ↔ All Components: Settings provide configuration values
 - Widget Bindings:
-  - Gtk.SpinRow (Base Frequency) → ElevateSettings.base_frequency
-  - Gtk.SpinRow (Channel Offset) → ElevateSettings.channel_offset
-  - Gtk.Switch (Enable Visual Stimuli) → ElevateSettings.enable_visual_stimuli
-  - Gtk.ComboRow (Stimuli Type) → ElevateSettings.stimuli_type
+  - Adw.SpinRow (Base Frequency adjustment.value) ↔ ElevateSettings.base-frequency
+  - Adw.SpinRow (Channel Offset adjustment.value) ↔ ElevateSettings.channel-offset
+  - Adw.SwitchRow.active ↔ ElevateSettings.enable-visual-stimuli
+  - Adw.ComboRow.selected → ElevateSettings.stimuli-type
 - Signals:
-  - Play/Pause ToggleButton: "toggled" → ElevateWindow._on_play_toggled
-  - Stop Button: "clicked" → ElevateWindow._on_stop_clicked
-  - Sidebar Toggle Button: "clicked" → ElevateWindow._on_sidebar_toggle_clicked
-  - Preferences Button: "clicked" → ElevateApplication.on_preferences_action
-  - Controller "notify::is-playing": → ElevateWindow._on_playing_state_changed
-- Error Handling:
-  - Visual Stimuli Switch: Show EpilepticWarningDialog before enabling
-  - GStreamer errors: Logged to console with user-friendly messages
+  - Play/Pause ToggleButton.toggled → ElevateWindow._on_play_toggled
+  - Stop Button.clicked → ElevateWindow._on_stop_clicked
+  - Sidebar Toggle Button.clicked → ElevateWindow._on_sidebar_toggle_clicked
+  - Controller notify::is-playing → ElevateWindow._on_playing_state_changed
+- Audio Engine:
+  - GStreamer pipeline: audiotestsrc(left) + audiotestsrc(right) → audiomixer → audioconvert → autoaudiosink
+  - Left freq = base_frequency; Right freq = base_frequency + channel_offset
+  - Live updates: changing base_frequency or channel_offset while playing updates audiotestsrc freq props
+- Testing:
+  - tests/conftest.py provides in-memory GSettings mock and a Dummy Gst stub for headless testing

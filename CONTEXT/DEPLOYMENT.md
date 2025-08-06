@@ -1,19 +1,18 @@
 # Deployment
 - Platform: Flatpak
 - Runtime: org.gnome.Platform//47
-- SDK: org.gnome.Sdk
-- Env Vars: None
+- SDK: org.gnome.Sdk//47
+- Audio: Prefer PipeWire; add `--socket=pipewire` in finish-args. For fallback, consider `--socket=pulseaudio`.
+- Env tips: In sandboxed/dev environments without audio, set `ALSOFT_DRIVERS=null` or `GST_AUDIO_SINK=fakesink` to avoid backend errors.
 - Deployment: `foundry export`
 - Distribution: Flathub (optional)
 - CI/CD: GitHub Actions in .github/workflows/build.yml
 
 The Flatpak manifest (org.thecodenomad.elevate.json) includes:
-- GNOME 47 runtime dependencies
+- GNOME 47 runtime
 - Python dependencies via python-deps.json and python-build-deps.json
-- Cleanup rules to remove development dependencies from the final package
-- Bluetooth permissions for future EEG integration
+- Meson build system integration
 
-Dependencies are managed through:
-- Poetry for Python package management
-- update_python_dependencies.sh script to generate Flatpak dependency files
-- Meson for building and installing application files
+Permissions:
+- `--socket=pipewire`
+- Optional: `--device=all` if needed for advanced audio backends (avoid unless required)

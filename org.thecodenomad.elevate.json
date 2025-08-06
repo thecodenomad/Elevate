@@ -11,7 +11,8 @@
     "--device=dri",
     "--socket=wayland",
     "--allow=bluetooth",
-    "--talk-name=org.bluez"
+    "--talk-name=org.bluez",
+    "--socket=pulseaudio"
   ],
   "cleanup": [
     "/include",

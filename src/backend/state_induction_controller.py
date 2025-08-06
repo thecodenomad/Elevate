@@ -67,8 +67,10 @@ class StateInductionController(GObject.Object):
 
     @GObject.Property(type=bool, default=False)
     def is_playing(self):
-        """Get whether stimuli are currently playing."""
         return self._is_playing
+
+    def get_is_playing(self):
+        return self.is_playing
 
     @GObject.Property(type=bool, default=False)
     def is_paused(self):

@@ -4,7 +4,7 @@
    - User Story: As a user, I want to select a mental state to enhance relaxation or focus
    - Priority: Must-have
 2. Audio Stimuli Control
-   - Description: Configure binaural beats with base frequency (100–1000 Hz) and channel offset (0.5–50 Hz)
+   - Description: Configure binaural beats with base frequency (100–1000 Hz) and channel offset (0.5–50 Hz). Left channel = base; Right = base + offset. Live updates during playback.
    - User Story: As a user, I want to adjust audio parameters for personalized stimuli
    - Priority: Must-have
 3. Visual Stimuli Control

@@ -1,15 +1,12 @@
 # Testing Strategy
-- Framework: pytest 8.3
+- Framework: pytest 8.x
 - Types: Unit tests for backend logic
-- Coverage: 90% for /src (exclude /src/view)
+- Coverage: 90% for /src (exclude /src/view, src/window.py, src/main.py)
 - Test Cases:
-  - Test StateInductionController: Initialization, property settings, play/pause/stop functionality
-  - Test AudioStimulus: Parameter setting, playback start/stop, frequency generation
-  - Test VisualStimulus: Parameter setting, rendering start/stop, stimulus type selection
-  - Test ElevateSettings: GSettings binding, property getting/setting
-- Test Files:
-  - tests/test_state_induction_controller.py
-  - tests/test_audio_stimulus.py
-  - tests/test_visual_stimulus.py
-  - tests/test_elevate_settings.py
-- Running Tests: `poetry run pytest` or `poetry run pytest --cov=src -s --ignore=src/view`
+  - StateInductionController: init, play/pause/stop, visual enabled/disabled branches
+  - AudioStimulus: parameter setting, play/pause/stop, generate buffer, play() sets left/right frequencies
+  - VisualStimulus: parameter setting, rendering branches, play/pause/stop, widget draw
+  - ElevateSettings: GSettings binding presence, getters/setters
+- Fixtures:
+  - tests/conftest.py: in-memory ElevateSettings mock; Dummy Gst stub for headless CI
+- Running Tests: `poetry run pytest` (configured in pyproject to exclude UI for coverage)

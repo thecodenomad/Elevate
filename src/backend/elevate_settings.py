@@ -34,8 +34,13 @@ class ElevateSettings(GObject.Object):
 
     @GObject.Property(type=float, default=200.0)
     def base_frequency(self):
-        """Get the base frequency setting."""
         return self._settings.get_double("base-frequency")
+
+    def get_base_frequency(self):
+        return self.base_frequency
+
+    def set_base_frequency(self, value):
+        self.base_frequency = value
 
     @base_frequency.setter
     def base_frequency(self, value):
@@ -44,8 +49,13 @@ class ElevateSettings(GObject.Object):
 
     @GObject.Property(type=float, default=10.0)
     def channel_offset(self):
-        """Get the channel offset setting."""
         return self._settings.get_double("channel-offset")
+
+    def get_channel_offset(self):
+        return self.channel_offset
+
+    def set_channel_offset(self, value):
+        self.channel_offset = value
 
     @channel_offset.setter
     def channel_offset(self, value):
@@ -54,8 +64,13 @@ class ElevateSettings(GObject.Object):
 
     @GObject.Property(type=bool, default=False)
     def enable_visual_stimuli(self):
-        """Get whether visual stimuli are enabled."""
         return self._settings.get_boolean("enable-visual-stimuli")
+
+    def get_enable_visual_stimuli(self):
+        return self.enable_visual_stimuli
+
+    def set_enable_visual_stimuli(self, value):
+        self.enable_visual_stimuli = value
 
     @enable_visual_stimuli.setter
     def enable_visual_stimuli(self, value):
@@ -64,8 +79,13 @@ class ElevateSettings(GObject.Object):
 
     @GObject.Property(type=int, default=0)
     def stimuli_type(self):
-        """Get the type of visual stimuli to use."""
         return self._settings.get_int("stimuli-type")
+
+    def get_stimuli_type(self):
+        return self.stimuli_type
+
+    def set_stimuli_type(self, value):
+        self.stimuli_type = value
 
     @stimuli_type.setter
     def stimuli_type(self, value):

@@ -20,6 +20,8 @@
 """Visual stimulus renderer for mental state induction."""
 
 import math
+import gi
+gi.require_version('Gtk', '4.0')
 from gi.repository import GObject, Gtk, Gdk, GLib
 
 
@@ -39,8 +41,13 @@ class VisualStimulus(GObject.Object):
 
     @GObject.Property(type=bool, default=False)
     def enable_visual_stimuli(self):
-        """Get whether visual stimuli are enabled."""
         return self._enable_visual_stimuli
+
+    def get_enable_visual_stimuli(self):
+        return self.enable_visual_stimuli
+
+    def set_enable_visual_stimuli(self, value):
+        self.enable_visual_stimuli = value
 
     @enable_visual_stimuli.setter
     def enable_visual_stimuli(self, value):
@@ -49,8 +56,13 @@ class VisualStimulus(GObject.Object):
 
     @GObject.Property(type=int, default=0)
     def stimuli_type(self):
-        """Get the type of visual stimuli to use."""
         return self._stimuli_type
+
+    def get_stimuli_type(self):
+        return self.stimuli_type
+
+    def set_stimuli_type(self, value):
+        self.stimuli_type = value
 
     @stimuli_type.setter
     def stimuli_type(self, value):
