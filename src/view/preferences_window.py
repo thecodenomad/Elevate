@@ -22,21 +22,14 @@
 from gi.repository import Adw, Gtk
 
 
-@Gtk.Template(resource_path='/org/thecodenomad/elevate/view/preferences_window.ui')
+@Gtk.Template(resource_path='/org/thecodenomad/elevate/preferences_window.ui')
 class PreferencesWindow(Adw.PreferencesDialog):
     __gtype_name__ = 'PreferencesWindow'
 
-    # General settings
-    preferences_enable_audio_switch = Gtk.Template.Child()
-    preferences_enable_visual_switch = Gtk.Template.Child()
-
-    # Audio settings
-    preferences_frequency_spin = Gtk.Template.Child()
-    preferences_offset_spin = Gtk.Template.Child()
-
-    # Visual settings
-    preferences_stimuli_type_combo = Gtk.Template.Child()
-    preferences_intensity_scale = Gtk.Template.Child()
+    show_epileptic_warning = Gtk.Template.Child()
+    language_selection = Gtk.Template.Child()
+    default_state = Gtk.Template.Child()
+    default_visual_stimuli = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

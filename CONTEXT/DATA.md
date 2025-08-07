@@ -5,6 +5,7 @@
 - No persistent database or external APIs
 
 The GSettings schema defines the following keys:
+- default_state (string): The intended brainwave state Delta, Theta, Beta, and Gamma (default: Delta)
 - base-frequency (double): Base frequency for audio stimuli (default: 200.0)
 - channel-offset (double): Channel offset for audio stimuli (default: 10.0)
 - enable-visual-stimuli (boolean): Whether to enable visual stimuli (default: false)

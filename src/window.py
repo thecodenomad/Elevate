@@ -42,6 +42,7 @@ class ElevateWindow(Adw.Window):
     volume_button = Gtk.Template.Child()
     volume_scale = Gtk.Template.Child()
     fullscreen_button = Gtk.Template.Child()
+    preferences_button = Gtk.Template.Child()
 
     # Sidebar controls
     scrolled_window = Gtk.Template.Child()
@@ -145,6 +146,7 @@ class ElevateWindow(Adw.Window):
         self.play_button.connect("toggled", self._on_play_toggled)
         self.stop_button.connect("clicked", self._on_stop_clicked)
         self.volume_scale.connect("value-changed", self._on_volume_changed)
+        self.preferences_button.connect("clicked", self._on_preferences_clicked)
 
         self.controller.connect("notify::is-playing", self._on_playing_state_changed)
         self.sidebar.stimuli_type_combo.connect("notify::selected", self._on_stimuli_type_changed)
@@ -380,3 +382,10 @@ class ElevateWindow(Adw.Window):
         elif self.play_button.get_active() and not self._pointer_in_toolbar:
             self.fade_out_animation.play()
             self.toolbar_visible = False
+
+    def _on_preferences_clicked(self, *_):
+        """Open the Preferences window dialog."""
+        from .view.preferences_window import PreferencesWindow
+
+        dlg = PreferencesWindow()
+        dlg.present(self)

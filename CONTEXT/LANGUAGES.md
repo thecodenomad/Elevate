@@ -1,0 +1,18 @@
+Supported Languages:
+- English
+- Mandarin Chinese
+- Spanish
+- Hindi
+- Arabic
+- Portuguese
+- French
+- Bengali
+- Russian
+- Japanese
+- Tamil
+- Telugu
+- Punjabi
+- Indonesian
+- Vietnamese
+- Swahili
+- Thai

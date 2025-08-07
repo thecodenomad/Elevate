@@ -3,85 +3,32 @@ using Adw 1;
 
 template $PreferencesWindow : Adw.PreferencesDialog {
   title: "Preferences";
-  default-width: 600;
-  default-height: 400;
-  
-  content: Adw.PreferencesPage {
+
+  Adw.PreferencesPage {
+
+    /* General Group */
     Adw.PreferencesGroup {
       title: "General Settings";
-      
-      Adw.ActionRow {
-        title: "Enable Audio Stimuli";
-        child: Switch preferences_enable_audio_switch {
-          valign: center;
-        };
+
+      Adw.SwitchRow show_epileptic_warning {
+        title: _("Show Epileptic Warning");
+        active: true;
       }
-      
-      Adw.ActionRow {
-        title: "Enable Visual Stimuli";
-        child: Switch preferences_enable_visual_switch {
-          valign: center;
-        };
-      }
+
+      Adw.ComboRow language_selection {}
+
     }
-    
+
+    /* Stimuli Group */
     Adw.PreferencesGroup {
-      title: "Audio Settings";
-      
-      Adw.ActionRow {
-        title: "Base Frequency";
-        child: SpinButton preferences_frequency_spin {
-          adjustment: Adjustment {
-            lower: 100;
-            upper: 300;
-            value: 200;
-            step-increment: 1;
-            page-increment: 10;
-          };
-        };
-      }
-      
-      Adw.ActionRow {
-        title: "Channel Offset";
-        child: SpinButton preferences_offset_spin {
-          adjustment: Adjustment {
-            lower: 1;
-            upper: 20;
-            value: 10;
-            step-increment: 1;
-            page-increment: 5;
-          };
-        };
-      }
+      title: "Stimuli Settings";
+
+      Adw.ComboRow default_state {}
+
+      Adw.ComboRow default_visual_stimuli {}
     }
-    
-    Adw.PreferencesGroup {
-      title: "Visual Settings";
-      
-      Adw.ComboRow preferences_stimuli_type_combo {
-        title: "Stimuli Type";
-        model: string_list_1;
-      }
-      
-      Adw.ActionRow {
-        title: "Flash Intensity";
-        child: Scale preferences_intensity_scale {
-          orientation: horizontal;
-          adjustment: Adjustment {
-            lower: 0;
-            upper: 100;
-            value: 50;
-            step-increment: 1;
-            page-increment: 10;
-          };
-          draw-value: true;
-          value-pos: right;
-        };
-      }
-    }
-  };
+
+  }
 }
 
-StringList string_list_1 {
-  strings: ["Color", "Breath Pattern"];
-}
+StringList string_list_1 { strings: ["Color", "Breath Pattern"]; }
