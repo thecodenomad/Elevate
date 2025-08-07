@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw, Gtk, Gio, GLib
+from gi.repository import Adw, Gtk, Gio, GLib, GObject
 from .backend.state_induction_controller import StateInductionController
 from .view.stimuli_renderer import StimuliRenderer
 
@@ -33,6 +33,7 @@ class ElevateWindow(Adw.Window):
     stop_button = Gtk.Template.Child()
     volume_button = Gtk.Template.Child()
     volume_scale = Gtk.Template.Child()
+    fullscreen_button = Gtk.Template.Child()
 
     # Sidebar controls
     split_view = Gtk.Template.Child()
@@ -42,6 +43,7 @@ class ElevateWindow(Adw.Window):
     stimuli_type_combo = Gtk.Template.Child()
 
     # Main content area
+    overlay_area = Gtk.Template.Child()
     toolbar = Gtk.Template.Child()
     content_area = Gtk.Template.Child()
     stimuli_renderer = Gtk.Template.Child()
@@ -134,6 +136,8 @@ class ElevateWindow(Adw.Window):
         )
         self._init_stimuli_type_binding()
 
+        self.fullscreen_button.bind_property("active", self.header_bar, "visible", GObject.BindingFlags.INVERT_BOOLEAN)
+
     def _setup_signals(self):
         """Setup signal handlers for UI elements."""
         # Connect button signals
@@ -146,9 +150,22 @@ class ElevateWindow(Adw.Window):
         self.controller.connect("notify::is-playing", self._on_playing_state_changed)
         self.stimuli_type_combo.connect("notify::selected", self._on_stimuli_type_changed)
         self.volume_button.connect("notify::active", self._on_volume_popover_active)
+        self.fullscreen_button.connect("toggled", self._on_fullscreen_toggled)
+
 
     def on_fade_animation_update(self, value):
         self.toolbar.set_opacity(value)
+
+    def _on_fullscreen_toggled(self, button):
+
+        if button.get_active():
+            print("Setting to fullscreen")
+            self.fullscreen()
+            button.set_icon_name("view-restore-symbolic")
+        else:
+            print("Unset fullscreen")
+            self.unfullscreen()
+            button.set_icon_name("view-fullscreen-symbolic")
 
     def _on_stimuli_type_changed(self, *_):
         self.controller._settings.set_stimuli_type(self.stimuli_type_combo.get_selected())
@@ -197,13 +214,25 @@ class ElevateWindow(Adw.Window):
     def _on_play_toggled(self, button):
         """Handler for play button click."""
         if button.get_active():
+            print("[ElevateWindow] Play toggled ON")
             button.set_icon_name("media-playback-pause-symbolic")
             self.sidebar_toggle_button.set_active(False)
             self.split_view.set_show_sidebar(False)
             self.controller.play()
+            try:
+                print("[ElevateWindow] queue_draw after play")
+                self.stimuli_renderer.queue_draw()
+            except Exception as e:
+                print("[ElevateWindow] queue_draw failed:", e)
         else:
+            print("[ElevateWindow] Play toggled OFF")
             button.set_icon_name("media-playback-start-symbolic")
             self.controller.pause()
+            try:
+                print("[ElevateWindow] queue_draw after pause")
+                self.stimuli_renderer.queue_draw()
+            except Exception as e:
+                print("[ElevateWindow] queue_draw failed:", e)
 
         # Trigger the animations
         self._on_mouse_motion(None, None, None)

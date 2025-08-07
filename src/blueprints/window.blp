@@ -3,7 +3,7 @@ using Adw 1;
 
 template $ElevateWindow: Adw.Window {
   title: _("Elevate");
-  width-request: 360;
+  width-request: 500;
   height-request: 500;
   default-width: 640;
   default-height: 480;
@@ -139,7 +139,7 @@ template $ElevateWindow: Adw.Window {
         hexpand: true;
         vexpand: true;
 
-        Overlay {
+        Overlay overlay_area {
           hexpand: true;
           vexpand: true;
 
@@ -217,6 +217,11 @@ template $ElevateWindow: Adw.Window {
                 icon-name: "media-playback-stop-symbolic";
                 tooltip-text: "Stop";
                 sensitive: false;
+              }
+
+              ToggleButton fullscreen_button {
+                icon-name: "view-fullscreen-symbolic";
+                tooltip-text: "Fullscreen";
               }
             }
 
