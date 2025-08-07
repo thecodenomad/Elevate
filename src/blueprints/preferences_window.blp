@@ -27,11 +27,30 @@ template $PreferencesWindow : Adw.PreferencesDialog {
     Adw.PreferencesGroup {
       title: "Stimuli Settings";
 
-      Adw.ComboRow default_state {}
+      Adw.ComboRow default_state {
+        title: _("Default State");
+        model: brainwave_states;
+        enable-search: true;
+      }
 
-      Adw.ComboRow default_visual_stimuli {}
+      Adw.ComboRow default_visual_stimuli {
+        title: _("Default Visual Stimuli");
+        model: visual_stimuli_types;
+        enable-search: true;
+      }
+
+      Adw.ComboRow breath_type {
+        title: _("Breath Type");
+        model: breath_types;
+        enable-search: true;
+      }
+
+      Adw.ComboRow color_type {
+        title: _("Color Type");
+        model: color_types;
+        enable-search: true;
+      }
     }
-
   }
 }
 
@@ -53,4 +72,30 @@ StringList languages_list { strings: [
   "Vietnamese",
   "Swahili",
   "Thai"
+]; }
+
+StringList brainwave_states { strings: [
+  "Delta",
+  "Theta",
+  "Alpha",
+  "Beta",
+  "Gamma"
+]; }
+
+StringList visual_stimuli_types { strings: [
+  "Color",
+  "Breath",
+  "Color and Breath"
+]; }
+
+StringList breath_types { strings: [
+  "4-7-8",
+  "Box-4",
+  "Box-8",
+  "Vortex"
+]; }
+
+StringList color_types { strings: [
+  "Solid Layers",
+  "Bouncy Ball"
 ]; }
