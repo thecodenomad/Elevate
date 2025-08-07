@@ -20,6 +20,7 @@
 from gi.repository import Adw, Gtk, Gio, GLib, GObject
 from .backend.state_induction_controller import StateInductionController
 from .view.stimuli_renderer import StimuliRenderer
+from gi.repository import Gio
 from .view.sidebar import Sidebar
 
 
@@ -79,7 +80,7 @@ class ElevateWindow(Adw.Window):
             widget=self.toolbar,
             value_from=1.0,
             value_to=0.0,
-            duration=3000,  # 3000ms fade-out
+            duration=2000,  # 2000ms fade-out
             easing=Adw.Easing.EASE_IN_OUT_CUBIC,
             target=animation_target
         )
@@ -212,6 +213,46 @@ class ElevateWindow(Adw.Window):
     def _on_play_toggled(self, button):
         """Handler for play button click."""
         if button.get_active():
+            if self.sidebar.visual_stimuli_switch.get_active():
+                from .view.epileptic_warning_dialog import EpilepticWarningDialog
+                dlg = EpilepticWarningDialog()
+                dlg.present(self)
+
+                def _on_warning_response(dialog, result):
+                    try:
+                        response = dialog.choose_finish(result)
+                    except Exception:
+                        response = "proceed"
+                    if response == "cancel":
+                        button.set_active(False)
+                        return
+                    print("[ElevateWindow] Play toggled ON")
+                    button.set_icon_name("media-playback-pause-symbolic")
+                    self.sidebar_toggle_button.set_active(False)
+                    self.split_view.set_show_sidebar(False)
+                    self.controller.play()
+                    try:
+                        print("[ElevateWindow] queue_draw after play")
+                        self.stimuli_renderer.queue_draw()
+                    except Exception as e:
+                        print("[ElevateWindow] queue_draw failed:", e)
+
+                try:
+                    dlg.choose(self, None, _on_warning_response)
+                except Exception:
+                    # Fallback: if choose not available, proceed
+                    print("[ElevateWindow] Warning choose() not available; proceeding")
+                    print("[ElevateWindow] Play toggled ON")
+                    button.set_icon_name("media-playback-pause-symbolic")
+                    self.sidebar_toggle_button.set_active(False)
+                    self.split_view.set_show_sidebar(False)
+                    self.controller.play()
+                    try:
+                        print("[ElevateWindow] queue_draw after play")
+                        self.stimuli_renderer.queue_draw()
+                    except Exception as e:
+                        print("[ElevateWindow] queue_draw failed:", e)
+                return
             print("[ElevateWindow] Play toggled ON")
             button.set_icon_name("media-playback-pause-symbolic")
             self.sidebar_toggle_button.set_active(False)

@@ -22,8 +22,8 @@
 from gi.repository import Adw, Gtk
 
 
-@Gtk.Template(resource_path='/org/thecodenomad/elevate/view/epileptic_warning_dialog.ui')
-class EpilepticWarningDialog(Adw.MessageDialog):
+@Gtk.Template(resource_path='/org/thecodenomad/elevate/epileptic_warning_dialog.ui')
+class EpilepticWarningDialog(Adw.AlertDialog):
     __gtype_name__ = 'EpilepticWarningDialog'
 
     def __init__(self, **kwargs):
