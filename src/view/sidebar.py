@@ -22,12 +22,12 @@
 from gi.repository import Gtk
 
 
-@Gtk.Template(resource_path='/org/thecodenomad/elevate/view/control_sidebar.ui')
-class ControlSidebar(Gtk.Box):
-    __gtype_name__ = 'ControlSidebar'
+@Gtk.Template(resource_path='/org/thecodenomad/elevate/sidebar.ui')
+class Sidebar(Gtk.Box):
+    __gtype_name__ = 'Sidebar'
 
     frequency_scale = Gtk.Template.Child()
-    offset_scale = Gtk.Template.Child()
+    channel_offset_scale = Gtk.Template.Child()
     visual_stimuli_switch = Gtk.Template.Child()
     stimuli_type_combo = Gtk.Template.Child()
 

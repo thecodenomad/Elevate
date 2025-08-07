@@ -20,6 +20,7 @@
 from gi.repository import Adw, Gtk, Gio, GLib, GObject
 from .backend.state_induction_controller import StateInductionController
 from .view.stimuli_renderer import StimuliRenderer
+from .view.sidebar import Sidebar
 
 
 @Gtk.Template(resource_path='/org/thecodenomad/elevate/window.ui')
@@ -36,11 +37,8 @@ class ElevateWindow(Adw.Window):
     fullscreen_button = Gtk.Template.Child()
 
     # Sidebar controls
+    scrolled_window = Gtk.Template.Child()
     split_view = Gtk.Template.Child()
-    frequency_scale = Gtk.Template.Child()
-    channel_offset_scale = Gtk.Template.Child()
-    visual_stimuli_switch = Gtk.Template.Child()
-    stimuli_type_combo = Gtk.Template.Child()
 
     # Main content area
     overlay_area = Gtk.Template.Child()
@@ -54,6 +52,11 @@ class ElevateWindow(Adw.Window):
 
         # Initialize controller
         self.controller = StateInductionController()
+
+        # Setup Sidebar
+        self.sidebar = Sidebar()
+
+        self.scrolled_window.set_child(self.sidebar)
 
         self._setup_bindings()
         self._setup_signals()
@@ -111,28 +114,23 @@ class ElevateWindow(Adw.Window):
 
     def _setup_bindings(self):
         """Setup property bindings between UI and controller settings."""
-        # Bind frequency scale to controller settings
         self.controller._settings.bind_property(
             "base-frequency",
-            self.frequency_scale.get_adjustment(),
+            self.sidebar.frequency_scale.get_adjustment(),
             "value",
-            Gio.SettingsBindFlags.DEFAULT
+            Gio.SettingsBindFlags.DEFAULT,
         )
-
-        # Bind channel offset scale to controller settings
         self.controller._settings.bind_property(
             "channel-offset",
-            self.channel_offset_scale.get_adjustment(),
+            self.sidebar.channel_offset_scale.get_adjustment(),
             "value",
-            Gio.SettingsBindFlags.DEFAULT
+            Gio.SettingsBindFlags.DEFAULT,
         )
-
-        # Bind visual stimuli switch to controller settings
         self.controller._settings.bind_property(
             "enable-visual-stimuli",
-            self.visual_stimuli_switch,
+            self.sidebar.visual_stimuli_switch,
             "active",
-            Gio.SettingsBindFlags.DEFAULT
+            Gio.SettingsBindFlags.DEFAULT,
         )
         self._init_stimuli_type_binding()
 
@@ -148,7 +146,7 @@ class ElevateWindow(Adw.Window):
 
         # Connect controller property changes
         self.controller.connect("notify::is-playing", self._on_playing_state_changed)
-        self.stimuli_type_combo.connect("notify::selected", self._on_stimuli_type_changed)
+        self.sidebar.stimuli_type_combo.connect("notify::selected", self._on_stimuli_type_changed)
         self.volume_button.connect("notify::active", self._on_volume_popover_active)
         self.fullscreen_button.connect("toggled", self._on_fullscreen_toggled)
 
@@ -168,7 +166,7 @@ class ElevateWindow(Adw.Window):
             button.set_icon_name("view-fullscreen-symbolic")
 
     def _on_stimuli_type_changed(self, *_):
-        self.controller._settings.set_stimuli_type(self.stimuli_type_combo.get_selected())
+        self.controller._settings.set_stimuli_type(self.sidebar.stimuli_type_combo.get_selected())
 
     def _bind_volume(self):
         try:
@@ -181,7 +179,7 @@ class ElevateWindow(Adw.Window):
             sel = self.controller._settings.get_stimuli_type()
         except Exception:
             sel = 0
-        self.stimuli_type_combo.set_selected(int(sel))
+        self.sidebar.stimuli_type_combo.set_selected(int(sel))
 
     def _on_draw(self, widget, cr, width, height):
         self.controller._visual_stimulus.render(widget, cr, width, height)
