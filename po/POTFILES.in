@@ -1,8 +1,19 @@
 # List of source files containing translatable strings.
 # Please keep this file sorted alphabetically.
+
 data/org.thecodenomad.elevate.desktop.in
 data/org.thecodenomad.elevate.metainfo.xml.in
 data/org.thecodenomad.elevate.gschema.xml
+
 src/main.py
 src/window.py
-src/window.ui
+src/view/preferences_window.py
+src/view/sidebar.py
+src/view/stimuli_renderer.py
+
+# Blueprint/UIs compiled into resources
+src/blueprints/epileptic_warning_dialog.blp
+src/blueprints/preferences_window.blp
+src/blueprints/sidebar.blp
+src/blueprints/stimuli_renderer.blp
+src/blueprints/window.blp

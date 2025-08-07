@@ -21,5 +21,10 @@
 			<summary>Type of visual stimuli</summary>
 			<description>The type of visual stimuli to use (e.g., 0 for color, 1 for breath patterns)</description>
 		</key>
+		<key name="language" type="s">
+			<default>'en'</default>
+			<summary>UI language</summary>
+			<description>The language/locale code for the user interface.</description>
+		</key>
 	</schema>
 </schemalist>

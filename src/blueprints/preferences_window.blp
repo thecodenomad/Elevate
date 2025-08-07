@@ -15,7 +15,11 @@ template $PreferencesWindow : Adw.PreferencesDialog {
         active: true;
       }
 
-      Adw.ComboRow language_selection {}
+      Adw.ComboRow language_selection {
+        title: _("Language");
+        enable-search: true;
+        model: languages_list;
+      }
 
     }
 
@@ -31,4 +35,22 @@ template $PreferencesWindow : Adw.PreferencesDialog {
   }
 }
 
-StringList string_list_1 { strings: ["Color", "Breath Pattern"]; }
+StringList languages_list { strings: [
+  "English",
+  "Mandarin Chinese",
+  "Spanish",
+  "Hindi",
+  "Arabic",
+  "Portuguese",
+  "French",
+  "Bengali",
+  "Russian",
+  "Japanese",
+  "Tamil",
+  "Telugu",
+  "Punjabi",
+  "Indonesian",
+  "Vietnamese",
+  "Swahili",
+  "Thai"
+]; }

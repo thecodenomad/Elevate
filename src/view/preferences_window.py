@@ -33,3 +33,21 @@ class PreferencesWindow(Adw.PreferencesDialog):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        from gi.repository import Gio
+        self._settings = Gio.Settings.new("org.thecodenomad.elevate")
+        codes = [
+            "en","zh_CN","es","hi","ar","pt","fr","bn","ru","ja",
+            "ta","te","pa","id","vi","sw","th"
+        ]
+        self._lang_codes = codes
+        try:
+            current = self._settings.get_string("language")
+            idx = codes.index(current) if current in codes else 0
+        except Exception:
+            idx = 0
+        self.language_selection.set_selected(idx)
+        def _on_lang_changed(*_):
+            sel = self.language_selection.get_selected()
+            if 0 <= sel < len(self._lang_codes):
+                self._settings.set_string("language", self._lang_codes[sel])
+        self.language_selection.connect("notify::selected", _on_lang_changed)
