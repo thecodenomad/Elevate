@@ -1,0 +1,25 @@
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+from typing import Protocol, Any, Tuple
+
+
+class CairoContext(Protocol):
+    def set_source_rgb(self, r: float, g: float, b: float) -> None: ...
+    def rectangle(self, x: float, y: float, w: float, h: float) -> None: ...
+    def fill(self) -> None: ...
+    def arc(self, xc: float, yc: float, radius: float, angle1: float, angle2: float) -> None: ...
+
+
+class Animation(ABC):
+    @abstractmethod
+    def reset(self) -> None: ...
+
+    def set_breath_cycle(self, cycle: Tuple[float, float, float, float]) -> None:
+        pass
+
+    @abstractmethod
+    def update(self, dt: float, width: int, height: int) -> None: ...
+
+    @abstractmethod
+    def render(self, cr: CairoContext, width: int, height: int, now_s: float) -> None: ...

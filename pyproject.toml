@@ -5,6 +5,7 @@ description = "Meditation Guru"
 authors = ["codenomad <codenomad@gmail.com>"]
 license = "GPL3"
 readme = "README.md"
+packages = [{ include = "backend", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -28,8 +29,8 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]                                           # Directory where tests are located
-pythonpath = ["."]                                              # If your source code is in src/
+testpaths = ["tests"]
+pythonpath = ["."]
 addopts = "--cov=src --cov-report=term-missing --cov-fail-under=90 -q --ignore=subprojects --ignore=src/view"
 markers = ["wip: work in progress tests"]
 

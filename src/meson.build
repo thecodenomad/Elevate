@@ -1,5 +1,5 @@
 pkgdatadir = get_option('prefix') / get_option('datadir') / meson.project_name()
-moduledir = pkgdatadir / 'elevate'
+moduledir = get_option('prefix') / get_option('libdir') / 'python3.12' / 'site-packages' / 'elevate'
 gnome = import('gnome')
 
 # Add a reference to the compiler to use
@@ -91,18 +91,18 @@ python_sources = run_command(
 ).stdout().strip().split('\n')
 
 # Filter out empty strings and convert to file objects with correct install paths
-warchest_sources = []
+elevate_sources = []
 foreach src : python_sources
   if src != ''
     # Convert absolute path to relative path from src/
     rel_path = src.replace(meson.current_source_dir() + '/', '')
-    warchest_sources += files(rel_path)
+    elevate_sources += files(rel_path)
   endif
 endforeach
 
 # Install Python files, preserving directory structure
 install_data(
-  warchest_sources,
+  elevate_sources,
   install_dir: moduledir,
   install_tag: 'runtime',
   preserve_path: true
