@@ -31,5 +31,12 @@ class Sidebar(Gtk.Box):
     visual_stimuli_switch = Gtk.Template.Child()
     stimuli_type_combo = Gtk.Template.Child()
 
-    def __init__(self, **kwargs):
+    def __init__(self, controller, **kwargs):
         super().__init__(**kwargs)
+        self.controller = controller
+        self.stimuli_type_combo.connect('notify::selected-item', self._on_stimuli_type_combo_changed)
+
+    def _on_stimuli_type_combo_changed(self, combo, pspec):
+        selected_item = combo.get_selected_item().get_string()
+        if selected_item == "Bounce":
+            self.controller.set_stimuli_type(0)

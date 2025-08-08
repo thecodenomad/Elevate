@@ -64,7 +64,7 @@ class ElevateWindow(Adw.Window):
         super().__init__(**kwargs)
 
         self.controller = StateInductionController()
-        self.sidebar = Sidebar()
+        self.sidebar = Sidebar(controller=self.controller)
         self.scrolled_window.set_child(self.sidebar)
 
         self._setup_bindings()

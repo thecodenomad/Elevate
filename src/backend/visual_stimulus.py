@@ -36,7 +36,7 @@ class VisualStimulus(GObject.Object):
     def __init__(self):
         super().__init__()
         self._enable_visual_stimuli = False
-        self._stimuli_type = 2
+        self._stimuli_type = 0
         self._is_playing = False
         self._animation_source: Optional[int] = None
         self._widget = None
@@ -72,6 +72,8 @@ class VisualStimulus(GObject.Object):
     def stimuli_type(self, value):
         """Set the type of visual stimuli to use."""
         self._stimuli_type = value
+        if self._is_playing:
+            self._animation = get_animation_class(str(self._stimuli_type))()
 
     def play(self):
         """Start rendering visual stimuli."""
