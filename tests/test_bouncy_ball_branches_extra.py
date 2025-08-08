@@ -5,6 +5,12 @@ class CR:
     def rectangle(self, x: float, y: float, w: float, h: float): pass
     def fill(self): pass
     def arc(self, xc: float, yc: float, radius: float, angle1: float, angle2: float): pass
+    def paint(self): pass
+    def select_font_face(self, family: str, slant: int, weight: int): pass
+    def set_font_size(self, size: float): pass
+    def text_extents(self, text: str) -> tuple: return (0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+    def move_to(self, x: float, y: float): pass
+    def show_text(self, text: str): pass
 
 
 def test_bouncy_ball_zero_total_guard_and_else_branch():

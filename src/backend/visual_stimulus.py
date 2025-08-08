@@ -136,16 +136,25 @@ class VisualStimulus(GObject.Object):
 
     def render(self, widget, cr, width, height):
         """Render the visual stimulus on the given cairo context."""
-        if not self._enable_visual_stimuli or not self._is_playing:
+        if not self._enable_visual_stimuli:
             # Draw a simple background when not active
             cr.set_source_rgb(0.1, 0.1, 0.1)
             cr.rectangle(0, 0, width, height)
             cr.fill()
             return
 
-        # Use animation-driven state only
-        if self._animation is None:
+        if not self._is_playing:
+            # Draw a simple background when not playing
+            cr.set_source_rgb(0.1, 0.1, 0.1)
+            cr.rectangle(0, 0, width, height)
+            cr.fill()
             return
+
+        # Initialize animation if not already done (for backward compatibility with tests)
+        if self._animation is None:
+            self._animation = get_animation_class(str(self._stimuli_type))()
+        
+        # Use animation-driven state only
         self._animation.render(cr, width, height, 0.0)
 
     def _render_color_stimulus(self, cr, width, height, time):

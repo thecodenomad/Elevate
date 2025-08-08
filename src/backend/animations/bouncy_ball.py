@@ -207,6 +207,24 @@ class BouncyBallAnimation(Animation):
         # Set up text rendering
         cr.set_source_rgb(1.0, 1.0, 1.0)  # White text
 
+        # For a complete implementation, we would use Cairo text rendering functions:
+        # Define constants for font slant and weight (these would normally come from cairo)
+        FONT_SLANT_NORMAL = 0
+        FONT_WEIGHT_BOLD = 1
+        
+        cr.select_font_face("Sans", FONT_SLANT_NORMAL, FONT_WEIGHT_BOLD)
+        cr.set_font_size(32)
+        
+        # Ensure we have a valid text cue
+        cue_text = self.phase_cues[phase_index]
+        if cue_text is None:
+            return
+            
+        x_bearing, y_bearing, text_width, text_height, _, _ = cr.text_extents(cue_text)
+        x = width / 2 - text_width / 2
+        y = height / 2 - text_height / 2
+        cr.move_to(x, y)
+        cr.show_text(cue_text)
+
         # For now, we'll just print the text to the console as a placeholder
-        # In a real implementation, this would use Cairo's text rendering functions
-        print(f"Phase {phase_index + 1} cue: {self.phase_cues[phase_index]}")
+        #print(f"Phase {phase_index + 1} cue: {self.phase_cues[phase_index]}")

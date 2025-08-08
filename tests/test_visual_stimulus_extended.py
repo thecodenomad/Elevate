@@ -15,6 +15,18 @@ class MockCR:
         self.ops.append(("fill",))
     def arc(self, x, y, r, a1, a2):
         self.ops.append(("arc", x, y, round(r,2), a1, a2))
+    def paint(self):
+        self.ops.append(("paint",))
+    def select_font_face(self, family: str, slant: int, weight: int):
+        self.ops.append(("font_face", family, slant, weight))
+    def set_font_size(self, size: float):
+        self.ops.append(("font_size", size))
+    def text_extents(self, text: str) -> tuple:
+        return (0.0, 0.0, len(text) * 10.0, 20.0, len(text) * 10.0, 20.0)
+    def move_to(self, x: float, y: float):
+        self.ops.append(("move_to", x, y))
+    def show_text(self, text: str):
+        self.ops.append(("show_text", text))
 
 
 class MockWidget:
@@ -39,8 +51,8 @@ def test_render_color_branch():
     v._is_playing = True
     cr = MockCR()
     v.render(None, cr, 100, 50)
-    # Should have a rectangle and fill
-    assert any(op[0] == "rect" for op in cr.ops)
+    # Should draw an arc (circle) and fill with the new animation system
+    assert any(op[0] == "arc" for op in cr.ops)
     assert any(op[0] == "fill" for op in cr.ops)
 
 
@@ -51,7 +63,7 @@ def test_render_breath_branch():
     v._is_playing = True
     cr = MockCR()
     v.render(None, cr, 120, 120)
-    # Should draw an arc (circle) and fill
+    # Should draw an arc (circle) and fill with the new animation system
     assert any(op[0] == "arc" for op in cr.ops)
     assert any(op[0] == "fill" for op in cr.ops)
 

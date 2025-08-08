@@ -35,6 +35,12 @@ def test_base_set_breath_cycle_noop():
         def rectangle(self, x: float, y: float, w: float, h: float): pass
         def fill(self): pass
         def arc(self, xc: float, yc: float, radius: float, angle1: float, angle2: float): pass
+        def paint(self): pass
+        def select_font_face(self, family: str, slant: int, weight: int): pass
+        def set_font_size(self, size: float): pass
+        def text_extents(self, text: str) -> tuple: return (0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+        def move_to(self, x: float, y: float): pass
+        def show_text(self, text: str): pass
     d.render(_C(), 0, 0, 0.0)
     assert d.r and d.r[0] == ("u", 0.0, 0, 0)
 
@@ -54,6 +60,25 @@ class CR:
 
     def arc(self, xc: float, yc: float, radius: float, angle1: float, angle2: float):
         self.ops.append(("arc", xc, yc, radius, angle1, angle2))
+
+    def paint(self):
+        self.ops.append(("paint",))
+
+    def select_font_face(self, family: str, slant: int, weight: int) -> None:
+        self.ops.append(("font_face", family, slant, weight))
+
+    def set_font_size(self, size: float) -> None:
+        self.ops.append(("font_size", size))
+
+    def text_extents(self, text: str) -> tuple:
+        # Return mock text extents (x_bearing, y_bearing, width, height, x_advance, y_advance)
+        return (0.0, 0.0, len(text) * 10.0, 20.0, len(text) * 10.0, 20.0)
+
+    def move_to(self, x: float, y: float) -> None:
+        self.ops.append(("move_to", x, y))
+
+    def show_text(self, text: str) -> None:
+        self.ops.append(("show_text", text))
 
 
 def test_bouncy_ball_all_branches():
