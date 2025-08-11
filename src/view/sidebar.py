@@ -26,6 +26,13 @@ from gi.repository import Gtk
 class Sidebar(Gtk.Box):
     __gtype_name__ = 'Sidebar'
 
+    intended_state_combo = Gtk.Template.Child()
+    minutes_spin_button = Gtk.Template.Child()
+    advanced_settings_switch = Gtk.Template.Child()
+
+    advanced_audio_settings = Gtk.Template.Child()
+    advanced_visual_settings = Gtk.Template.Child()
+
     frequency_scale = Gtk.Template.Child()
     channel_offset_scale = Gtk.Template.Child()
     visual_stimuli_switch = Gtk.Template.Child()
@@ -34,9 +41,28 @@ class Sidebar(Gtk.Box):
     def __init__(self, controller, **kwargs):
         super().__init__(**kwargs)
         self.controller = controller
-        self.stimuli_type_combo.connect('notify::selected-item', self._on_stimuli_type_combo_changed)
+        self.set_bindings()
+
+    def _on_intended_state_combo_changed(self, combo, pspec):
+        selected_item = combo.get_selected_item().get_string()
+        print(f"User intends to state: {selected_item}")
+
+    def _on_advanced_settings_toggle(self, button, pspec):
+        if button.get_active():
+            self.advanced_audio_settings.set_opacity(1.0)
+            self.advanced_visual_settings.set_opacity(1.0)
+            self.intended_state_combo.set_sensitive(False)
+        else:
+            self.advanced_audio_settings.set_opacity(0)
+            self.advanced_visual_settings.set_opacity(0)
+            self.intended_state_combo.set_sensitive(True)
 
     def _on_stimuli_type_combo_changed(self, combo, pspec):
         selected_item = combo.get_selected_item().get_string()
         if selected_item == "Bounce":
             self.controller.set_stimuli_type(0)
+
+    def set_bindings(self):
+        self.intended_state_combo.connect("notify::selected-item", self._on_intended_state_combo_changed)
+        self.stimuli_type_combo.connect('notify::selected-item', self._on_stimuli_type_combo_changed)
+        self.advanced_settings_switch.connect("notify::active", self._on_advanced_settings_toggle)

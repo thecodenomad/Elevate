@@ -32,7 +32,7 @@ class BouncyBallAnimation(Animation):
         self.phase_durations = (4.0, 4.0, 4.0, 4.0)  # Default phase durations
         self.pulse_factor = pulse_factor
         self.fade_duration = fade_duration
-        self.phase_cues = ["Breath In", "Hold Breath", "Breath Out", "Hold Breath"]  # Visual/audio cues for each phase
+        self.phase_cues = ["Inhale", "Hold", "Exhale", "Hold"]  # Visual/audio cues for each phase
 
     def reset(self) -> None:
         """Reset the animation to its initial state."""
@@ -194,10 +194,10 @@ class BouncyBallAnimation(Animation):
         """
         # Phase cue text mapping
         cue_text = {
-            0: "Breath In",    # Phase 1
-            1: "Hold Breath",  # Phase 2
-            2: "Breath Out",   # Phase 3
-            3: "Hold Breath"   # Phase 4
+            0: "Inhale", # Phase 1
+            1: "Hold",   # Phase 2
+            2: "Exhale", # Phase 3
+            3: "Hold"    # Phase 4
         }
 
         # Skip if text cue not properly set
@@ -211,18 +211,18 @@ class BouncyBallAnimation(Animation):
         # Define constants for font slant and weight (these would normally come from cairo)
         FONT_SLANT_NORMAL = 0
         FONT_WEIGHT_BOLD = 1
-        
+
         cr.select_font_face("Sans", FONT_SLANT_NORMAL, FONT_WEIGHT_BOLD)
-        cr.set_font_size(32)
-        
+        cr.set_font_size(48)
+
         # Ensure we have a valid text cue
         cue_text = self.phase_cues[phase_index]
         if cue_text is None:
             return
-            
+
         x_bearing, y_bearing, text_width, text_height, _, _ = cr.text_extents(cue_text)
-        x = width / 2 - text_width / 2
-        y = height / 2 - text_height / 2
+        x = 12 # width / 2 - text_width / 2
+        y = height - 20 # height / 2 - text_height / 2 + 20
         cr.move_to(x, y)
         cr.show_text(cue_text)
 

@@ -11,9 +11,52 @@ template $Sidebar: Box {
   margin-end: 12;
   spacing: 12;
 
+
   Adw.PreferencesGroup {
-    title: _("Audio Settings");
+    title: _("Session Settings");
     description: _("Customize the audio stimuli");
+    margin-bottom: 12;
+
+    Adw.ComboRow intended_state_combo {
+      title: _("Intended State");
+      subtitle: _("The targeted brainwave state.");
+      enable-search: true;
+
+      model: StringList state_type {
+        strings [
+          "Delta",
+          "Theta",
+          "Alpha",
+          "Beta",
+          "Gamma"
+        ]
+      };
+    }
+
+    Adw.SpinRow minutes_spin_button {
+      title: _("Session Time");
+      climb-rate: 1;
+
+      adjustment: Adjustment {
+        lower: 1;
+        upper: 180;
+        step-increment: 1;
+        value: 10;
+      };
+    }
+
+    Adw.SwitchRow advanced_settings_switch {
+      title: _("Enable Advanced Settings");
+      tooltip-text: "Advanced settings will disable intended session types.";
+    }
+  }
+
+  Adw.PreferencesGroup advanced_audio_settings {
+    title: _("Advanced Audio Settings");
+    description: _("Customize the visual stimuli");
+
+    /* Hidden by default */
+    opacity: 0;
 
     Adw.SpinRow frequency_scale {
       title: _("Base Frequency");
@@ -44,9 +87,12 @@ template $Sidebar: Box {
     }
   }
 
-  Adw.PreferencesGroup {
-    title: _("Visual Settings");
+  Adw.PreferencesGroup advanced_visual_settings {
+    title: _("Advanced Visual Settings");
     description: _("Customize the visual stimuli");
+
+    /* Hidden by default */
+    opacity: 0;
 
     Adw.SwitchRow visual_stimuli_switch {
       title: _("Enable Visual Stimuli");
