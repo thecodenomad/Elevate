@@ -22,25 +22,25 @@
 from gi.repository import Gtk, Gdk
 
 
-@Gtk.Template(resource_path='/org/thecodenomad/elevate/stimuli_renderer.ui')
+@Gtk.Template(resource_path="/org/thecodenomad/elevate/stimuli_renderer.ui")
 class StimuliRenderer(Gtk.DrawingArea):
-    __gtype_name__ = 'StimuliRenderer'
+    __gtype_name__ = "StimuliRenderer"
 
     def __init__(self, controller=None, **kwargs):
         super().__init__(**kwargs)
         self.controller = controller
-        
+
         # Connect to draw signal
         self.set_draw_func(self._on_draw)
-        
+
         # If controller is provided, connect to visual stimulus
-        if self.controller and hasattr(self.controller, '_visual_stimulus'):
+        if self.controller and hasattr(self.controller, "_visual_stimulus"):
             self.controller._visual_stimulus.set_widget(self)
 
     def _on_draw(self, area, cr, width, height):
         """Handle draw signal."""
         # If we have a controller with visual stimulus, delegate rendering
-        if self.controller and hasattr(self.controller, '_visual_stimulus'):
+        if self.controller and hasattr(self.controller, "_visual_stimulus"):
             self.controller._visual_stimulus.render(self, cr, width, height)
         else:
             # Draw a simple background if no controller

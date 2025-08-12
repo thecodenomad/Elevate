@@ -26,6 +26,7 @@ from .elevate_settings import ElevateSettings
 
 import time
 
+
 class StateInductionController(GObject.Object):
     """Controller for managing mental state induction workflow."""
 
@@ -42,16 +43,10 @@ class StateInductionController(GObject.Object):
 
         # Bind settings to audio stimulus
         self._settings.bind_property(
-            "base-frequency",
-            self._audio_stimulus,
-            "base-frequency",
-            GObject.BindingFlags.DEFAULT
+            "base-frequency", self._audio_stimulus, "base-frequency", GObject.BindingFlags.DEFAULT
         )
         self._settings.bind_property(
-            "channel-offset",
-            self._audio_stimulus,
-            "channel-offset",
-            GObject.BindingFlags.DEFAULT
+            "channel-offset", self._audio_stimulus, "channel-offset", GObject.BindingFlags.DEFAULT
         )
 
         # Bind settings to visual stimulus
@@ -59,13 +54,10 @@ class StateInductionController(GObject.Object):
             "enable-visual-stimuli",
             self._visual_stimulus,
             "enable-visual-stimuli",
-            GObject.BindingFlags.DEFAULT
+            GObject.BindingFlags.DEFAULT,
         )
         self._settings.bind_property(
-            "stimuli-type",
-            self._visual_stimulus,
-            "stimuli-type",
-            GObject.BindingFlags.DEFAULT
+            "stimuli-type", self._visual_stimulus, "stimuli-type", GObject.BindingFlags.DEFAULT
         )
 
     @GObject.Property(type=bool, default=False)

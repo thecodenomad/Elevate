@@ -22,9 +22,9 @@
 from gi.repository import Gtk
 
 
-@Gtk.Template(resource_path='/org/thecodenomad/elevate/sidebar.ui')
+@Gtk.Template(resource_path="/org/thecodenomad/elevate/sidebar.ui")
 class Sidebar(Gtk.Box):
-    __gtype_name__ = 'Sidebar'
+    __gtype_name__ = "Sidebar"
 
     intended_state_combo = Gtk.Template.Child()
     minutes_spin_button = Gtk.Template.Child()
@@ -64,5 +64,5 @@ class Sidebar(Gtk.Box):
 
     def set_bindings(self):
         self.intended_state_combo.connect("notify::selected-item", self._on_intended_state_combo_changed)
-        self.stimuli_type_combo.connect('notify::selected-item', self._on_stimuli_type_combo_changed)
+        self.stimuli_type_combo.connect("notify::selected-item", self._on_stimuli_type_combo_changed)
         self.advanced_settings_switch.connect("notify::active", self._on_advanced_settings_toggle)

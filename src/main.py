@@ -20,8 +20,8 @@
 import sys
 import gi
 
-gi.require_version('Gtk', '4.0')
-gi.require_version('Adw', '1')
+gi.require_version("Gtk", "4.0")
+gi.require_version("Adw", "1")
 
 from gi.repository import Gtk, Gio, Adw
 from .window import ElevateWindow
@@ -31,11 +31,12 @@ class ElevateApplication(Adw.Application):
     """The main application singleton class."""
 
     def __init__(self):
-        super().__init__(application_id='org.thecodenomad.elevate',
-                         flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
-        self.create_action('quit', self.on_quit_action, ['<primary>q'])
-        self.create_action('about', self.on_about_action)
-        self.create_action('preferences', self.on_preferences_action)
+        super().__init__(
+            application_id="org.thecodenomad.elevate", flags=Gio.ApplicationFlags.DEFAULT_FLAGS
+        )
+        self.create_action("quit", self.on_quit_action, ["<primary>q"])
+        self.create_action("about", self.on_about_action)
+        self.create_action("preferences", self.on_preferences_action)
 
     def do_activate(self):
         """Called when the application is activated.
@@ -55,12 +56,12 @@ class ElevateApplication(Adw.Application):
     def on_about_action(self, *args):
         """Callback for the app.about action."""
         about = Adw.AboutDialog.new()
-        about.set_application_name('Elevate')
-        about.set_application_icon('org.thecodenomad.elevate')
-        about.set_developer_name('thecodenomad')
-        about.set_version('0.1.0')
-        about.set_developers(['thecodenomad'])
-        about.set_copyright('© 2025 thecodenomad')
+        about.set_application_name("Elevate")
+        about.set_application_icon("org.thecodenomad.elevate")
+        about.set_developer_name("thecodenomad")
+        about.set_version("0.1.0")
+        about.set_developers(["thecodenomad"])
+        about.set_copyright("© 2025 thecodenomad")
         # Translators: Replace "translator-credits" with your name/username, and optionally an email or URL.
         # about.set_translator_credits(_('translator-credits'))
         about.present(self.props.active_window)
@@ -68,6 +69,7 @@ class ElevateApplication(Adw.Application):
     def on_preferences_action(self, widget, _):
         """Callback for the app.preferences action."""
         from .view.preferences_window import PreferencesWindow
+
         win = PreferencesWindow()
         win.set_transient_for(self.props.active_window)
         win.present()

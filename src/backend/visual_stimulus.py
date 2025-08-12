@@ -22,7 +22,8 @@
 import math
 from typing import Optional
 import gi
-gi.require_version('Gtk', '4.0')
+
+gi.require_version("Gtk", "4.0")
 from gi.repository import GObject, GLib
 from .animations import get_animation_class
 from .animations.base import Animation
@@ -120,16 +121,16 @@ class VisualStimulus(GObject.Object):
             dt = max(0.0, min(0.1, (now - (self._last_ts or now))))
             self._last_ts = now
             # Determine width/height for non-GTK test widgets
-            if hasattr(self._widget, 'get_allocation'):
+            if hasattr(self._widget, "get_allocation"):
                 alloc = self._widget.get_allocation()
-                width = getattr(alloc, 'width', 0)
-                height = getattr(alloc, 'height', 0)
+                width = getattr(alloc, "width", 0)
+                height = getattr(alloc, "height", 0)
             else:
-                width = getattr(self._widget, 'width', 0)
-                height = getattr(self._widget, 'height', 0)
+                width = getattr(self._widget, "width", 0)
+                height = getattr(self._widget, "height", 0)
             if self._animation is not None:
                 self._animation.update(dt, width, height)
-            if hasattr(self._widget, 'queue_draw'):
+            if hasattr(self._widget, "queue_draw"):
                 self._widget.queue_draw()
             return GLib.SOURCE_CONTINUE
         return GLib.SOURCE_REMOVE
@@ -153,7 +154,7 @@ class VisualStimulus(GObject.Object):
         # Initialize animation if not already done (for backward compatibility with tests)
         if self._animation is None:
             self._animation = get_animation_class(str(self._stimuli_type))()
-        
+
         # Use animation-driven state only
         self._animation.render(cr, width, height, 0.0)
 

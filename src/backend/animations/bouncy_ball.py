@@ -7,14 +7,19 @@ from .base import Animation, CairoContext
 
 # Default color constants
 SOFT_BLUE = (0.2, 0.6, 0.9)  # Color for breath phases
-LAVENDER = (0.6, 0.4, 0.8)    # Color for hold phases
+LAVENDER = (0.6, 0.4, 0.8)  # Color for hold phases
 DEEP_INDIGO = (0.2, 0.2, 0.6)  # Background color
 
+
 class BouncyBallAnimation(Animation):
-    def __init__(self, breath_color: tuple[float, float, float] = SOFT_BLUE,
-                 hold_color: tuple[float, float, float] = LAVENDER,
-                 background: tuple[float, float, float] = DEEP_INDIGO,
-                 pulse_factor: float = 0.05, fade_duration: float = 0.5) -> None:
+    def __init__(
+        self,
+        breath_color: tuple[float, float, float] = SOFT_BLUE,
+        hold_color: tuple[float, float, float] = LAVENDER,
+        background: tuple[float, float, float] = DEEP_INDIGO,
+        pulse_factor: float = 0.05,
+        fade_duration: float = 0.5,
+    ) -> None:
         """
         Initialize the BouncyBall animation with configurable parameters.
 
@@ -42,7 +47,9 @@ class BouncyBallAnimation(Animation):
         """Set the duration of each phase (inhale, hold1, exhale, hold2)."""
         self.phase_durations = cycle
 
-    def set_phase_cues(self, cues: Tuple[Optional[str], Optional[str], Optional[str], Optional[str]]) -> None:
+    def set_phase_cues(
+        self, cues: Tuple[Optional[str], Optional[str], Optional[str], Optional[str]]
+    ) -> None:
         """
         Set the phase cues for each of the 4 phases.
 
@@ -108,15 +115,13 @@ class BouncyBallAnimation(Animation):
         radius = max_radius * self.pulse_factor * pulse
         return radius, self.hold_color
 
-    def interpolate_color(self, color1: tuple[float, float, float], color2: tuple[float, float, float], alpha: float) -> tuple[float, float, float]:
+    def interpolate_color(
+        self, color1: tuple[float, float, float], color2: tuple[float, float, float], alpha: float
+    ) -> tuple[float, float, float]:
         """Interpolate between two RGB colors based on alpha (0 to 1)."""
         r1, g1, b1 = color1
         r2, g2, b2 = color2
-        return (
-            r1 + (r2 - r1) * alpha,
-            g1 + (g2 - g1) * alpha,
-            b1 + (b2 - b1) * alpha
-        )
+        return (r1 + (r2 - r1) * alpha, g1 + (g2 - g1) * alpha, b1 + (b2 - b1) * alpha)
 
     def render(self, cr: CairoContext, width: int, height: int, now_s: float) -> None:
         """Render the animation with phase-specific logic and color fading."""
@@ -124,7 +129,7 @@ class BouncyBallAnimation(Animation):
         if total_cycle == 0:
             # Handle edge case of zero total duration
             cr.set_source_rgb(*self.background)
-            if hasattr(cr, 'paint'):
+            if hasattr(cr, "paint"):
                 cr.paint()
             return
 
@@ -134,7 +139,7 @@ class BouncyBallAnimation(Animation):
 
         # Set background color
         cr.set_source_rgb(*self.background)
-        if hasattr(cr, 'paint'):
+        if hasattr(cr, "paint"):
             cr.paint()
 
         # Determine phase boundaries
@@ -168,7 +173,7 @@ class BouncyBallAnimation(Animation):
         # Render the circle
         cr.set_source_rgb(*color)
         cr.arc(width / 2, height / 2, radius, 0, 2 * math.pi)
-        if hasattr(cr, 'fill'):
+        if hasattr(cr, "fill"):
             cr.fill()
 
         # Render phase cue if active
@@ -194,10 +199,10 @@ class BouncyBallAnimation(Animation):
         """
         # Phase cue text mapping
         cue_text = {
-            0: "Inhale", # Phase 1
-            1: "Hold",   # Phase 2
-            2: "Exhale", # Phase 3
-            3: "Hold"    # Phase 4
+            0: "Inhale",  # Phase 1
+            1: "Hold",  # Phase 2
+            2: "Exhale",  # Phase 3
+            3: "Hold",  # Phase 4
         }
 
         # Skip if text cue not properly set
@@ -221,10 +226,10 @@ class BouncyBallAnimation(Animation):
             return
 
         x_bearing, y_bearing, text_width, text_height, _, _ = cr.text_extents(cue_text)
-        x = 12 # width / 2 - text_width / 2
-        y = height - 20 # height / 2 - text_height / 2 + 20
+        x = 12  # width / 2 - text_width / 2
+        y = height - 20  # height / 2 - text_height / 2 + 20
         cr.move_to(x, y)
         cr.show_text(cue_text)
 
         # For now, we'll just print the text to the console as a placeholder
-        #print(f"Phase {phase_index + 1} cue: {self.phase_cues[phase_index]}")
+        # print(f"Phase {phase_index + 1} cue: {self.phase_cues[phase_index]}")

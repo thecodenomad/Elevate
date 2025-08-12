@@ -22,7 +22,8 @@
 import math
 import numpy as np
 import gi
-gi.require_version('Gst', '1.0')
+
+gi.require_version("Gst", "1.0")
 from gi.repository import GObject, GLib, Gst
 
 
@@ -40,7 +41,7 @@ class AudioStimulus(GObject.Object):
         self._sample_rate = 44100
         self._buffer_size = 1024
         self._volume = 0.5
-        
+
         # Initialize GStreamer
         Gst.init(None)
         self._pipeline = None
@@ -88,7 +89,7 @@ class AudioStimulus(GObject.Object):
         """Generate a stereo audio buffer with binaural beats."""
         # Calculate number of samples for the given duration
         num_samples = int(self._sample_rate * duration)
-        
+
         # Generate time array
         t = np.arange(num_samples) / self._sample_rate
 
@@ -100,7 +101,7 @@ class AudioStimulus(GObject.Object):
 
         # Combine channels
         stereo_output = np.column_stack((left_channel, right_channel))
-        
+
         return stereo_output.astype(np.float32)
 
     def _create_pipeline(self):
@@ -112,7 +113,17 @@ class AudioStimulus(GObject.Object):
         self._volume_element = Gst.ElementFactory.make("volume", "volume")
         self._sink = Gst.ElementFactory.make("autoaudiosink", "audio-sink")
 
-        if not all([self._pipeline, self._source_left, self._source_right, self._mixer, self._audioconvert, self._volume_element, self._sink]):
+        if not all(
+            [
+                self._pipeline,
+                self._source_left,
+                self._source_right,
+                self._mixer,
+                self._audioconvert,
+                self._volume_element,
+                self._sink,
+            ]
+        ):
             raise Exception("Failed to create GStreamer elements")
 
         self._pipeline.add(self._source_left)
@@ -141,7 +152,6 @@ class AudioStimulus(GObject.Object):
             pad.add_probe(Gst.PadProbeType.BUFFER, lambda *args: Gst.PadProbeReturn.OK, None)
         except Exception:
             pass
-
 
     def _on_enough_data(self, src):
         """Callback when GStreamer has enough data."""
