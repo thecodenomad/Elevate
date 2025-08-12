@@ -77,6 +77,19 @@ class ElevateWindow(Adw.Window):
         self.stimuli_renderer.set_draw_func(self._on_draw)
 
         self._bind_volume()
+        # Cache frequently accessed UI elements for performance
+        self._minutes_spin_button = getattr(self.sidebar, "minutes_spin_button", None)
+        self._time_adjustment = self.time_scale.get_adjustment()
+        # Initialize max runtime (seconds)
+        self._max_seconds = 3600
+        if self._minutes_spin_button:
+            try:
+                self._max_seconds = self._minutes_spin_button.get_value() * 60
+            except Exception:
+                pass
+            # Keep max_seconds in sync when minutes change
+            self._minutes_spin_button.connect("value-changed", lambda *args: self._update_max_seconds())
+
 
         # Set fixed width for timer label to avoid layout changes
         self.run_time_label.set_width_chars(6)  # Fits "00:00"
@@ -147,23 +160,37 @@ class ElevateWindow(Adw.Window):
         # Fallback timer if controller.elapsed_time fails
         self._start_time = time.monotonic()
 
+    def _update_max_seconds(self):
+        """Update cached max_seconds from minutes spin button."""
+        if self._minutes_spin_button:
+            try:
+                self._max_seconds = self._minutes_spin_button.get_value() * 60
+            except Exception:
+                pass
+
     def update_timer(self):
         """Update the run time label and scale with elapsed time."""
         try:
-            elapsed = self.controller.elapsed_time
-        except AttributeError:
+            elapsed_attr = getattr(self.controller, "elapsed_time", None)
+            elapsed = elapsed_attr() if callable(elapsed_attr) else elapsed_attr
+        except Exception:
+            elapsed = None
+        # Ensure elapsed is a numeric value
+        if elapsed is None:
+            elapsed = 0.0
+        else:
+            try:
+                elapsed = float(elapsed)
+            except (TypeError, ValueError):
+                elapsed = 0.0
             elapsed = time.monotonic() - self._start_time
-            print(f"[ElevateWindow] Warning: Using fallback timer, elapsed: {elapsed}")
+            # Fallback timer warning omitted for performance
 
         # Get max runtime from minutes_spin_button
-        try:
-            max_seconds = self.sidebar.minutes_spin_button.get_value() * 60
-        except AttributeError:
-            max_seconds = 3600  # Default to 1 hour
-            print("[ElevateWindow] Warning: minutes_spin_button not found, using default 3600s")
+        max_seconds = self._max_seconds
 
         # Cap elapsed time
-        if elapsed >= max_seconds:
+        if elapsed >= max_seconds:  # type: ignore
             elapsed = max_seconds
             self.controller.stop()
             if self.play_button.get_active():
@@ -176,12 +203,15 @@ class ElevateWindow(Adw.Window):
             self.controller._elapsed_time = 0.0
             self.time_scale.set_value(0)
             self.run_time_label.set_text("00:00")
-            print("[ElevateWindow] Max runtime reached, stopping playback")
+            # Max runtime reached, stopping playback
 
-        minutes = int(elapsed // 60)
-        seconds = int(elapsed % 60)
-        self.run_time_label.set_text(f"{minutes:02d}:{seconds:02d}")
-        self.time_scale.set_value(elapsed)
+        # Use divmod for efficiency and avoid redundant UI updates
+        minutes, seconds = divmod(int(elapsed), 60)
+        # Update UI only if time changed
+        if getattr(self, "_last_elapsed", None) != elapsed:
+            self.run_time_label.set_text(f"{minutes:02d}:{seconds:02d}")
+            self.time_scale.set_value(elapsed)
+            self._last_elapsed = elapsed
 
         return True  # Continue updating
 
@@ -322,91 +352,73 @@ class ElevateWindow(Adw.Window):
         self.split_view.set_show_sidebar(button.get_active())
 
     def _on_play_toggled(self, button):
-        """Handle play/pause toggle and display safety warning if needed."""
+        """Handle play/pause toggle."""
         if button.get_active():
-            self._start_time = time.monotonic()  # Reset fallback timer
-            self.time_scale.set_value(0)  # Reset scale
-            self.run_time_label.set_text("00:00")  # Reset label
-            if self.sidebar.visual_stimuli_switch.get_active():
-                from .view.epileptic_warning_dialog import EpilepticWarningDialog
-                dlg = EpilepticWarningDialog()
-                dlg.present(self)
-
-                def _on_warning_response(dialog, result):
-                    try:
-                        response = dialog.choose_finish(result)
-                    except Exception:
-                        response = "proceed"
-                    if response == "cancel":
-                        button.set_active(False)
-                        return
-
-                    button.set_icon_name("media-playback-stop-symbolic")
-                    self.sidebar_toggle_button.set_active(False)
-                    self.split_view.set_show_sidebar(False)
-                    self.controller.play()
-
-                    if self.timeout_id is None:
-                        self.timeout_id = GLib.timeout_add(100, self.update_timer, priority=GLib.PRIORITY_DEFAULT)
-
-                    print(f"[ElevateWindow] Play toggled ON, timeout_id: {self.timeout_id}")
-
-                    try:
-                        print("[ElevateWindow] queue_draw after play")
-                        self._safe_queue_draw()
-                    except Exception as e:  # pylint: disable=broad-exception-caught
-                        print("[ElevateWindow] queue_draw failed:", e)
-
-                try:
-                    dlg.choose(self, None, _on_warning_response)
-                except Exception:
-                    print("[ElevateWindow] Warning choose() not available; proceeding")
-                    button.set_icon_name("media-playback-stop-symbolic")
-                    self.sidebar_toggle_button.set_active(False)
-                    self.split_view.set_show_sidebar(False)
-                    self.controller.play()
-
-                    if self.timeout_id is None:
-                        self.timeout_id = GLib.timeout_add(100, self.update_timer, priority=GLib.PRIORITY_DEFAULT)
-
-                    print(f"[ElevateWindow] Play toggled ON, timeout_id: {self.timeout_id}")
-
-                    try:
-                        print("[ElevateWindow] queue_draw after play")
-                        self._safe_queue_draw()
-                    except Exception as e:  # pylint: disable=broad-exception-caught
-                        print("[ElevateWindow] queue_draw failed:", e)
-                return
-
-            button.set_icon_name("media-playback-stop-symbolic")
-            self.sidebar_toggle_button.set_active(False)
-            self.split_view.set_show_sidebar(False)
-            self.controller.play()
-
-            if self.timeout_id is None:
-                self.timeout_id = GLib.timeout_add(100, self.update_timer, priority=GLib.PRIORITY_DEFAULT)
-
-            print(f"[ElevateWindow] Play toggled ON, timeout_id: {self.timeout_id}")
-
-            try:
-                print("[ElevateWindow] queue_draw after play")
-                self._safe_queue_draw()
-            except Exception as e:  # pylint: disable=broad-exception-caught
-                print("[ElevateWindow] queue_draw failed:", e)
+            self._handle_start(button)
         else:
-            print("[ElevateWindow] Play toggled OFF")
-            button.set_icon_name("media-playback-start-symbolic")
-            self.controller.pause()
-            if self.timeout_id:
-                GLib.source_remove(self.timeout_id)
-                self.timeout_id = None
-            try:
-                print("[ElevateWindow] queue_draw after pause")
-                self._safe_queue_draw()
-            except Exception as e:  # pylint: disable=broad-exception-caught
-                print("[ElevateWindow] queue_draw failed:", e)
-
+            self._handle_stop(button)
         self._on_mouse_motion(None, None, None)
+
+    def _handle_start(self, button):
+        """Initialize play state and optionally show warning dialog."""
+        self._start_time = time.monotonic()  # Reset fallback timer
+        self.time_scale.set_value(0)
+        self.run_time_label.set_text("00:00")
+        if self.sidebar.visual_stimuli_switch.get_active():
+            self._show_warning_and_start(button)
+        else:
+            self._start_playback(button)
+
+    def _show_warning_and_start(self, button):
+        """Show epileptic warning dialog before starting playback."""
+        from .view.epileptic_warning_dialog import EpilepticWarningDialog
+        dlg = EpilepticWarningDialog()
+        dlg.present(self)
+
+        def _on_warning_response(dialog, result):
+            try:
+                response = dialog.choose_finish(result)
+            except Exception:
+                response = "proceed"
+            if response == "cancel":
+                button.set_active(False)
+                return
+            self._start_playback(button)
+
+        try:
+            dlg.choose(self, None, _on_warning_response)
+        except Exception:
+            # Fallback if choose() not available
+            self._start_playback(button)
+
+    def _start_playback(self, button):
+        """Start playback, update UI, and schedule timer updates."""
+        button.set_icon_name("media-playback-stop-symbolic")
+        self.sidebar_toggle_button.set_active(False)
+        self.split_view.set_show_sidebar(False)
+        self.controller.play()
+        if self.timeout_id is None:
+            self.timeout_id = GLib.timeout_add(100, self.update_timer, priority=GLib.PRIORITY_DEFAULT)
+        print(f"[ElevateWindow] Play toggled ON, timeout_id: {self.timeout_id}")
+        try:
+            print("[ElevateWindow] queue_draw after play")
+            self._safe_queue_draw()
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            print("[ElevateWindow] queue_draw failed:", e)
+
+    def _handle_stop(self, button):
+        """Handle pause/stop state when play button is toggled off."""
+        print("[ElevateWindow] Play toggled OFF")
+        button.set_icon_name("media-playback-start-symbolic")
+        self.controller.pause()
+        if self.timeout_id:
+            GLib.source_remove(self.timeout_id)
+            self.timeout_id = None
+        try:
+            print("[ElevateWindow] queue_draw after pause")
+            self._safe_queue_draw()
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            print("[ElevateWindow] queue_draw failed:", e)
 
     def _on_stop_clicked(self, button):
         """Stop playback and reset play button state."""
