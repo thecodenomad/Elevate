@@ -88,7 +88,7 @@ class ElevateWindow(Adw.Window):
             except Exception:
                 pass
             # Keep max_seconds in sync when minutes change
-            self._minutes_spin_button.connect("value-changed", lambda *args: self._update_max_seconds())
+            self._minutes_spin_button.connect("notify::selected-item", lambda *args: self._update_max_seconds())
 
 
         # Set fixed width for timer label to avoid layout changes
