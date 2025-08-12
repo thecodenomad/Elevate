@@ -1,3 +1,11 @@
+"""
+Animation framework for visual stimuli in the Elevate application.
+
+This module provides the infrastructure for managing different animation types
+used in visual stimuli. It includes base classes, concrete implementations,
+and a registry system for animation types.
+"""
+
 from __future__ import annotations
 
 from typing import Dict, Type
@@ -6,16 +14,35 @@ from .base import Animation
 from .bouncy_ball import BouncyBallAnimation
 
 
-# For now, we'll create a simple placeholder for the ColorLayersAnimation
-# In a real implementation, this would be a separate class
 class ColorLayersAnimation(BouncyBallAnimation):
+    """Placeholder implementation for color layer animations.
+
+    Note:
+        This is currently a placeholder that inherits from BouncyBallAnimation.
+        A proper implementation will be added in future versions.
+    """
+
     pass
 
 
-_REGISTRY: Dict[str, Type[Animation]] = {"ball": BouncyBallAnimation, "color": ColorLayersAnimation}
+_REGISTRY: Dict[str, Type[Animation]] = {
+    "ball": BouncyBallAnimation,
+    "color": ColorLayersAnimation,
+}
 
 
 def get_animation_class(name: str) -> Type[Animation]:
+    """Retrieve an animation class by name or numeric identifier.
+
+    Supports both string names ('ball', 'color') and numeric identifiers
+    (0=color, 1=pulse, 2=ball) for compatibility with UI settings.
+
+    Args:
+        name: Animation identifier as string or number
+
+    Returns:
+        Animation class type, falling back to ColorLayersAnimation if not found
+    """
     key = name.lower().strip()
     # Numeric mapping per test requirements:
     # 0->color, 1->pulse (placeholder), 2->ball
@@ -30,4 +57,10 @@ def get_animation_class(name: str) -> Type[Animation]:
 
 
 def register(name: str, cls: Type[Animation]) -> None:
+    """Register a new animation class with the system.
+
+    Args:
+        name: Identifier for the animation
+        cls: Animation class to register
+    """
     _REGISTRY[name] = cls

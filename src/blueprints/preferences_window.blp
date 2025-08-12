@@ -2,38 +2,48 @@ using Gtk 4.0;
 using Adw 1;
 
 template $PreferencesWindow : Adw.PreferencesDialog {
-  title: "Preferences";
+  title: _("Preferences");
 
   Adw.PreferencesPage {
 
     /* General Group */
     Adw.PreferencesGroup {
-      title: "General Settings";
+      title: _("General Settings");
 
       Adw.SwitchRow show_epileptic_warning {
         title: _("Show Epileptic Warning");
         active: true;
       }
 
-      Adw.ComboRow language_selection {
+      Adw.ComboRow language_selection_combo {
         title: _("Language");
         enable-search: true;
         model: languages_list;
       }
 
+      Adw.SpinRow minutes_spin_button {
+        title: _("Default Session Length in Minutes");
+        climb-rate: 1;
+
+        adjustment: Adjustment {
+          lower: 5;
+          upper: 600;
+          step-increment: 5;
+          value: 10;
+        };
+      }
     }
 
     /* Stimuli Group */
     Adw.PreferencesGroup {
-      title: "Stimuli Settings";
+      title: _("Stimuli Settings");
 
-      Adw.ComboRow default_state {
+      Adw.ComboRow default_state_combo {
         title: _("Default State");
-        model: brainwave_states;
         enable-search: true;
       }
 
-      Adw.ComboRow default_visual_stimuli {
+      Adw.ComboRow default_visual_stimuli_combo {
         title: _("Default Visual Stimuli");
         model: visual_stimuli_types;
         enable-search: true;
@@ -45,11 +55,6 @@ template $PreferencesWindow : Adw.PreferencesDialog {
         enable-search: true;
       }
 
-      Adw.ComboRow color_type {
-        title: _("Color Type");
-        model: color_types;
-        enable-search: true;
-      }
     }
   }
 }
@@ -83,19 +88,11 @@ StringList brainwave_states { strings: [
 ]; }
 
 StringList visual_stimuli_types { strings: [
-  "Color",
-  "Breath",
-  "Color and Breath"
+  "Bouncy Ball"
 ]; }
 
 StringList breath_types { strings: [
   "4-7-8",
   "Box-4",
-  "Box-8",
-  "Vortex"
-]; }
-
-StringList color_types { strings: [
-  "Solid Layers",
-  "Bouncy Ball"
+  "Box-8"
 ]; }

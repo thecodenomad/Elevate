@@ -17,12 +17,18 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+"""Elevate application window module.
+
+Provides the :class:`ElevateWindow` class which composes UI elements, binds
+settings, and controls playback of visual and audio stimuli.
+"""
+
+import time
+
 from gi.repository import Adw, Gtk, Gio, GLib, GObject
 from .backend.state_induction_controller import StateInductionController
 from .view.stimuli_renderer import StimuliRenderer
 from .view.sidebar import Sidebar
-
-import time
 
 
 @Gtk.Template(resource_path="/org/thecodenomad/elevate/window.ui")
@@ -58,16 +64,17 @@ class ElevateWindow(Adw.Window):
     stimuli_renderer = Gtk.Template.Child()
     volume_popover = Gtk.Template.Child()
 
-    def __init__(self, **kwargs):
+    def __init__(self, settings, **kwargs):
         """Initialize the ElevateWindow.
 
         Args:
           **kwargs: Keyword args forwarded to Adw.Window initializer.
         """
         super().__init__(**kwargs)
+        self._settings = settings
 
         self.controller = StateInductionController()
-        self.sidebar = Sidebar(controller=self.controller)
+        self.sidebar = Sidebar(self.controller, self.settings)
         self.scrolled_window.set_child(self.sidebar)
 
         self._setup_bindings()
@@ -151,9 +158,15 @@ class ElevateWindow(Adw.Window):
         self._fade_timeout_id = None
         self.timeout_id = None
         self._last_motion_pos = None  # Track last mouse position for debouncing
+        self._last_elapsed = None  # Track last elapsed time for UI updates
+        self._last_motion_time = None  # Track last motion time for rate limiting
 
         # Fallback timer if controller.elapsed_time fails
         self._start_time = time.monotonic()
+
+    @property
+    def settings(self):
+        return self._settings
 
     def _update_max_seconds(self):
         """Update cached max_seconds from minutes spin button."""
@@ -201,7 +214,8 @@ class ElevateWindow(Adw.Window):
         # Use divmod for efficiency and avoid redundant UI updates
         minutes, seconds = divmod(int(elapsed), 60)
         # Update UI only if time changed significantly (avoid sub-second updates)
-        last_minutes, last_seconds = divmod(int(getattr(self, "_last_elapsed", -1)), 60)
+        last_elapsed = self._last_elapsed if self._last_elapsed is not None else -1
+        last_minutes, last_seconds = divmod(int(last_elapsed), 60)
         if (minutes, seconds) != (last_minutes, last_seconds):
             self.run_time_label.set_text(f"{minutes:02d}:{seconds:02d}")
             self.time_scale.set_value(elapsed)
@@ -232,19 +246,19 @@ class ElevateWindow(Adw.Window):
             "base-frequency",
             self.sidebar.frequency_scale.get_adjustment(),
             "value",
-            Gio.SettingsBindFlags.DEFAULT,
+            0,  # Gio.SettingsBindFlags.DEFAULT
         )
         self.controller._settings.bind_property(
             "channel-offset",
             self.sidebar.channel_offset_scale.get_adjustment(),
             "value",
-            Gio.SettingsBindFlags.DEFAULT,
+            0,  # Gio.SettingsBindFlags.DEFAULT
         )
         self.controller._settings.bind_property(
             "enable-visual-stimuli",
             self.sidebar.visual_stimuli_switch,
             "active",
-            Gio.SettingsBindFlags.DEFAULT,
+            0,  # Gio.SettingsBindFlags.DEFAULT
         )
         self._init_stimuli_type_binding()
 
@@ -333,7 +347,7 @@ class ElevateWindow(Adw.Window):
 
         # Rate limit: only process once per 100ms
         current_time = time.monotonic()
-        if hasattr(self, "_last_motion_time") and (current_time - self._last_motion_time) < 0.1:
+        if hasattr(self, "_last_motion_time") and self._last_motion_time is not None and (current_time - self._last_motion_time) < 0.1:
             return
         self._last_motion_time = current_time
 
@@ -346,7 +360,7 @@ class ElevateWindow(Adw.Window):
             self._last_motion_pos = (x, y)
             self._reset_toolbar_visible()
 
-    def _on_toolbar_enter(self, controller, x, y):
+    def _on_toolbar_enter(self, controller, _x, _y):
         """Keep toolbar visible when mouse enters."""
         self._pointer_in_toolbar = True
         self._reset_toolbar_visible()
@@ -454,5 +468,5 @@ class ElevateWindow(Adw.Window):
         """Open the Preferences window dialog."""
         from .view.preferences_window import PreferencesWindow
 
-        dlg = PreferencesWindow()
+        dlg = PreferencesWindow(self.settings)
         dlg.present(self)

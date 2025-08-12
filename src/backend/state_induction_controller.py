@@ -19,19 +19,26 @@
 
 """Controller for managing mental state induction workflow."""
 
+import time
+
 from gi.repository import GObject, Gio
 from .audio_stimulus import AudioStimulus
 from .visual_stimulus import VisualStimulus
 from .elevate_settings import ElevateSettings
-
-import time
 
 
 class StateInductionController(GObject.Object):
     """Controller for managing mental state induction workflow."""
 
     def __init__(self):
-        """Initialize the controller."""
+        """Initialize the state induction controller.
+
+        Sets up audio/visual stimuli interfaces, connects property bindings, and initializes
+        state tracking attributes. Creates fresh stimulus instances for each controller.
+
+        Raises:
+            RuntimeError: If system resources are unavailable for stimulus creation
+        """
         super().__init__()
         self._settings = ElevateSettings()
         self._audio_stimulus = AudioStimulus()
@@ -43,10 +50,10 @@ class StateInductionController(GObject.Object):
 
         # Bind settings to audio stimulus
         self._settings.bind_property(
-            "base-frequency", self._audio_stimulus, "base-frequency", GObject.BindingFlags.DEFAULT
+            "base-frequency", self._audio_stimulus, "base-frequency", 0  # GObject.BindingFlags.DEFAULT
         )
         self._settings.bind_property(
-            "channel-offset", self._audio_stimulus, "channel-offset", GObject.BindingFlags.DEFAULT
+            "channel-offset", self._audio_stimulus, "channel-offset", 0  # GObject.BindingFlags.DEFAULT
         )
 
         # Bind settings to visual stimulus
@@ -54,10 +61,10 @@ class StateInductionController(GObject.Object):
             "enable-visual-stimuli",
             self._visual_stimulus,
             "enable-visual-stimuli",
-            GObject.BindingFlags.DEFAULT,
+            0,  # GObject.BindingFlags.DEFAULT
         )
         self._settings.bind_property(
-            "stimuli-type", self._visual_stimulus, "stimuli-type", GObject.BindingFlags.DEFAULT
+            "stimuli-type", self._visual_stimulus, "stimuli-type", 0  # GObject.BindingFlags.DEFAULT
         )
 
     @GObject.Property(type=bool, default=False)
@@ -69,12 +76,21 @@ class StateInductionController(GObject.Object):
 
     @GObject.Property(type=bool, default=False)
     def is_paused(self):
-        """Get whether stimuli are currently playing."""
+        """Check if playback is paused.
+
+        Returns:
+            bool: True if playback is paused, False otherwise
+        """
         return self._is_paused
 
     @GObject.Property(type=float, default=False)
     def elapsed_time(self):
-        """Get whether stimuli are currently playing."""
+        """Get the total elapsed time of playback in seconds.
+
+        Returns:
+            float: Total time in seconds since playback started, adjusted for pauses
+            Returns 0.0 if playback has never been initiated
+        """
 
         elapsed_time = self._elapsed_time or 0.0
         if self._start_time is None:
@@ -84,7 +100,14 @@ class StateInductionController(GObject.Object):
         return elapsed_time
 
     def play(self):
-        """Start playing audio and visual stimuli."""
+        """Start audio/visual stimuli playback and reset elapsed time tracking.
+
+        Starts both audio and visual stimuli if not already playing, captures start time
+        for tracking playback duration, and updates internal state flags.
+
+        Raises:
+            RuntimeError: If stimuli playback interfaces are not properly initialized
+        """
         if not self._is_playing:
             self._audio_stimulus.play()
             if self._settings.enable_visual_stimuli:
@@ -98,7 +121,14 @@ class StateInductionController(GObject.Object):
             self._is_paused = False
 
     def pause(self):
-        """Pause audio and visual stimuli."""
+        """Pause all active audio/visual stimuli and update tracking state.
+
+        Stops playback without resetting elapsed time counters, preserving playback position.
+        Only effective if currently playing (is_playing is True).
+
+        Raises:
+            RuntimeError: If stimuli interfaces are not properly initialized
+        """
         if self._is_playing:
             self._audio_stimulus.pause()
             self._visual_stimulus.pause()
@@ -107,19 +137,36 @@ class StateInductionController(GObject.Object):
             self._is_paused = True
 
     def stop(self):
-        """Stop audio and visual stimuli."""
+        """Halt all active stimuli and finalize elapsed time tracking.
+
+        Stops both audio and visual stimuli immediately and updates internal state.
+        Finalizes the elapsed time counter by adding the duration since last start.
+
+        Raises:
+            RuntimeError: If stimuli interfaces are not properly initialized
+        """
         self._audio_stimulus.stop()
         self._visual_stimulus.stop()
         self._is_playing = False
         self._is_paused = False
 
-        if self._elapsed_time is None:
-            self._elapsed_time = time.monotonic() - self._start_time
-        else:
-            self._elapsed_time += time.monotonic() - self._start_time
+        if self._start_time is not None:
+            if self._elapsed_time is None:
+                self._elapsed_time = time.monotonic() - self._start_time
+            else:
+                self._elapsed_time += time.monotonic() - self._start_time
+            self._start_time = None
 
         self.notify("is-playing")
 
     def set_stimuli_type(self, stimuli_type):
-        """Set the type of visual stimuli to use."""
+        """Configure the visual stimulus pattern type.
+
+        Args:
+            stimuli_type (int): Index of the stimulus type to activate
+
+        Raises:
+            ValueError: If the stimulus type index is out of range
+            RuntimeError: If visual stimulus interface not initialized
+        """
         self._visual_stimulus.set_stimuli_type(stimuli_type)

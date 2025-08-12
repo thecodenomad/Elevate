@@ -19,11 +19,19 @@
 
 """Control sidebar for the Elevate application."""
 
+import gi
+
+gi.require_version('Gtk', '4.0')
 from gi.repository import Gtk
+
+# Import constants using relative import
+from elevate.constants import RANGES, StateType
 
 
 @Gtk.Template(resource_path="/org/thecodenomad/elevate/sidebar.ui")
 class Sidebar(Gtk.Box):
+    """Control sidebar for the Elevate application."""
+
     __gtype_name__ = "Sidebar"
 
     intended_state_combo = Gtk.Template.Child()
@@ -38,31 +46,74 @@ class Sidebar(Gtk.Box):
     visual_stimuli_switch = Gtk.Template.Child()
     stimuli_type_combo = Gtk.Template.Child()
 
-    def __init__(self, controller, **kwargs):
+    def __init__(self, controller, settings, **kwargs):
+        """Initialize the sidebar."""
         super().__init__(**kwargs)
         self.controller = controller
+        self.settings = settings
         self.set_bindings()
+        self.set_defaults()
 
-    def _on_intended_state_combo_changed(self, combo, pspec):
-        selected_item = combo.get_selected_item().get_string()
-        print(f"User intends to state: {selected_item}")
+    def set_defaults(self):
+        # Set Default Intended State
+        try:
+            state_idx = self.settings.get_int("default-state")
+            print("Loaded default state from settings...")
+        except Exception:
+            state_idx = 0
+        self.intended_state_combo.set_selected(state_idx)
 
-    def _on_advanced_settings_toggle(self, button, pspec):
+
+    def on_intended_state_combo_changed(self, combo, _pspec):
+        """Handle changes to the intended_state_combo.
+
+        When a user selects a state from the combo box, this method will:
+        1. Map the selection to a StateType enum
+        2. Set the channel_offset_scale to the default value for that state
+        """
+        selected_index = combo.get_selected()
+        if selected_index != Gtk.INVALID_LIST_POSITION:
+            # Map the index to the StateType enum
+            try:
+                state_type = list(StateType)[selected_index]
+                # Set the channel_offset_scale to the default value for this state
+                default_value = RANGES[state_type]["default"]
+                adjustment = self.channel_offset_scale.get_adjustment()
+                adjustment.set_value(default_value)
+                print(f"User intends to state: {state_type.name}")
+            except (IndexError, KeyError) as e:
+                print(f"Error setting state: {e}")
+
+    def on_advanced_settings_toggle(self, button, _pspec):
+        """Handle toggling of advanced settings.
+
+        When advanced settings are enabled:
+        1. Show the advanced settings panels
+        2. Disable the intended_state_combo to prevent conflicts
+
+        When disabled, hide the panels and re-enable the combo.
+        """
         if button.get_active():
-            self.advanced_audio_settings.set_opacity(1.0)
-            self.advanced_visual_settings.set_opacity(1.0)
+            self.advanced_audio_settings.set_property("opacity", 1.0)
+            self.advanced_visual_settings.set_property("opacity", 1.0)
             self.intended_state_combo.set_sensitive(False)
         else:
-            self.advanced_audio_settings.set_opacity(0)
-            self.advanced_visual_settings.set_opacity(0)
+            self.advanced_audio_settings.set_property("opacity", 0)
+            self.advanced_visual_settings.set_property("opacity", 0)
             self.intended_state_combo.set_sensitive(True)
 
-    def _on_stimuli_type_combo_changed(self, combo, pspec):
-        selected_item = combo.get_selected_item().get_string()
-        if selected_item == "Bounce":
-            self.controller.set_stimuli_type(0)
+    def on_stimuli_type_combo_changed(self, combo, _pspec):
+        """Handle changes to the stimuli_type_combo.
+
+        Currently only handles the "Bounce" selection which maps to stimuli type 0.
+        """
+        selected_item = combo.get_selected_item()
+        if selected_item is not None:
+            selected_string = selected_item.get_string()
+            if selected_string == "Bounce":
+                self.controller.set_stimuli_type(0)
 
     def set_bindings(self):
-        self.intended_state_combo.connect("notify::selected-item", self._on_intended_state_combo_changed)
-        self.stimuli_type_combo.connect("notify::selected-item", self._on_stimuli_type_combo_changed)
-        self.advanced_settings_switch.connect("notify::active", self._on_advanced_settings_toggle)
+        self.intended_state_combo.connect("notify::selected-item", self.on_intended_state_combo_changed)
+        self.stimuli_type_combo.connect('notify::selected-item', self.on_stimuli_type_combo_changed)
+        self.advanced_settings_switch.connect("notify::active", self.on_advanced_settings_toggle)
