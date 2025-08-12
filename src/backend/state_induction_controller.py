@@ -24,6 +24,7 @@ from .audio_stimulus import AudioStimulus
 from .visual_stimulus import VisualStimulus
 from .elevate_settings import ElevateSettings
 
+import time
 
 class StateInductionController(GObject.Object):
     """Controller for managing mental state induction workflow."""
@@ -36,6 +37,8 @@ class StateInductionController(GObject.Object):
         self._visual_stimulus = VisualStimulus()
         self._is_playing = False
         self._is_paused = False
+        self._elapsed_time = None
+        self._start_time = None
 
         # Bind settings to audio stimulus
         self._settings.bind_property(
@@ -77,6 +80,17 @@ class StateInductionController(GObject.Object):
         """Get whether stimuli are currently playing."""
         return self._is_paused
 
+    @GObject.Property(type=float, default=False)
+    def elapsed_time(self):
+        """Get whether stimuli are currently playing."""
+
+        elapsed_time = self._elapsed_time or 0.0
+        if self._start_time is None:
+            return elapsed_time
+
+        elapsed_time += time.monotonic() - self._start_time
+        return elapsed_time
+
     def play(self):
         """Start playing audio and visual stimuli."""
         if not self._is_playing:
@@ -84,6 +98,10 @@ class StateInductionController(GObject.Object):
             if self._settings.enable_visual_stimuli:
                 self._visual_stimulus.play()
             self._is_playing = True
+
+            # capture start time
+            self._start_time = time.monotonic()
+
             self.notify("is-playing")
             self._is_paused = False
 
@@ -102,6 +120,12 @@ class StateInductionController(GObject.Object):
         self._visual_stimulus.stop()
         self._is_playing = False
         self._is_paused = False
+
+        if self._elapsed_time is None:
+            self._elapsed_time = time.monotonic() - self._start_time
+        else:
+            self._elapsed_time += time.monotonic() - self._start_time
+
         self.notify("is-playing")
 
     def set_stimuli_type(self, stimuli_type):

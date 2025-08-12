@@ -22,6 +22,7 @@ from .backend.state_induction_controller import StateInductionController
 from .view.stimuli_renderer import StimuliRenderer
 from .view.sidebar import Sidebar
 
+import time
 
 @Gtk.Template(resource_path='/org/thecodenomad/elevate/window.ui')
 class ElevateWindow(Adw.Window):
@@ -38,7 +39,6 @@ class ElevateWindow(Adw.Window):
     header_bar = Gtk.Template.Child()
     sidebar_toggle_button = Gtk.Template.Child()
     play_button = Gtk.Template.Child()
-    stop_button = Gtk.Template.Child()
     volume_button = Gtk.Template.Child()
     volume_scale = Gtk.Template.Child()
     fullscreen_button = Gtk.Template.Child()
@@ -49,8 +49,10 @@ class ElevateWindow(Adw.Window):
     split_view = Gtk.Template.Child()
 
     # Main content area
+    run_time_label = Gtk.Template.Child()
     overlay_area = Gtk.Template.Child()
     toolbar = Gtk.Template.Child()
+    time_scale = Gtk.Template.Child()
     content_area = Gtk.Template.Child()
     stimuli_renderer = Gtk.Template.Child()
     volume_popover = Gtk.Template.Child()
@@ -76,43 +78,122 @@ class ElevateWindow(Adw.Window):
 
         self._bind_volume()
 
-        self.toolbar.set_opacity(1.0)
+        # Set fixed width for timer label to avoid layout changes
+        self.run_time_label.set_width_chars(6)  # Fits "00:00"
+        self.time_scale.set_draw_value(False)  # Look like progress bar
+        self.time_scale.set_sensitive(False)  # Read-only
+        self.time_scale.set_digits(0)  # Avoid fractional display
 
-        animation_target = Adw.PropertyAnimationTarget.new(self.toolbar, "opacity")
+        # Set time_scale upper limit from minutes_spin_button
+        try:
+            max_minutes = self.sidebar.minutes_spin_button.get_value()
+            self.time_scale.get_adjustment().set_upper(max_minutes * 60)
+        except AttributeError:
+            print("[ElevateWindow] Warning: minutes_spin_button not found, defaulting to 60 minutes")
+            self.time_scale.get_adjustment().set_upper(3600)  # Default to 1 hour
 
-        self.fade_out_animation = Adw.TimedAnimation(
-            widget=self.toolbar,
-            value_from=1.0,
-            value_to=0.0,
-            duration=2000,
-            easing=Adw.Easing.EASE_IN_OUT_CUBIC,
-            target=animation_target,
+        # Bind minutes_spin_button value to time_scale upper limit
+        try:
+            self.sidebar.minutes_spin_button.bind_property(
+                "value",
+                self.time_scale.get_adjustment(),
+                "upper",
+                GObject.BindingFlags.DEFAULT,
+                lambda binding, value: value * 60,  # Convert minutes to seconds
+                None
+            )
+        except AttributeError:
+            print("[ElevateWindow] Warning: Could not bind minutes_spin_button")
+
+        # Apply CSS for fade-out transition
+        css_provider = Gtk.CssProvider()
+        css_provider.load_from_data(b"""
+        #toolbar {
+            opacity: 1.0;
+            transition: none;  /* Instant fade-in */
+        }
+        #toolbar.faded {
+            opacity: 0.0;
+            transition: opacity 2000ms ease-in-out;  /* 2-second fade-out */
+        }
+        #run-time-label {
+            font-family: monospace;  /* Consistent digit spacing */
+        }
+        """)
+        Gtk.StyleContext.add_provider_for_display(
+            self.get_display(),
+            css_provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
         )
-        self.fade_in_animation = Adw.TimedAnimation(
-            widget=self.toolbar,
-            value_from=0.0,
-            value_to=1.0,
-            duration=500,
-            easing=Adw.Easing.EASE_IN_OUT_CUBIC,
-            target=animation_target,
-        )
+        self.toolbar.set_name("toolbar")
+        self.run_time_label.set_name("run-time-label")
 
         self.motion_controller = Gtk.EventControllerMotion()
         self.motion_controller.connect("motion", self._on_mouse_motion)
         self.content_area.add_controller(self.motion_controller)
 
         self._toolbar_motion = Gtk.EventControllerMotion()
-        self._toolbar_motion.connect("motion", self._on_toolbar_motion)
+        self._toolbar_motion.connect("enter", self._on_toolbar_enter)
+        self._toolbar_motion.connect("leave", self._on_toolbar_leave)
         self.toolbar.add_controller(self._toolbar_motion)
-
-        self._toolbar_motion_outside = Gtk.EventControllerMotion()
-        self._toolbar_motion_outside.set_propagation_phase(Gtk.PropagationPhase.BUBBLE)
-        self._toolbar_motion_outside.connect("motion", self._on_global_motion)
-        self.content_area.add_controller(self._toolbar_motion_outside)
 
         self.toolbar_visible = True
         self._pointer_in_toolbar = False
         self._volume_popover_open = False
+        self._fade_timeout_id = None
+        self.timeout_id = None
+        self._last_motion_pos = None  # Track last mouse position for debouncing
+
+        # Fallback timer if controller.elapsed_time fails
+        self._start_time = time.monotonic()
+
+    def update_timer(self):
+        """Update the run time label and scale with elapsed time."""
+        try:
+            elapsed = self.controller.elapsed_time
+        except AttributeError:
+            elapsed = time.monotonic() - self._start_time
+            print(f"[ElevateWindow] Warning: Using fallback timer, elapsed: {elapsed}")
+
+        # Get max runtime from minutes_spin_button
+        try:
+            max_seconds = self.sidebar.minutes_spin_button.get_value() * 60
+        except AttributeError:
+            max_seconds = 3600  # Default to 1 hour
+            print("[ElevateWindow] Warning: minutes_spin_button not found, using default 3600s")
+
+        # Cap elapsed time
+        if elapsed >= max_seconds:
+            elapsed = max_seconds
+            self.controller.stop()
+            if self.play_button.get_active():
+                self.play_button.set_active(False)
+            if self.timeout_id:
+                GLib.source_remove(self.timeout_id)
+                self.timeout_id = None
+
+            # Reset the controller
+            self.controller._elapsed_time = 0.0
+            self.time_scale.set_value(0)
+            self.run_time_label.set_text("00:00")
+            print("[ElevateWindow] Max runtime reached, stopping playback")
+
+        minutes = int(elapsed // 60)
+        seconds = int(elapsed % 60)
+        self.run_time_label.set_text(f"{minutes:02d}:{seconds:02d}")
+        self.time_scale.set_value(elapsed)
+
+        return True  # Continue updating
+
+    def destroy(self):
+        """Clean up timeout sources."""
+        if self.timeout_id is not None:
+            GLib.source_remove(self.timeout_id)
+            self.timeout_id = None
+        if self._fade_timeout_id is not None:
+            GLib.source_remove(self._fade_timeout_id)
+            self._fade_timeout_id = None
+        super().destroy()
 
     def _setup_bindings(self):
         """Bind GSettings keys to UI controls and internal properties."""
@@ -144,29 +225,31 @@ class ElevateWindow(Adw.Window):
         """Connect UI signals to their handlers and controller notifications."""
         self.sidebar_toggle_button.connect("clicked", self._on_sidebar_toggle_clicked)
         self.play_button.connect("toggled", self._on_play_toggled)
-        self.stop_button.connect("clicked", self._on_stop_clicked)
         self.volume_scale.connect("value-changed", self._on_volume_changed)
         self.preferences_button.connect("clicked", self._on_preferences_clicked)
-
         self.controller.connect("notify::is-playing", self._on_playing_state_changed)
         self.sidebar.stimuli_type_combo.connect("notify::selected", self._on_stimuli_type_changed)
         self.volume_button.connect("notify::active", self._on_volume_popover_active)
         self.fullscreen_button.connect("toggled", self._on_fullscreen_toggled)
 
-    def on_fade_animation_update(self, value):
-        """Update toolbar opacity during animations.
-
-        Args:
-          value: The new opacity value (0..1).
-        """
-        self.toolbar.set_opacity(value)
-
     def _reset_toolbar_visible(self):
-        """Reset toolbar to visible state and pause any fade-out animation."""
-        self.fade_out_animation.pause()
-        self.fade_out_animation.reset()
-        self.toolbar.set_opacity(1.0)
+        """Reset toolbar to visible state instantly and start fade timeout."""
+        self.toolbar.remove_css_class("faded")
         self.toolbar_visible = True
+        if self._fade_timeout_id is not None:
+            GLib.source_remove(self._fade_timeout_id)
+            self._fade_timeout_id = None
+        if self.controller.is_playing:
+            self._fade_timeout_id = GLib.timeout_add(3000, self._start_fade_if_inactive)
+
+    def _start_fade_if_inactive(self):
+        """Start fade-out if mouse is outside toolbar, no popover, and playing."""
+        if self._pointer_in_toolbar or self._volume_popover_open or not self.controller.is_playing:
+            return False
+        self.toolbar.add_css_class("faded")
+        self.toolbar_visible = False
+        self._fade_timeout_id = None
+        return False
 
     def _safe_queue_draw(self):
         """Queue a redraw of the stimuli renderer, ignoring non-fatal errors."""
@@ -176,11 +259,7 @@ class ElevateWindow(Adw.Window):
             print("[ElevateWindow] queue_draw failed:", e)
 
     def _on_fullscreen_toggled(self, button):
-        """Toggle fullscreen state.
-
-        Args:
-          button: The toggle button that triggered the action.
-        """
+        """Toggle fullscreen state."""
         if button.get_active():
             print("Setting to fullscreen")
             self.fullscreen()
@@ -210,14 +289,7 @@ class ElevateWindow(Adw.Window):
         self.sidebar.stimuli_type_combo.set_selected(int(sel))
 
     def _on_draw(self, widget, cr, width, height):
-        """Render visual stimuli on the drawing area.
-
-        Args:
-          widget: The drawing widget.
-          cr: Cairo context.
-          width: Allocated width.
-          height: Allocated height.
-        """
+        """Render visual stimuli on the drawing area."""
         self.controller._visual_stimulus.render(widget, cr, width, height)
 
     def _on_renderer_resize(self, *_args):
@@ -225,46 +297,42 @@ class ElevateWindow(Adw.Window):
         self.stimuli_renderer.queue_draw()
 
     def _on_mouse_motion(self, controller, x, y):
-        """Handle mouse motion to auto-hide/show toolbar.
-
-        Args:
-          controller: Motion controller emitting the event.
-          x: Pointer x-coordinate.
-          y: Pointer y-coordinate.
-        """
-        if self._pointer_in_toolbar or self._volume_popover_open:
+        """Show toolbar on significant mouse motion."""
+        if x is None or y is None:  # Handle programmatic calls
             self._reset_toolbar_visible()
             return
-        if self.play_button.get_active():
-            self.fade_in_animation.pause()
-            self.fade_in_animation.reset()
-            self.fade_out_animation.play()
-            self.toolbar_visible = False
-        elif not self.toolbar_visible:
+        # Debounce: only reset if mouse moved significantly
+        if self._last_motion_pos is None or abs(self._last_motion_pos[0] - x) > 1 or abs(self._last_motion_pos[1] - y) > 1:
+            self._last_motion_pos = (x, y)
             self._reset_toolbar_visible()
 
-    def _on_sidebar_toggle_clicked(self, button):
-        """Show or hide the sidebar.
+    def _on_toolbar_enter(self, controller, x, y):
+        """Keep toolbar visible when mouse enters."""
+        self._pointer_in_toolbar = True
+        self._reset_toolbar_visible()
 
-        Args:
-          button: The toggle button controlling sidebar visibility.
-        """
+    def _on_toolbar_leave(self, controller):
+        """Start fade timeout when mouse leaves toolbar."""
+        self._pointer_in_toolbar = False
+        if self.controller.is_playing and not self._volume_popover_open:
+            self._reset_toolbar_visible()  # Start 3s timeout
+
+    def _on_sidebar_toggle_clicked(self, button):
+        """Show or hide the sidebar."""
         self.split_view.set_show_sidebar(button.get_active())
 
     def _on_play_toggled(self, button):
-        """Handle play/pause toggle and display safety warning if needed.
-
-        Args:
-          button: The play/pause toggle button.
-        """
+        """Handle play/pause toggle and display safety warning if needed."""
         if button.get_active():
+            self._start_time = time.monotonic()  # Reset fallback timer
+            self.time_scale.set_value(0)  # Reset scale
+            self.run_time_label.set_text("00:00")  # Reset label
             if self.sidebar.visual_stimuli_switch.get_active():
                 from .view.epileptic_warning_dialog import EpilepticWarningDialog
                 dlg = EpilepticWarningDialog()
                 dlg.present(self)
 
                 def _on_warning_response(dialog, result):
-                    """Process alert dialog result and start playback on proceed."""
                     try:
                         response = dialog.choose_finish(result)
                     except Exception:
@@ -272,14 +340,20 @@ class ElevateWindow(Adw.Window):
                     if response == "cancel":
                         button.set_active(False)
                         return
-                    print("[ElevateWindow] Play toggled ON")
-                    button.set_icon_name("media-playback-pause-symbolic")
+
+                    button.set_icon_name("media-playback-stop-symbolic")
                     self.sidebar_toggle_button.set_active(False)
                     self.split_view.set_show_sidebar(False)
                     self.controller.play()
+
+                    if self.timeout_id is None:
+                        self.timeout_id = GLib.timeout_add(100, self.update_timer, priority=GLib.PRIORITY_DEFAULT)
+
+                    print(f"[ElevateWindow] Play toggled ON, timeout_id: {self.timeout_id}")
+
                     try:
                         print("[ElevateWindow] queue_draw after play")
-                        self.stimuli_renderer.queue_draw()
+                        self._safe_queue_draw()
                     except Exception as e:  # pylint: disable=broad-exception-caught
                         print("[ElevateWindow] queue_draw failed:", e)
 
@@ -287,105 +361,85 @@ class ElevateWindow(Adw.Window):
                     dlg.choose(self, None, _on_warning_response)
                 except Exception:
                     print("[ElevateWindow] Warning choose() not available; proceeding")
-                    print("[ElevateWindow] Play toggled ON")
-                    button.set_icon_name("media-playback-pause-symbolic")
+                    button.set_icon_name("media-playback-stop-symbolic")
                     self.sidebar_toggle_button.set_active(False)
                     self.split_view.set_show_sidebar(False)
                     self.controller.play()
+
+                    if self.timeout_id is None:
+                        self.timeout_id = GLib.timeout_add(100, self.update_timer, priority=GLib.PRIORITY_DEFAULT)
+
+                    print(f"[ElevateWindow] Play toggled ON, timeout_id: {self.timeout_id}")
+
                     try:
                         print("[ElevateWindow] queue_draw after play")
-                        self.stimuli_renderer.queue_draw()
+                        self._safe_queue_draw()
                     except Exception as e:  # pylint: disable=broad-exception-caught
                         print("[ElevateWindow] queue_draw failed:", e)
                 return
-            print("[ElevateWindow] Play toggled ON")
-            button.set_icon_name("media-playback-pause-symbolic")
+
+            button.set_icon_name("media-playback-stop-symbolic")
             self.sidebar_toggle_button.set_active(False)
             self.split_view.set_show_sidebar(False)
             self.controller.play()
+
+            if self.timeout_id is None:
+                self.timeout_id = GLib.timeout_add(100, self.update_timer, priority=GLib.PRIORITY_DEFAULT)
+
+            print(f"[ElevateWindow] Play toggled ON, timeout_id: {self.timeout_id}")
+
             try:
                 print("[ElevateWindow] queue_draw after play")
-                self.stimuli_renderer.queue_draw()
+                self._safe_queue_draw()
             except Exception as e:  # pylint: disable=broad-exception-caught
                 print("[ElevateWindow] queue_draw failed:", e)
         else:
             print("[ElevateWindow] Play toggled OFF")
             button.set_icon_name("media-playback-start-symbolic")
             self.controller.pause()
+            if self.timeout_id:
+                GLib.source_remove(self.timeout_id)
+                self.timeout_id = None
             try:
                 print("[ElevateWindow] queue_draw after pause")
-                self.stimuli_renderer.queue_draw()
+                self._safe_queue_draw()
             except Exception as e:  # pylint: disable=broad-exception-caught
                 print("[ElevateWindow] queue_draw failed:", e)
 
         self._on_mouse_motion(None, None, None)
 
     def _on_stop_clicked(self, button):
-        """Stop playback and reset play button state.
-
-        Args:
-          button: The stop button.
-        """
+        """Stop playback and reset play button state."""
         self.controller.stop()
+        self._start_time = time.monotonic()  # Reset fallback timer
+        self.time_scale.set_value(0)  # Reset scale
+        self.run_time_label.set_text("00:00")  # Reset label
         if self.play_button.get_active():
             self.play_button.set_active(False)
+        if self.timeout_id:
+            GLib.source_remove(self.timeout_id)
+            self.timeout_id = None
         self._on_mouse_motion(None, None, None)
 
     def _on_playing_state_changed(self, controller, param):
-        """Enable/disable stop button based on playing state.
-
-        Args:
-          controller: The StateInductionController instance.
-          param: The GObject.ParamSpec that changed.
-        """
+        """Enable/disable stop button based on playing state."""
         is_playing = controller.is_playing
-        self.stop_button.set_sensitive(is_playing)
+        # self.stop_button.set_sensitive(is_playing)
 
     def _on_volume_changed(self, scale):
-        """Update audio volume when the slider changes.
-
-        Args:
-          scale: The Gtk.Scale used to control volume.
-        """
+        """Update audio volume when the slider changes."""
         self.controller._audio_stimulus.set_volume(scale.get_value())
-        self.toolbar.set_opacity(1.0)
-        self.toolbar_visible = True
-
-    def _on_toolbar_motion(self, *_):
-        """Keep toolbar visible while the pointer is over it."""
-        self._pointer_in_toolbar = True
         self._reset_toolbar_visible()
 
-    def _on_global_motion(self, controller, x, y):
-        """Hide toolbar after inactivity when pointer leaves toolbar region.
-
-        Args:
-          controller: Motion controller emitting the event.
-          x: Pointer x-coordinate.
-          y: Pointer y-coordinate.
-        """
-        alloc = self.toolbar.get_allocation()
-        in_x = alloc.x <= x <= alloc.x + alloc.width
-        in_y = alloc.y <= y <= alloc.y + alloc.height
-        inside = in_x and in_y
-        if not inside:
-            self._pointer_in_toolbar = False
-            if self.play_button.get_active() and not self._volume_popover_open:
-                self.fade_out_animation.play()
-                self.toolbar_visible = False
-
     def _on_volume_popover_active(self, *_):
-        """Pause fade-out when volume popover is open; resume when closed."""
+        """Keep toolbar visible when volume popover is open."""
         self._volume_popover_open = self.volume_button.get_active()
         if self._volume_popover_open:
             self._reset_toolbar_visible()
-        elif self.play_button.get_active() and not self._pointer_in_toolbar:
-            self.fade_out_animation.play()
-            self.toolbar_visible = False
+            print("[ElevateWindow] Volume popover opened, toolbar visible")
 
     def _on_preferences_clicked(self, *_):
         """Open the Preferences window dialog."""
         from .view.preferences_window import PreferencesWindow
-
         dlg = PreferencesWindow()
         dlg.present(self)

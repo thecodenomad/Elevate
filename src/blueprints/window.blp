@@ -110,7 +110,7 @@ template $ElevateWindow: Adw.Window {
                 };
               }
 
-              Scale time {
+              Scale time_scale {
                 hexpand: true;
                 orientation: horizontal;
                 show-fill-level: true;
@@ -118,14 +118,12 @@ template $ElevateWindow: Adw.Window {
                 adjustment: Adjustment {
                   lower: 0;
                   upper: 100;
-                  value: 50;
+                  value: 0;
                 };
               }
 
-              Button stop_button {
-                icon-name: "media-playback-stop-symbolic";
-                tooltip-text: "Stop";
-                sensitive: false;
+              Label run_time_label {
+                label: "00:00";
               }
 
               ToggleButton fullscreen_button {
