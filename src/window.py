@@ -26,9 +26,10 @@ settings, and controls playback of visual and audio stimuli.
 import time
 
 from gi.repository import Adw, Gtk, Gio, GLib, GObject
-from .backend.state_induction_controller import StateInductionController
-from .view.stimuli_renderer import StimuliRenderer
-from .view.sidebar import Sidebar
+from elevate.backend.state_induction_controller import StateInductionController
+from elevate.view.stimuli_renderer import StimuliRenderer
+from elevate.view.epileptic_warning_dialog import EpilepticWarningDialog
+from elevate.view.sidebar import Sidebar
 
 
 @Gtk.Template(resource_path="/org/thecodenomad/elevate/window.ui")
@@ -395,7 +396,10 @@ class ElevateWindow(Adw.Window):
 
     def _show_warning_and_start(self, button):
         """Show epileptic warning dialog before starting playback."""
-        from .view.epileptic_warning_dialog import EpilepticWarningDialog
+
+        if not self.settings.epileptic_warning:
+            self._start_playback(button)
+            return
 
         dlg = EpilepticWarningDialog()
         dlg.present(self)

@@ -1,44 +1,61 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <schemalist gettext-domain="elevate">
 	<schema id="org.thecodenomad.elevate" path="/org/thecodenomad/elevate/">
-		<key name="base-frequency" type="d">
+
+        <!-- Preferences -->
+        <key name="base-frequency" type="d">
 			<default>200.0</default>
 			<summary>Base frequency for audio stimuli</summary>
 			<description
             >The base frequency in Hz for binaural beats (100-300 Hz range)</description>
 		</key>
+        <key name="intended-state" type="i">
+			<default>0</default>
+			<summary>Default Intended State</summary>
+			<description>The intended brainwave state.</description>
+		</key>
+		<key name="session-length" type="i">
+			<default>10</default>
+			<summary>Default Session Length</summary>
+			<description>The length of a meditation session.</description>
+		</key>
+	    <key name="epileptic-warning" type="b">
+            <default>true</default>
+            <summary>Show epileptic warning</summary>
+            <description
+            >Shows the epileptic warning when starting a session</description>
+        </key>
+		<key name="language" type="i">
+			<default>0</default>
+			<summary>UI language</summary>
+			<description>The language/locale code for the user interface.</description>
+		</key>
+
+		<!-- Saved Application State -->
+		<!-- Don't save for now, this is set by the Intended State -->
 		<key name="channel-offset" type="d">
 			<default>10.0</default>
 			<summary>Channel offset for audio stimuli</summary>
 			<description
             >The channel offset in Hz for binaural beats (1-20 Hz range)</description>
 		</key>
+
 		<key name="enable-visual-stimuli" type="b">
 			<default>false</default>
 			<summary>Enable visual stimuli</summary>
 			<description
             >Whether to enable visual stimuli for mental state induction</description>
 		</key>
+		<key name="saved-volume" type="i">
+    		<default>0</default>
+    		<summary>Saved volume state</summary>
+    		<description>The last volume used state.</description>
+    	</key>
 		<key name="stimuli-type" type="i">
 			<default>0</default>
 			<summary>Type of visual stimuli</summary>
 			<description
             >The type of visual stimuli to use (e.g., 0 for color, 1 for breath patterns)</description>
-		</key>
-		<key name="language" type="s">
-			<default>'en'</default>
-			<summary>UI language</summary>
-			<description>The language/locale code for the user interface.</description>
-		</key>
-		<key name="default-state" type="i">
-			<default>0</default>
-			<summary>Default Intended State</summary>
-			<description>The intended brainwave state.</description>
-		</key>
-		<key name="default-session-length" type="i">
-			<default>10</default>
-			<summary>Default Session Length</summary>
-			<description>The length of a meditation session.</description>
 		</key>
 	</schema>
 </schemalist>

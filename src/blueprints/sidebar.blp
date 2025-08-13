@@ -34,8 +34,9 @@ template $Sidebar: Box {
     }
 
     Adw.SpinRow minutes_spin_button {
-      title: _("Session Time");
+      title: _("Session Time (min)");
       climb-rate: 1;
+      tooltip-text: _("The length of the session in minutes");
 
       adjustment: Adjustment {
         lower: 1;
@@ -43,6 +44,24 @@ template $Sidebar: Box {
         step-increment: 1;
         value: 10;
       };
+    }
+
+    Adw.SpinRow frequency_scale {
+      title: _("Binaural Base Frequency");
+      tooltip-text: _("This is the base frequency used to create a binaural audio effect.");
+
+      climb-rate: 10;
+
+      adjustment: Adjustment {
+        lower: 10;
+        upper: 1000;
+        step-increment: 10;
+        value: 300;
+      };
+    }
+
+    Adw.SwitchRow visual_stimuli_switch {
+      title: _("Enable Visual Stimuli");
     }
 
     Adw.SwitchRow advanced_settings_switch {
@@ -57,19 +76,6 @@ template $Sidebar: Box {
 
     /* Hidden by default */
     opacity: 0;
-
-    Adw.SpinRow frequency_scale {
-      title: _("Base Frequency");
-      subtitle: _("Increment or decrement a value");
-      climb-rate: 10;
-
-      adjustment: Adjustment {
-        lower: 10;
-        upper: 1000;
-        step-increment: 10;
-        value: 300;
-      };
-    }
 
     Adw.SpinRow channel_offset_scale {
       title: _("Channel Offset");
@@ -93,10 +99,6 @@ template $Sidebar: Box {
 
     /* Hidden by default */
     opacity: 0;
-
-    Adw.SwitchRow visual_stimuli_switch {
-      title: _("Enable Visual Stimuli");
-    }
 
     Adw.ComboRow stimuli_type_combo {
       title: _("Type of Stimuli");

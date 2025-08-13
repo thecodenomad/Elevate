@@ -10,7 +10,7 @@ template $PreferencesWindow : Adw.PreferencesDialog {
     Adw.PreferencesGroup {
       title: _("General Settings");
 
-      Adw.SwitchRow show_epileptic_warning {
+      Adw.SwitchRow epileptic_warning_switch {
         title: _("Show Epileptic Warning");
         active: true;
       }
@@ -18,7 +18,6 @@ template $PreferencesWindow : Adw.PreferencesDialog {
       Adw.ComboRow language_selection_combo {
         title: _("Language");
         enable-search: true;
-        model: languages_list;
       }
 
       Adw.SpinRow minutes_spin_button {
@@ -53,39 +52,14 @@ template $PreferencesWindow : Adw.PreferencesDialog {
         title: _("Breath Type");
         model: breath_types;
         enable-search: true;
+        sensitive: false;
+        tooltip-text: "Disabled for now.";
       }
 
     }
   }
 }
 
-StringList languages_list { strings: [
-  "English",
-  "Mandarin Chinese",
-  "Spanish",
-  "Hindi",
-  "Arabic",
-  "Portuguese",
-  "French",
-  "Bengali",
-  "Russian",
-  "Japanese",
-  "Tamil",
-  "Telugu",
-  "Punjabi",
-  "Indonesian",
-  "Vietnamese",
-  "Swahili",
-  "Thai"
-]; }
-
-StringList brainwave_states { strings: [
-  "Delta",
-  "Theta",
-  "Alpha",
-  "Beta",
-  "Gamma"
-]; }
 
 StringList visual_stimuli_types { strings: [
   "Bouncy Ball"

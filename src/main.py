@@ -10,6 +10,7 @@ gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
 from gi.repository import Gio, Adw
+from elevate.settings import ElevateSettings
 from elevate.window import ElevateWindow
 from elevate.view.preferences_window import PreferencesWindow
 
@@ -23,7 +24,7 @@ class ElevateApplication(Adw.Application):
         self.create_action("quit", self.on_quit_action, ["<primary>q"])
         self.create_action("about", self.on_about_action)
         self.create_action("preferences", self.on_preferences_action)
-        self._settings = Gio.Settings.new("org.thecodenomad.elevate")
+        self._settings = ElevateSettings(Gio.Settings.new("org.thecodenomad.elevate"))
 
     @property
     def settings(self):

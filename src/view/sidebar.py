@@ -25,7 +25,7 @@ gi.require_version('Gtk', '4.0')
 from gi.repository import Gtk
 
 # Import constants using relative import
-from elevate.constants import RANGES, StateType
+from elevate.constants import DEFAULT, STATE_DATA, StateType
 
 
 @Gtk.Template(resource_path="/org/thecodenomad/elevate/sidebar.ui")
@@ -55,14 +55,21 @@ class Sidebar(Gtk.Box):
         self.set_defaults()
 
     def set_defaults(self):
-        # Set Default Intended State
-        try:
-            state_idx = self.settings.get_int("default-state")
-            print("Loaded default state from settings...")
-        except Exception:
-            state_idx = 0
+        # Set Intended State
+        state_idx = self.settings.intended_state
         self.intended_state_combo.set_selected(state_idx)
 
+        # Set Default Session Length
+        session_length = self.settings.session_length
+        self.minutes_spin_button.set_value(session_length)
+
+        # Set Default Base Frequency
+        base_frequency = self.settings.base_frequency
+        self.frequency_scale.set_value(base_frequency)
+
+        # Set Enable Visual Stimuli
+        enable_visuals = self.settings.enable_visual_stimuli
+        self.visual_stimuli_switch.set_active(enable_visuals)
 
     def on_intended_state_combo_changed(self, combo, _pspec):
         """Handle changes to the intended_state_combo.
@@ -77,7 +84,7 @@ class Sidebar(Gtk.Box):
             try:
                 state_type = list(StateType)[selected_index]
                 # Set the channel_offset_scale to the default value for this state
-                default_value = RANGES[state_type]["default"]
+                default_value = STATE_DATA[state_type][DEFAULT]
                 adjustment = self.channel_offset_scale.get_adjustment()
                 adjustment.set_value(default_value)
                 print(f"User intends to state: {state_type.name}")
