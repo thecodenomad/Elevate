@@ -58,6 +58,6 @@ class TestStateInductionController:
         """Test setting stimuli type."""
         controller = StateInductionController()
         # Test setting different stimuli types
-        controller.set_stimuli_type(0)  # Color
-        controller.set_stimuli_type(1)  # Breath Pattern
+        controller.stimuli_type = 0  # Color
+        controller.stimuli_type = 1  # Breath Pattern
         # The actual effect is tested in visual_stimulus tests

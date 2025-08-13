@@ -46,8 +46,8 @@ def test_render_inactive_draws_background():
 
 def test_render_color_branch():
     v = VisualStimulus()
-    v.set_enable_visual_stimuli(True)
-    v.set_stimuli_type(0)
+    v.enable_visual_stimuli = True
+    v.stimuli_type = 0
     v._is_playing = True
     cr = MockCR()
     v.render(None, cr, 100, 50)
@@ -58,8 +58,8 @@ def test_render_color_branch():
 
 def test_render_breath_branch():
     v = VisualStimulus()
-    v.set_enable_visual_stimuli(True)
-    v.set_stimuli_type(1)
+    v.enable_visual_stimuli = True
+    v.stimuli_type = 1
     v._is_playing = True
     cr = MockCR()
     v.render(None, cr, 120, 120)
@@ -72,7 +72,7 @@ def test_play_pause_stop_transitions():
     v = VisualStimulus()
     w = MockWidget()
     v.set_widget(w)
-    v.set_enable_visual_stimuli(True)
+    v.enable_visual_stimuli = True
     assert v._is_playing is False
     v.play()
     assert v._is_playing is True
@@ -87,7 +87,7 @@ def test_widget_queue_draw_called_by_animate_when_playing(monkeypatch):
     v = VisualStimulus()
     w = MockWidget()
     v.set_widget(w)
-    v.set_enable_visual_stimuli(True)
+    v.enable_visual_stimuli = True
     v._is_playing = True
     # Call internal animate once; should queue draw
     cont = v._animate()
@@ -97,7 +97,7 @@ def test_widget_queue_draw_called_by_animate_when_playing(monkeypatch):
 
 def test_getters_setters_roundtrip():
     v = VisualStimulus()
-    v.set_enable_visual_stimuli(True)
-    v.set_stimuli_type(1)
-    assert v.get_enable_visual_stimuli() is True
-    assert v.get_stimuli_type() == 1
+    v.enable_visual_stimuli = True
+    v.stimuli_type = 1
+    assert v.enable_visual_stimuli is True
+    assert v.stimuli_type == 1

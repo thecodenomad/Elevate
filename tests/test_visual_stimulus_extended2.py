@@ -37,9 +37,9 @@ def patch_animation_registry():
 
 def test_play_initializes_animation_and_starts_loop(monkeypatch):
     vs = VisualStimulus()
-    vs.set_stimuli_type(0)  # Use integer instead of string
+    vs.stimuli_type = 0  # Use integer instead of string
     # Ensure visual stimuli are enabled
-    vs.set_enable_visual_stimuli(True)
+    vs.enable_visual_stimuli = True
 
     # Simulate a widget with required methods
     widget = MagicMock()
@@ -86,9 +86,9 @@ def test_play_initializes_animation_and_starts_loop(monkeypatch):
 
 def test_pause_stops_animation_and_resets_time(monkeypatch):
     vs = VisualStimulus()
-    vs.set_enable_visual_stimuli(True)
-    vs.set_stimuli_type(0)  # Use integer instead of string
-    
+    vs.enable_visual_stimuli = True
+    vs.stimuli_type = 0  # Use integer instead of string
+
     # Simulate a widget to enable animation
     widget = MagicMock()
     alloc = MagicMock()
@@ -97,12 +97,12 @@ def test_pause_stops_animation_and_resets_time(monkeypatch):
     widget.get_allocation.return_value = alloc
     widget.queue_draw = MagicMock()
     vs.set_widget(widget)
-    
+
     # Mock GLib functions
     monkeypatch.setattr("gi.repository.GLib.timeout_add", lambda i, cb: 999)
     source_remove_mock = MagicMock()
     monkeypatch.setattr("gi.repository.GLib.source_remove", source_remove_mock)
-    
+
     vs.play()
     assert vs._is_playing is True
     # Simulate some time accumulation
@@ -116,8 +116,8 @@ def test_pause_stops_animation_and_resets_time(monkeypatch):
 
 def test_render_calls_animation_render_when_playing(monkeypatch):
     vs = VisualStimulus()
-    vs.set_enable_visual_stimuli(True)
-    vs.set_stimuli_type(0)  # Use integer instead of string
+    vs.enable_visual_stimuli = True
+    vs.stimuli_type = 0  # Use integer instead of string
     # Mock GLib.get_monotonic_time to keep time stable
     monkeypatch.setattr("gi.repository.GLib.get_monotonic_time", lambda: 0)
     # Ensure animation is created lazily on render
