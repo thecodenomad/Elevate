@@ -243,26 +243,31 @@ class ElevateWindow(Adw.Window):
 
     def _setup_bindings(self):
         """Bind GSettings keys to UI controls and internal properties."""
-        self.controller._settings.bind_property(
+        flags = GObject.BindingFlags.BIDIRECTIONAL | GObject.BindingFlags.SYNC_CREATE
+        self.settings.bind_property(
             "base-frequency",
             self.sidebar.frequency_scale.get_adjustment(),
             "value",
-            0,  # Gio.SettingsBindFlags.DEFAULT
+            flags,
         )
-        self.controller._settings.bind_property(
+        self.settings.bind_property(
             "channel-offset",
             self.sidebar.channel_offset_scale.get_adjustment(),
             "value",
-            0,  # Gio.SettingsBindFlags.DEFAULT
+            flags,
         )
-        self.controller._settings.bind_property(
+        self.settings.bind_property(
             "enable-visual-stimuli",
             self.sidebar.visual_stimuli_switch,
             "active",
-            0,  # Gio.SettingsBindFlags.DEFAULT
+            flags,
         )
-        self._init_stimuli_type_binding()
-
+        self.settings.bind_property(
+            "stimuli-type",
+            self.sidebar.stimuli_type_combo,
+            "selected",
+            flags,
+        )
         self.fullscreen_button.bind_property(
             "active", self.header_bar, "visible", GObject.BindingFlags.INVERT_BOOLEAN
         )
@@ -274,7 +279,6 @@ class ElevateWindow(Adw.Window):
         self.volume_scale.connect("value-changed", self._on_volume_changed)
         self.preferences_button.connect("clicked", self._on_preferences_clicked)
         self.controller.connect("notify::is-playing", self._on_playing_state_changed)
-        self.sidebar.stimuli_type_combo.connect("notify::selected", self._on_stimuli_type_changed)
         self.volume_button.connect("notify::active", self._on_volume_popover_active)
         self.fullscreen_button.connect("toggled", self._on_fullscreen_toggled)
 
@@ -327,7 +331,7 @@ class ElevateWindow(Adw.Window):
     def _init_stimuli_type_binding(self):
         """Initialize sidebar combo selection from settings, defaulting to 0."""
         try:
-            sel = self.controller._settings.get_stimuli_type()
+            sel = self.controller.get_stimuli_type()
         except AttributeError:
             sel = 0
         self.sidebar.stimuli_type_combo.set_selected(int(sel))

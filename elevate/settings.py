@@ -42,7 +42,7 @@ class ElevateSettings(GObject.Object):
     #    DEFAULT_BREATH_TYPE = "4-7-8"
 
     DEFAULT_ENABLE_VISUAL = True
-    DEFAULT_BASE_FREQUENCY = 30
+    DEFAULT_BASE_FREQUENCY = 30  # Restored to original value
     DEFAULT_SAVED_VOLUME = 25
 
     # Theta state default
@@ -53,6 +53,18 @@ class ElevateSettings(GObject.Object):
         super().__init__()
         self.settings = Gio.Settings.new(APPLICATION_ID)
 
+        # Debug logging for settings changes
+        self.settings.connect("changed::base-frequency", self._on_base_frequency_changed)
+        self.settings.connect("changed::channel-offset", self._on_channel_offset_changed)
+
+    def _on_base_frequency_changed(self, settings, key):
+        """Debug handler for base-frequency changes."""
+        print(f"ElevateSettings: base-frequency changed to {settings.get_double(key)} Hz")
+
+    def _on_channel_offset_changed(self, settings, key):
+        """Debug handler for channel-offset changes."""
+        print(f"ElevateSettings: channel-offset changed to {settings.get_double(key)} Hz")
+
     #################
     # Preferences   #
     #################
@@ -62,7 +74,7 @@ class ElevateSettings(GObject.Object):
         """The base frequency for audio stimuli.
 
         Returns:
-            float: The base frequency in Hz (100-300 Hz range).
+            float: The base frequency in Hz (20-300 Hz range).
         """
         try:
             return self.settings.get_double("base-frequency")
@@ -74,7 +86,7 @@ class ElevateSettings(GObject.Object):
         """Set the base frequency for audio stimuli.
 
         Args:
-            value (float): The base frequency in Hz (100-300 Hz range).
+            value (float): The base frequency in Hz (20-300 Hz range).
         """
         self.settings.set_double("base-frequency", value)
 
@@ -146,7 +158,7 @@ class ElevateSettings(GObject.Object):
         """The language/locale code for the user interface.
 
         Returns:
-            str: The language setting (e.g., 'en').
+            int: The language setting (e.g., 'en').
         """
         try:
             return self.settings.get_int("language")
@@ -173,17 +185,19 @@ class ElevateSettings(GObject.Object):
         Returns:
             float: The channel offset in Hz (1-20 Hz range).
         """
-        return self.settings.get_double("channel-offset")
+        try:
+            return self.settings.get_double("channel-offset")
+        except Exception:
+            return 6.0
 
-    # Don't save for now, this is set by the Intended State
-    # @channel_offset.setter
-    # def channel_offset(self, value: float) -> None:
-    #     """Set the channel offset for audio stimuli.
+    @channel_offset.setter
+    def channel_offset(self, value: float) -> None:
+        """Set the channel offset for audio stimuli.
 
-    #     Args:
-    #         value (float): The channel offset in Hz (1-20 Hz range).
-    #     """
-    #     self.settings.set_double("channel-offset", value)
+        Args:
+            value (float): The channel offset in Hz (1-20 Hz range).
+        """
+        self.settings.set_double("channel-offset", value)
 
     @GObject.Property(type=bool, default=True)
     def enable_visual_stimuli(self) -> bool:

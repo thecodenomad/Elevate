@@ -4,7 +4,7 @@ import types
 import sys
 import pytest
 
-import elevate.backend.elevate_settings as elevate_settings
+import elevate.settings as elevate_settings
 
 
 @pytest.fixture(autouse=True, scope="session")

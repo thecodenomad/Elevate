@@ -46,7 +46,7 @@ poetry update && ./update_python_dependencies.sh
 
 ## UI Development
 - Use Blueprint (.blp) files for complex layouts
-- Store Blueprint (.blp) files in src/view/blueprints
+- Store Blueprint (.blp) files in elevate/view/blueprints
 - Use templates for custom widgets
 - Separate UI logic from business logic
 - Support multiple languages
@@ -63,10 +63,10 @@ poetry run pytest tests/test_specific.py::test_function
 ## Linting
 ```bash
 # Check for style issues
-poetry run pylint src/
+poetry run pylint elevate/
 
 # Format code
-poetry run black src/
+poetry run black elevate/
 ```
 
 ## Github Workflow

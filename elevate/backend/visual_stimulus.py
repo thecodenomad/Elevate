@@ -44,6 +44,7 @@ class VisualStimulus(GObject.Object):
         self._widget = None
         self._last_ts: Optional[float] = None
         self._animation: Optional[Animation] = None
+        self._time = 0.0  # Accumulated time for animations
 
     @GObject.Property(type=bool, default=False)
     def enable_visual_stimuli(self):
@@ -89,11 +90,13 @@ class VisualStimulus(GObject.Object):
         """Pause rendering visual stimuli."""
         if self._is_playing:
             self._is_playing = False
+            self._time = 0.0  # Reset time on pause
             self._stop_animation()
 
     def stop(self):
         """Stop rendering visual stimuli."""
         self._is_playing = False
+        self._time = 0.0  # Reset time on stop
         self._stop_animation()
         # Reset widget appearance
         if self._widget:
@@ -132,6 +135,7 @@ class VisualStimulus(GObject.Object):
                 height = getattr(self._widget, "height", 0)
             if self._animation is not None:
                 self._animation.update(dt, width, height)
+                self._time += dt  # Accumulate time
             if hasattr(self._widget, "queue_draw"):
                 self._widget.queue_draw()
             return GLib.SOURCE_CONTINUE
@@ -157,8 +161,8 @@ class VisualStimulus(GObject.Object):
         if self._animation is None:
             self._animation = get_animation_class(str(self._stimuli_type))()
 
-        # Use animation-driven state only
-        self._animation.render(cr, width, height, 0.0)
+        # Use animation-driven state with accumulated time
+        self._animation.render(cr, width, height, self._time)
 
     def _render_color_stimulus(self, cr, width, height, time):
         """Render a color-based stimulus."""

@@ -1,4 +1,4 @@
-# control_sidebar.py
+# sidebar.py
 #
 # Copyright 2025 thecodenomad
 #
@@ -61,6 +61,11 @@ class Sidebar(Gtk.Box):
         state_idx = self.settings.intended_state
         self.intended_state_combo.set_selected(state_idx)
 
+        # Set Default Channel Offset
+        state_type = list(StateType)[state_idx]
+        default_offset = STATE_DATA[state_type][DEFAULT]
+        self.channel_offset_scale.set_value(default_offset)
+
         # Set Default Session Length
         session_length = self.settings.session_length
         self.minutes_spin_button.set_value(session_length)
@@ -79,9 +84,13 @@ class Sidebar(Gtk.Box):
         When a user selects a state from the combo box, this method will:
         1. Map the selection to a StateType enum
         2. Set the channel_offset_scale to the default value for that state
+        3. Update the settings with the new intended state
         """
         selected_index = combo.get_selected()
         if selected_index != Gtk.INVALID_LIST_POSITION:
+            # Update the intended state in settings
+            self.settings.intended_state = selected_index
+
             # Map the index to the StateType enum
             try:
                 state_type = list(StateType)[selected_index]
@@ -89,7 +98,7 @@ class Sidebar(Gtk.Box):
                 default_value = STATE_DATA[state_type][DEFAULT]
                 adjustment = self.channel_offset_scale.get_adjustment()
                 adjustment.set_value(default_value)
-                print(f"User intends to state: {state_type.name}")
+                print(f"User intends to state: {state_type.name} with offset: {default_value}")
             except (IndexError, KeyError) as e:
                 print(f"Error setting state: {e}")
 
@@ -111,19 +120,7 @@ class Sidebar(Gtk.Box):
             self.advanced_visual_settings.set_property("opacity", 0)
             self.intended_state_combo.set_sensitive(True)
 
-    def on_stimuli_type_combo_changed(self, combo, _pspec):
-        """Handle changes to the stimuli_type_combo.
-
-        Currently only handles the "Bounce" selection which maps to stimuli type 0.
-        """
-        selected_item = combo.get_selected_item()
-        if selected_item is not None:
-            selected_string = selected_item.get_string()
-            if selected_string == "Bounce":
-                self.controller.set_stimuli_type(0)
-
     def set_bindings(self):
         """Helper method for establishing bindings for the relevant widgets."""
         self.intended_state_combo.connect("notify::selected-item", self.on_intended_state_combo_changed)
-        self.stimuli_type_combo.connect("notify::selected-item", self.on_stimuli_type_combo_changed)
         self.advanced_settings_switch.connect("notify::active", self.on_advanced_settings_toggle)

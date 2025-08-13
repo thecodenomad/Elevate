@@ -19,12 +19,11 @@
 
 """Audio stimulus generator for binaural beats."""
 
-import math
 import numpy as np
 import gi
 
 gi.require_version("Gst", "1.0")
-from gi.repository import GObject, GLib, Gst
+from gi.repository import GObject, Gst
 
 
 class AudioStimulus(GObject.Object):
@@ -35,7 +34,7 @@ class AudioStimulus(GObject.Object):
     def __init__(self):
         """Initialize the audio stimulus generator."""
         super().__init__()
-        self._base_frequency = 200.0
+        self._base_frequency = 30.0  # Restored to match settings.py
         self._channel_offset = 10.0
         self._is_playing = False
         self._sample_rate = 44100
@@ -52,22 +51,44 @@ class AudioStimulus(GObject.Object):
         self._volume_element = None
         self._sink = None
 
-    @GObject.Property(type=float, default=200.0)
+        # Connect property change signals for debugging
+        self.connect("notify::base-frequency", self._on_base_frequency_changed)
+        self.connect("notify::channel-offset", self._on_channel_offset_changed)
+
+    def _on_base_frequency_changed(self, obj, pspec):
+        """Debug handler for base-frequency changes."""
+        print(f"AudioStimulus: base-frequency changed to {self._base_frequency} Hz")
+
+    def _on_channel_offset_changed(self, obj, pspec):
+        """Debug handler for channel-offset changes."""
+        print(f"AudioStimulus: channel-offset changed to {self._channel_offset} Hz")
+
+    @GObject.Property(type=float, default=30.0)
     def base_frequency(self):
         """Get the base frequency for the binaural beat."""
         return self._base_frequency
 
     @base_frequency.setter
     def base_frequency(self, value):
-        self._base_frequency = value
-        if self._is_playing and self._source_left and self._source_right:
+        """Set the base frequency for the binaural beat."""
+        self._base_frequency = float(value)
+        if self._source_left and self._source_right:
+            was_playing = self._is_playing
             try:
-                self._source_left.set_property("freq", float(self._base_frequency))
+                if was_playing:
+                    self._pipeline.set_state(Gst.State.PAUSED)
+                self._source_left.set_property("freq", self._base_frequency)
                 self._source_right.set_property(
-                    "freq", float(self._base_frequency + self._channel_offset)
+                    "freq", self._base_frequency + self._channel_offset
                 )
-            except Exception:
-                pass
+                if was_playing:
+                    self._pipeline.set_state(Gst.State.PLAYING)
+                print(f"Updated base frequency: {self._base_frequency} Hz, "
+                      f"right channel: {self._base_frequency + self._channel_offset} Hz")
+            except TypeError as e:
+                print(f"Error setting base frequency {value}: {e}")
+            except Exception as e:
+                print(f"Unexpected error setting base frequency {value}: {e}")
 
     @GObject.Property(type=float, default=10.0)
     def channel_offset(self):
@@ -76,14 +97,24 @@ class AudioStimulus(GObject.Object):
 
     @channel_offset.setter
     def channel_offset(self, value):
-        self._channel_offset = value
-        if self._is_playing and self._source_left and self._source_right:
+        """Set the frequency offset between channels."""
+        self._channel_offset = float(value)
+        if self._source_right:
+            was_playing = self._is_playing
             try:
+                if was_playing:
+                    self._pipeline.set_state(Gst.State.PAUSED)
                 self._source_right.set_property(
-                    "freq", float(self._base_frequency + self._channel_offset)
+                    "freq", self._base_frequency + self._channel_offset
                 )
-            except Exception:
-                pass
+                if was_playing:
+                    self._pipeline.set_state(Gst.State.PLAYING)
+                print(f"Updated channel offset: {self._channel_offset} Hz, "
+                      f"right channel: {self._base_frequency + self._channel_offset} Hz")
+            except TypeError as e:
+                print(f"Error setting channel offset {value}: {e}")
+            except Exception as e:
+                print(f"Unexpected error setting channel offset {value}: {e}")
 
     def _generate_audio_buffer(self, duration):
         """Generate a stereo audio buffer with binaural beats."""
@@ -141,15 +172,23 @@ class AudioStimulus(GObject.Object):
 
         # Configure defaults
         for src in (self._source_left, self._source_right):
-            src.set_property("wave", 0)
-            src.set_property("volume", 1.0)
-            src.set_property("is-live", True)
-        self._volume_element.set_property("volume", float(self._volume))
+            if src:
+                src.set_property("wave", 0)
+                src.set_property("volume", 1.0)
+                src.set_property("is-live", True)
+        if self._volume_element:
+            self._volume_element.set_property("volume", float(self._volume))
+
+        # Set initial frequencies
+        if self._source_left and self._source_right:
+            self._source_left.set_property("freq", float(self._base_frequency))
+            self._source_right.set_property("freq", float(self._base_frequency + self._channel_offset))
 
         # Probe example hook (no-op handler)
         try:
-            pad = self._source_left.get_static_pad("src")
-            pad.add_probe(Gst.PadProbeType.BUFFER, lambda *args: Gst.PadProbeReturn.OK, None)
+            if self._source_left:
+                pad = self._source_left.get_static_pad("src")
+                pad.add_probe(Gst.PadProbeType.BUFFER, lambda *args: Gst.PadProbeReturn.OK, None)
         except Exception:
             pass
 
@@ -165,10 +204,17 @@ class AudioStimulus(GObject.Object):
                 left_freq = float(self._base_frequency)
                 right_freq = float(self._base_frequency + self._channel_offset)
 
-                print(f"Play initiated...Left: {left_freq} Right: {right_freq}")
+                print(f"Play initiated...Left: {left_freq} Hz, Right: {right_freq} Hz")
 
-                self._source_left.set_property("freq", left_freq)
-                self._source_right.set_property("freq", right_freq)
+                # Ensure frequencies are applied to pipeline elements
+                if self._source_left and self._source_right:
+                    try:
+                        self._source_left.set_property("freq", left_freq)
+                        self._source_right.set_property("freq", right_freq)
+                    except TypeError as e:
+                        print(f"Error setting frequencies on play: {e}")
+                    except Exception as e:
+                        print(f"Unexpected error setting frequencies on play: {e}")
                 self._pipeline.set_state(Gst.State.PLAYING)
                 self._is_playing = True
             except Exception as e:
@@ -192,8 +238,11 @@ class AudioStimulus(GObject.Object):
         try:
             if self._volume_element:
                 self._volume_element.set_property("volume", float(self._volume))
-        except Exception:
-            pass
+                print(f"Volume set to: {self._volume}")
+        except TypeError as e:
+            print(f"Error setting volume {value}: {e}")
+        except Exception as e:
+            print(f"Unexpected error setting volume {value}: {e}")
 
     def get_volume(self) -> float:
         return float(self._volume)
