@@ -27,7 +27,6 @@ from gi.repository import Gtk
 # Import constants using relative import
 from elevate.constants import DEFAULT, STATE_DATA, StateType
 
-# pylint: disable=E1101
 
 @Gtk.Template(resource_path="/org/thecodenomad/elevate/sidebar.ui")
 class Sidebar(Gtk.Box):
@@ -59,7 +58,10 @@ class Sidebar(Gtk.Box):
         """Helper method to load saved settings into the sidebar widgets."""
         # Set Intended State
         state_idx = self.settings.intended_state
+        state_type = list(StateType)[state_idx]
         self.intended_state_combo.set_selected(state_idx)
+        tooltip = f"{state_type.name}: {STATE_DATA[state_type][DEFAULT]} Hz - {STATE_DATA[state_type]['description']}"
+        self.intended_state_combo.set_tooltip_text(tooltip)
 
         # Set Default Channel Offset
         state_type = list(StateType)[state_idx]
@@ -96,6 +98,9 @@ class Sidebar(Gtk.Box):
                 state_type = list(StateType)[selected_index]
                 # Set the channel_offset_scale to the default value for this state
                 default_value = STATE_DATA[state_type][DEFAULT]
+                tooltip = f"{state_type.name}: {STATE_DATA[state_type][DEFAULT]} Hz - {STATE_DATA[state_type]['description']}"
+                combo.set_tooltip_text(tooltip)
+
                 adjustment = self.channel_offset_scale.get_adjustment()
                 adjustment.set_value(default_value)
                 print(f"User intends to state: {state_type.name} with offset: {default_value}")

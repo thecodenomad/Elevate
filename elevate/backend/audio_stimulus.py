@@ -23,7 +23,7 @@ import numpy as np
 import gi
 
 gi.require_version("Gst", "1.0")
-from gi.repository import GObject, Gst
+from gi.repository import GObject, Gst, GLib
 
 
 class AudioStimulus(GObject.Object):
@@ -34,12 +34,14 @@ class AudioStimulus(GObject.Object):
     def __init__(self):
         """Initialize the audio stimulus generator."""
         super().__init__()
-        self._base_frequency = 30.0  # Restored to match settings.py
+        self._base_frequency = 30.0
         self._channel_offset = 10.0
         self._is_playing = False
         self._sample_rate = 44100
         self._buffer_size = 1024
         self._volume = 0.5
+        self._pending_frequency_update = False  # Track pending updates
+        self._update_timeout_id = None
 
         # Initialize GStreamer
         Gst.init(None)
@@ -63,6 +65,34 @@ class AudioStimulus(GObject.Object):
         """Debug handler for channel-offset changes."""
         print(f"AudioStimulus: channel-offset changed to {self._channel_offset} Hz")
 
+    def _schedule_frequency_update(self):
+        """Schedule a frequency update to avoid rapid pipeline changes."""
+        if self._update_timeout_id is not None:
+            GLib.source_remove(self._update_timeout_id)
+        self._update_timeout_id = GLib.timeout_add(100, self._apply_frequency_update)
+
+    def _apply_frequency_update(self):
+        """Apply pending frequency updates to the pipeline."""
+        if not self._pending_frequency_update or not self._source_left or not self._source_right:
+            self._update_timeout_id = None
+            return False
+        was_playing = self._is_playing
+        try:
+            if was_playing:
+                self._pipeline.set_state(Gst.State.PAUSED)
+            self._source_left.set_property("freq", float(self._base_frequency))
+            self._source_right.set_property("freq", float(self._base_frequency + self._channel_offset))
+            if was_playing:
+                self._pipeline.set_state(Gst.State.PLAYING)
+            print(f"Applied frequency update: Left {self._base_frequency} Hz, Right {self._base_frequency + self._channel_offset} Hz")
+        except TypeError as e:
+            print(f"Error applying frequency update: {e}")
+        except Exception as e:
+            print(f"Unexpected error applying frequency update: {e}")
+        self._pending_frequency_update = False
+        self._update_timeout_id = None
+        return False
+
     @GObject.Property(type=float, default=30.0)
     def base_frequency(self):
         """Get the base frequency for the binaural beat."""
@@ -72,23 +102,8 @@ class AudioStimulus(GObject.Object):
     def base_frequency(self, value):
         """Set the base frequency for the binaural beat."""
         self._base_frequency = float(value)
-        if self._source_left and self._source_right:
-            was_playing = self._is_playing
-            try:
-                if was_playing:
-                    self._pipeline.set_state(Gst.State.PAUSED)
-                self._source_left.set_property("freq", self._base_frequency)
-                self._source_right.set_property(
-                    "freq", self._base_frequency + self._channel_offset
-                )
-                if was_playing:
-                    self._pipeline.set_state(Gst.State.PLAYING)
-                print(f"Updated base frequency: {self._base_frequency} Hz, "
-                      f"right channel: {self._base_frequency + self._channel_offset} Hz")
-            except TypeError as e:
-                print(f"Error setting base frequency {value}: {e}")
-            except Exception as e:
-                print(f"Unexpected error setting base frequency {value}: {e}")
+        self._pending_frequency_update = True
+        self._schedule_frequency_update()
 
     @GObject.Property(type=float, default=10.0)
     def channel_offset(self):
@@ -99,22 +114,8 @@ class AudioStimulus(GObject.Object):
     def channel_offset(self, value):
         """Set the frequency offset between channels."""
         self._channel_offset = float(value)
-        if self._source_right:
-            was_playing = self._is_playing
-            try:
-                if was_playing:
-                    self._pipeline.set_state(Gst.State.PAUSED)
-                self._source_right.set_property(
-                    "freq", self._base_frequency + self._channel_offset
-                )
-                if was_playing:
-                    self._pipeline.set_state(Gst.State.PLAYING)
-                print(f"Updated channel offset: {self._channel_offset} Hz, "
-                      f"right channel: {self._base_frequency + self._channel_offset} Hz")
-            except TypeError as e:
-                print(f"Error setting channel offset {value}: {e}")
-            except Exception as e:
-                print(f"Unexpected error setting channel offset {value}: {e}")
+        self._pending_frequency_update = True
+        self._schedule_frequency_update()
 
     def _generate_audio_buffer(self, duration):
         """Generate a stereo audio buffer with binaural beats."""

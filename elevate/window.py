@@ -27,9 +27,10 @@ import time
 
 from gi.repository import Adw, Gtk, Gio, GLib, GObject
 from elevate.backend.state_induction_controller import StateInductionController
-from elevate.view.stimuli_renderer import StimuliRenderer
 from elevate.view.epileptic_warning_dialog import EpilepticWarningDialog
+from elevate.view.preferences_window import PreferencesWindow
 from elevate.view.sidebar import Sidebar
+from elevate.view.stimuli_renderer import StimuliRenderer
 
 
 @Gtk.Template(resource_path="/org/thecodenomad/elevate/window.ui")
@@ -73,6 +74,7 @@ class ElevateWindow(Adw.Window):
         """
         super().__init__(**kwargs)
         self._settings = settings
+        self.timeout_id = None  # Initialize to avoid AttributeError
 
         self.controller = StateInductionController()
         self.sidebar = Sidebar(self.controller, self.settings)
@@ -157,7 +159,6 @@ class ElevateWindow(Adw.Window):
         self._pointer_in_toolbar = False
         self._volume_popover_open = False
         self._fade_timeout_id = None
-        self.timeout_id = None
         self._last_motion_pos = None  # Track last mouse position for debouncing
         self._last_elapsed = None  # Track last elapsed time for UI updates
         self._last_motion_time = None  # Track last motion time for rate limiting
@@ -179,50 +180,27 @@ class ElevateWindow(Adw.Window):
 
     def update_timer(self):
         """Update the run time label and scale with elapsed time."""
-        try:
-            # Use controller's elapsed time as primary source
-            elapsed = self.controller.elapsed_time
-            if elapsed is None:
-                elapsed = time.monotonic() - self._start_time
-        except Exception:
-            elapsed = time.monotonic() - self._start_time
-
-        # Ensure elapsed is a numeric value
-        try:
-            elapsed = float(elapsed)
-        except (TypeError, ValueError):
-            elapsed = 0.0
-
-        # Get max runtime from minutes_spin_button
+        elapsed = self.controller.elapsed_time
         max_seconds = self._max_seconds
 
-        # Cap elapsed time
-        if elapsed >= max_seconds:  # type: ignore
-            elapsed = max_seconds
+        if elapsed >= max_seconds:
             self.controller.stop()
-            if self.play_button.get_active():
-                self.play_button.set_active(False)
+            self.play_button.set_active(False)
             if self.timeout_id:
                 GLib.source_remove(self.timeout_id)
                 self.timeout_id = None
-
-            # Reset the controller
             self.controller._elapsed_time = 0.0
             self.time_scale.set_value(0)
             self.run_time_label.set_text("00:00")
-            # Max runtime reached, stopping playback
+            return False
 
-        # Use divmod for efficiency and avoid redundant UI updates
         minutes, seconds = divmod(int(elapsed), 60)
-        # Update UI only if time changed significantly (avoid sub-second updates)
-        last_elapsed = self._last_elapsed if self._last_elapsed is not None else -1
-        last_minutes, last_seconds = divmod(int(last_elapsed), 60)
-        if (minutes, seconds) != (last_minutes, last_seconds):
+        if (minutes, seconds) != (divmod(int(self._last_elapsed or -1), 60)):
             self.run_time_label.set_text(f"{minutes:02d}:{seconds:02d}")
             self.time_scale.set_value(elapsed)
             self._last_elapsed = elapsed
 
-        return True  # Continue updating
+        return True
 
     def destroy(self):
         """Clean up timeout sources."""
@@ -281,6 +259,8 @@ class ElevateWindow(Adw.Window):
         self.controller.connect("notify::is-playing", self._on_playing_state_changed)
         self.volume_button.connect("notify::active", self._on_volume_popover_active)
         self.fullscreen_button.connect("toggled", self._on_fullscreen_toggled)
+        if self.timeout_id is None:
+            self.timeout_id = GLib.timeout_add(500, self.update_timer, priority=GLib.PRIORITY_DEFAULT)
 
     def _reset_toolbar_visible(self):
         """Reset toolbar to visible state instantly and start fade timeout."""
@@ -404,7 +384,6 @@ class ElevateWindow(Adw.Window):
 
     def _show_warning_and_start(self, button):
         """Show epileptic warning dialog before starting playback."""
-
         if not self.settings.epileptic_warning:
             self._start_playback(button)
             return
@@ -435,7 +414,7 @@ class ElevateWindow(Adw.Window):
         self.split_view.set_show_sidebar(False)
         self.controller.play()
         if self.timeout_id is None:
-            self.timeout_id = GLib.timeout_add(100, self.update_timer, priority=GLib.PRIORITY_DEFAULT)
+            self.timeout_id = GLib.timeout_add(500, self.update_timer, priority=GLib.PRIORITY_DEFAULT)
         self._safe_queue_draw()
 
     def _handle_stop(self, button):
@@ -478,7 +457,6 @@ class ElevateWindow(Adw.Window):
 
     def _on_preferences_clicked(self, *_):
         """Open the Preferences window dialog."""
-        from .view.preferences_window import PreferencesWindow
 
         dlg = PreferencesWindow(self.settings)
         dlg.present(self)

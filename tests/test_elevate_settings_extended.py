@@ -2,7 +2,7 @@ import os
 import importlib
 import pytest
 
-from elevate.backend.elevate_settings import ElevateSettings
+from elevate.settings import ElevateSettings
 
 def test_settings_memory_defaults(conftest=None):
     s = ElevateSettings()
