@@ -31,6 +31,7 @@ from elevate.constants import (
 
 # pylint: disable=E1101,W0718
 
+
 @Gtk.Template(resource_path="/org/thecodenomad/elevate/preferences_window.ui")
 class PreferencesWindow(Adw.PreferencesDialog):
     """The Preferences Window exposing user selected defaults."""

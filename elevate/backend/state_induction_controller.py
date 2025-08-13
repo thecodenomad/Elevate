@@ -53,13 +53,13 @@ class StateInductionController(GObject.Object):
             "base-frequency",
             self.audio_stimulus,
             "base-frequency",
-            Gio.SettingsBindFlags.DEFAULT | Gio.SettingsBindFlags.GET | Gio.SettingsBindFlags.SET
+            Gio.SettingsBindFlags.DEFAULT | Gio.SettingsBindFlags.GET | Gio.SettingsBindFlags.SET,
         )
         self._settings.app_config.bind(
             "channel-offset",
             self.audio_stimulus,
             "channel-offset",
-            Gio.SettingsBindFlags.DEFAULT | Gio.SettingsBindFlags.GET | Gio.SettingsBindFlags.SET
+            Gio.SettingsBindFlags.DEFAULT | Gio.SettingsBindFlags.GET | Gio.SettingsBindFlags.SET,
         )
 
         # Bind settings to visual stimulus using Gio.Settings.bind
@@ -67,13 +67,13 @@ class StateInductionController(GObject.Object):
             "enable-visual-stimuli",
             self.visual_stimulus,
             "enable-visual-stimuli",
-            Gio.SettingsBindFlags.DEFAULT | Gio.SettingsBindFlags.GET | Gio.SettingsBindFlags.SET
+            Gio.SettingsBindFlags.DEFAULT | Gio.SettingsBindFlags.GET | Gio.SettingsBindFlags.SET,
         )
         self._settings.app_config.bind(
             "stimuli-type",
             self.visual_stimulus,
             "stimuli-type",
-            Gio.SettingsBindFlags.DEFAULT | Gio.SettingsBindFlags.GET | Gio.SettingsBindFlags.SET
+            Gio.SettingsBindFlags.DEFAULT | Gio.SettingsBindFlags.GET | Gio.SettingsBindFlags.SET,
         )
 
         # Debug logging for settings changes
@@ -82,11 +82,15 @@ class StateInductionController(GObject.Object):
 
     def _on_settings_base_frequency_changed(self, obj, pspec):
         """Debug handler for settings base-frequency changes."""
-        print(f"StateInductionController: settings.base-frequency changed to {self._settings.base_frequency} Hz")
+        print(
+            f"StateInductionController: settings.base-frequency changed to {self._settings.base_frequency} Hz"
+        )
 
     def _on_settings_channel_offset_changed(self, obj, pspec):
         """Debug handler for settings channel-offset changes."""
-        print(f"StateInductionController: settings.channel-offset changed to {self._settings.channel_offset} Hz")
+        print(
+            f"StateInductionController: settings.channel-offset changed to {self._settings.channel_offset} Hz"
+        )
 
     @GObject.Property(type=bool, default=False)
     def is_playing(self):

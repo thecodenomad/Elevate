@@ -84,7 +84,9 @@ class AudioStimulus(GObject.Object):
             self._source_right.set_property("freq", float(self._base_frequency + self._channel_offset))
             if was_playing:
                 self._pipeline.set_state(Gst.State.PLAYING)
-            print(f"Applied frequency update: Left {self._base_frequency} Hz, Right {self._base_frequency + self._channel_offset} Hz")
+            print(
+                f"Applied frequency update: Left {self._base_frequency} Hz, Right {self._base_frequency + self._channel_offset} Hz"
+            )
         except TypeError as e:
             print(f"Error applying frequency update: {e}")
         except Exception as e:

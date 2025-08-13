@@ -27,6 +27,8 @@ from gi.repository import Gtk
 # Import constants using relative import
 from elevate.constants import DEFAULT, STATE_DATA, StateType
 
+# pylint: disable=E1101
+
 
 @Gtk.Template(resource_path="/org/thecodenomad/elevate/sidebar.ui")
 class Sidebar(Gtk.Box):

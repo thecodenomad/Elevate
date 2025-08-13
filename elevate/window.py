@@ -106,9 +106,7 @@ class ElevateWindow(Adw.Window):
                     None,
                 )
                 # Update settings and max_seconds on minutes change
-                self._minutes_spin_button.connect(
-                    "notify::value", self._on_minutes_spin_button_changed
-                )
+                self._minutes_spin_button.connect("notify::value", self._on_minutes_spin_button_changed)
             except Exception as e:
                 print(f"[ElevateWindow] Warning initializing minutes binding: {e}")
                 self._time_adjustment.set_upper(3600)  # Default to 1 hour
