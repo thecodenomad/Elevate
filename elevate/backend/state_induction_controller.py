@@ -49,13 +49,13 @@ class StateInductionController(GObject.Object):
         self._start_time = None
 
         # Bind settings to audio stimulus using Gio.Settings.bind
-        self._settings.settings.bind(
+        self._settings.app_config.bind(
             "base-frequency",
             self.audio_stimulus,
             "base-frequency",
             Gio.SettingsBindFlags.DEFAULT | Gio.SettingsBindFlags.GET | Gio.SettingsBindFlags.SET
         )
-        self._settings.settings.bind(
+        self._settings.app_config.bind(
             "channel-offset",
             self.audio_stimulus,
             "channel-offset",
@@ -63,13 +63,13 @@ class StateInductionController(GObject.Object):
         )
 
         # Bind settings to visual stimulus using Gio.Settings.bind
-        self._settings.settings.bind(
+        self._settings.app_config.bind(
             "enable-visual-stimuli",
             self.visual_stimulus,
             "enable-visual-stimuli",
             Gio.SettingsBindFlags.DEFAULT | Gio.SettingsBindFlags.GET | Gio.SettingsBindFlags.SET
         )
-        self._settings.settings.bind(
+        self._settings.app_config.bind(
             "stimuli-type",
             self.visual_stimulus,
             "stimuli-type",

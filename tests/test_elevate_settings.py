@@ -1,4 +1,4 @@
-# test_elevate_settings.py
+# tests/test_elevate_settings.py
 #
 # Copyright 2025 thecodenomad
 #
@@ -17,56 +17,55 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Unit tests for the ElevateSettings class."""
-
 import pytest
+from gi.repository import Gio, GLib
 from elevate.settings import ElevateSettings
+from elevate.constants import APPLICATION_ID
 
 
-class TestElevateSettings:
-    """Test suite for ElevateSettings."""
-
-    def test_init(self):
-        """Test settings initialization."""
+@pytest.fixture
+def settings():
+    """Fixture to create an ElevateSettings instance with a mock GSettings schema."""
+    try:
         settings = ElevateSettings()
-        assert settings is not None
-        # Test default values from schema
-        assert settings.get_base_frequency() == 200.0
-        assert settings.get_channel_offset() == 10.0
-        assert settings.get_enable_visual_stimuli() is False
-        assert settings.get_stimuli_type() == 0
+        print(settings.__dict__)
+        return settings
+    except GLib.Error as e:
+        pytest.skip(f"GSettings schema not available: {e}")
 
-    def test_set_base_frequency(self):
-        """Test setting base frequency."""
-        settings = ElevateSettings()
-        settings.set_base_frequency(150.0)
-        assert settings.get_base_frequency() == 150.0
 
-    def test_set_channel_offset(self):
-        """Test setting channel offset."""
-        settings = ElevateSettings()
-        settings.set_channel_offset(5.0)
-        assert settings.get_channel_offset() == 5.0
+def test_init(settings):
+    """Test settings initialization."""
+    assert settings is not None
+    # Test default values from schema
+    assert settings.base_frequency == 30.0
+    assert settings.channel_offset == 6.0
+    assert settings.intended_state == 0
+    assert settings.session_length == 10
+    assert settings.epileptic_warning is True
+    assert settings.language == 0
+    assert settings.enable_visual_stimuli is True
+    assert settings.saved_volume == 25
+    assert settings.stimuli_type == 1
 
-    def test_set_enable_visual_stimuli(self):
-        """Test enabling visual stimuli."""
-        settings = ElevateSettings()
-        settings.set_enable_visual_stimuli(True)
-        assert settings.get_enable_visual_stimuli() is True
 
-    def test_set_stimuli_type(self):
-        """Test setting stimuli type."""
-        settings = ElevateSettings()
-        settings.set_stimuli_type(1)
-        assert settings.get_stimuli_type() == 1
+def test_base_frequency_set_get(settings):
+    """Test setting and getting base_frequency."""
+    settings.base_frequency = 100.0
+    assert settings.base_frequency == 100.0
+    # Test out-of-range values
+    settings.base_frequency = 400.0
+    assert settings.base_frequency == 300.0  # Clamped to max
+    settings.base_frequency = 10.0
+    assert settings.base_frequency == 20.0  # Clamped to min
 
-    def test_bind_property(self):
-        """Test property binding.
-        
-        Note: This is a basic test of the binding mechanism.
-        Actual binding functionality is tested in integration tests.
-        """
-        settings = ElevateSettings()
-        # Test that the method exists and can be called
-        # The actual binding is tested with real GObject objects
-        assert hasattr(settings, 'bind_property')
+
+def test_channel_offset_set_get(settings):
+    """Test setting and getting channel_offset."""
+    settings.channel_offset = 15.0
+    assert settings.channel_offset == 15.0
+    # Test out-of-range values
+    settings.channel_offset = 125.0
+    assert settings.channel_offset == 100.0  # Clamped to max
+    settings.channel_offset = 0.5
+    assert settings.channel_offset == 1.0  # Clamped to min

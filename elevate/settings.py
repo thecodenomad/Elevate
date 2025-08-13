@@ -41,20 +41,25 @@ class ElevateSettings(GObject.Object):
     DEFAULT_SAVED_VOLUME = 25
     DEFAULT_STIMULI_TYPE = 1  # Theta state default
     BASE_FREQUENCY_RANGE = (20.0, 300.0)
-    CHANNEL_OFFSET_RANGE = (1.0, 20.0)
+    CHANNEL_OFFSET_RANGE = (1.0, 100.0)
 
     def __init__(self):
         """Initialize the settings with a GSettings instance."""
         super().__init__()
         try:
-            self.settings = Gio.Settings.new(APPLICATION_ID)
+            self.app_config = Gio.Settings.new(APPLICATION_ID)
+            if not self.app_config:
+                raise RuntimeError(f"Failed to initialize GSettings with ID {APPLICATION_ID}")
         except GLib.Error as e:
             print(f"Error initializing GSettings: {e}")
             raise
+        except Exception as e:
+            print(f"Unexpected error initializing GSettings: {e}")
+            raise
 
         # Debug logging for settings changes
-        self.settings.connect("changed::base-frequency", self._on_base_frequency_changed)
-        self.settings.connect("changed::channel-offset", self._on_channel_offset_changed)
+        self.app_config.connect("changed::base-frequency", self._on_base_frequency_changed)
+        self.app_config.connect("changed::channel-offset", self._on_channel_offset_changed)
 
     def _on_base_frequency_changed(self, settings, key):
         """Debug handler for base-frequency changes."""
@@ -76,7 +81,7 @@ class ElevateSettings(GObject.Object):
             float: The base frequency in Hz (20-300 Hz range).
         """
         try:
-            return self.settings.get_double("base-frequency")
+            return self.app_config.get_double("base-frequency")
         except GLib.Error as e:
             print(f"Error reading base-frequency: {e}")
             return self.DEFAULT_BASE_FREQUENCY
@@ -92,7 +97,7 @@ class ElevateSettings(GObject.Object):
         if not self.BASE_FREQUENCY_RANGE[0] <= value <= self.BASE_FREQUENCY_RANGE[1]:
             print(f"Warning: base-frequency {value} Hz out of range {self.BASE_FREQUENCY_RANGE}")
             value = max(self.BASE_FREQUENCY_RANGE[0], min(self.BASE_FREQUENCY_RANGE[1], value))
-        self.settings.set_double("base-frequency", value)
+        self.app_config.set_double("base-frequency", value)
 
     @GObject.Property(type=int, default=0)
     def intended_state(self) -> int:
@@ -102,7 +107,7 @@ class ElevateSettings(GObject.Object):
             int: The intended state setting.
         """
         try:
-            return self.settings.get_int("intended-state")
+            return self.app_config.get_int("intended-state")
         except GLib.Error as e:
             print(f"Error reading intended-state: {e}")
             return self.DEFAULT_STATE
@@ -114,7 +119,7 @@ class ElevateSettings(GObject.Object):
         Args:
             value (int): The intended state to set.
         """
-        self.settings.set_int("intended-state", value)
+        self.app_config.set_int("intended-state", value)
 
     @GObject.Property(type=int, default=0)
     def session_length(self) -> int:
@@ -124,7 +129,7 @@ class ElevateSettings(GObject.Object):
             int: The session length in minutes.
         """
         try:
-            return self.settings.get_int("session-length")
+            return self.app_config.get_int("session-length")
         except GLib.Error as e:
             print(f"Error reading session-length: {e}")
             return self.DEFAULT_SESSION_LENGTH
@@ -136,7 +141,7 @@ class ElevateSettings(GObject.Object):
         Args:
             value (int): The session length in minutes.
         """
-        self.settings.set_int("session-length", value)
+        self.app_config.set_int("session-length", value)
 
     @GObject.Property(type=bool, default=True)
     def epileptic_warning(self) -> bool:
@@ -146,7 +151,7 @@ class ElevateSettings(GObject.Object):
             bool: True if the epileptic warning is enabled, False otherwise.
         """
         try:
-            return self.settings.get_boolean("epileptic-warning")
+            return self.app_config.get_boolean("epileptic-warning")
         except GLib.Error as e:
             print(f"Error reading epileptic-warning: {e}")
             return self.DEFAULT_EPILEPTIC_WARNING
@@ -158,7 +163,7 @@ class ElevateSettings(GObject.Object):
         Args:
             value (bool): True to enable the warning, False to disable.
         """
-        self.settings.set_boolean("epileptic-warning", value)
+        self.app_config.set_boolean("epileptic-warning", value)
 
     @GObject.Property(type=int, default=0)
     def language(self) -> int:
@@ -168,7 +173,7 @@ class ElevateSettings(GObject.Object):
             int: The language setting.
         """
         try:
-            return self.settings.get_int("language")
+            return self.app_config.get_int("language")
         except GLib.Error as e:
             print(f"Error reading language: {e}")
             return self.DEFAULT_LANGUAGE
@@ -180,7 +185,7 @@ class ElevateSettings(GObject.Object):
         Args:
             value (int): The language code to set.
         """
-        self.settings.set_int("language", value)
+        self.app_config.set_int("language", value)
 
     #############################
     # Saved Application State   #
@@ -194,7 +199,7 @@ class ElevateSettings(GObject.Object):
             float: The channel offset in Hz (1-20 Hz range).
         """
         try:
-            return self.settings.get_double("channel-offset")
+            return self.app_config.get_double("channel-offset")
         except GLib.Error as e:
             print(f"Error reading channel-offset: {e}")
             return 6.0
@@ -210,7 +215,7 @@ class ElevateSettings(GObject.Object):
         if not self.CHANNEL_OFFSET_RANGE[0] <= value <= self.CHANNEL_OFFSET_RANGE[1]:
             print(f"Warning: channel-offset {value} Hz out of range {self.CHANNEL_OFFSET_RANGE}")
             value = max(self.CHANNEL_OFFSET_RANGE[0], min(self.CHANNEL_OFFSET_RANGE[1], value))
-        self.settings.set_double("channel-offset", value)
+        self.app_config.set_double("channel-offset", value)
 
     @GObject.Property(type=bool, default=True)
     def enable_visual_stimuli(self) -> bool:
@@ -220,7 +225,7 @@ class ElevateSettings(GObject.Object):
             bool: True if visual stimuli are enabled, False otherwise.
         """
         try:
-            return self.settings.get_boolean("enable-visual-stimuli")
+            return self.app_config.get_boolean("enable-visual-stimuli")
         except GLib.Error as e:
             print(f"Error reading enable-visual-stimuli: {e}")
             return self.DEFAULT_ENABLE_VISUAL
@@ -232,7 +237,7 @@ class ElevateSettings(GObject.Object):
         Args:
             value (bool): True to enable visual stimuli, False to disable.
         """
-        self.settings.set_boolean("enable-visual-stimuli", value)
+        self.app_config.set_boolean("enable-visual-stimuli", value)
 
     @property
     def saved_volume(self) -> int:
@@ -242,7 +247,7 @@ class ElevateSettings(GObject.Object):
             int: The saved volume setting.
         """
         try:
-            return self.settings.get_int("saved-volume")
+            return self.app_config.get_int("saved-volume")
         except GLib.Error as e:
             print(f"Error reading saved-volume: {e}")
             return self.DEFAULT_SAVED_VOLUME
@@ -254,7 +259,7 @@ class ElevateSettings(GObject.Object):
         Args:
             value (int): The volume to set.
         """
-        self.settings.set_int("saved-volume", value)
+        self.app_config.set_int("saved-volume", value)
 
     @GObject.Property(type=int, default=0)
     def stimuli_type(self) -> int:
@@ -264,7 +269,7 @@ class ElevateSettings(GObject.Object):
             int: The stimuli type (e.g., 0 for color, 1 for breath patterns).
         """
         try:
-            return self.settings.get_int("stimuli-type")
+            return self.app_config.get_int("stimuli-type")
         except GLib.Error as e:
             print(f"Error reading stimuli-type: {e}")
             return self.DEFAULT_STIMULI_TYPE
@@ -276,4 +281,4 @@ class ElevateSettings(GObject.Object):
         Args:
             value (int): The stimuli type to set (e.g., 0 for color, 1 for breath patterns).
         """
-        self.settings.set_int("stimuli-type", value)
+        self.app_config.set_int("stimuli-type", value)
