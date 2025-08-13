@@ -2,9 +2,9 @@ import os
 import importlib
 import pytest
 
+from elevate.backend.elevate_settings import ElevateSettings
 
 def test_settings_memory_defaults(conftest=None):
-    from src.backend.elevate_settings import ElevateSettings
     s = ElevateSettings()
     assert s.get_base_frequency() == 200.0
     assert s.get_channel_offset() == 10.0
@@ -13,7 +13,6 @@ def test_settings_memory_defaults(conftest=None):
 
 
 def test_settings_roundtrip_setters():
-    from src.backend.elevate_settings import ElevateSettings
     s = ElevateSettings()
     s.set_base_frequency(180.0)
     s.set_channel_offset(7.0)

@@ -17,12 +17,16 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+"""Settings abstraction that wraps the GSchema for easily getting and saving
+preference.
+"""
 
-from gi.repository import Gio
+from gi.repository import Gio, GObject
 from elevate.constants import APPLICATION_ID
 
+# pylint: disable=W0718
 
-class ElevateSettings:
+class ElevateSettings(GObject.Object):
     """Manages application settings using GSettings.
 
     This class provides properties to get and set application preferences and state,
@@ -44,19 +48,16 @@ class ElevateSettings:
     # Theta state default
     DEFAULT_STIMULI_TYPE = 1
 
-    def __init__(self, logger):
-        """Initialize the settings with a GSettings instance and logger.
-
-        Args:
-            logger: A logging.Logger instance for debugging setting changes.
-        """
+    def __init__(self):
+        """Initialize the settings with a GSettings instance and logger."""
+        super().__init__()
         self.settings = Gio.Settings.new(APPLICATION_ID)
 
     #################
     # Preferences   #
     #################
 
-    @property
+    @GObject.Property(type=float, default=30.0)
     def base_frequency(self) -> float:
         """The base frequency for audio stimuli.
 
@@ -77,7 +78,7 @@ class ElevateSettings:
         """
         self.settings.set_double("base-frequency", value)
 
-    @property
+    @GObject.Property(type=int, default=0)
     def intended_state(self) -> int:
         """The intended brainwave state.
 
@@ -98,7 +99,7 @@ class ElevateSettings:
         """
         self.settings.set_int("intended-state", value)
 
-    @property
+    @GObject.Property(type=int, default=0)
     def session_length(self) -> int:
         """The length of a meditation session.
 
@@ -119,7 +120,7 @@ class ElevateSettings:
         """
         self.settings.set_int("session-length", value)
 
-    @property
+    @GObject.Property(type=bool, default=True)
     def epileptic_warning(self) -> bool:
         """Whether to show the epileptic warning when starting a session.
 
@@ -140,7 +141,7 @@ class ElevateSettings:
         """
         self.settings.set_boolean("epileptic-warning", value)
 
-    @property
+    @GObject.Property(type=int, default=0)
     def language(self) -> int:
         """The language/locale code for the user interface.
 
@@ -165,7 +166,7 @@ class ElevateSettings:
     # Saved Application State   #
     #############################
 
-    @property
+    @GObject.Property(type=float, default=6.0)
     def channel_offset(self) -> float:
         """The channel offset for audio stimuli.
 
@@ -184,7 +185,7 @@ class ElevateSettings:
     #     """
     #     self.settings.set_double("channel-offset", value)
 
-    @property
+    @GObject.Property(type=bool, default=True)
     def enable_visual_stimuli(self) -> bool:
         """Whether to enable visual stimuli for mental state induction.
 
@@ -226,7 +227,7 @@ class ElevateSettings:
         """
         self.settings.set_int("saved-volume", value)
 
-    @property
+    @GObject.Property(type=int, default=0)
     def stimuli_type(self) -> int:
         """The type of visual stimuli to use.
 

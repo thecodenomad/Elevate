@@ -27,6 +27,7 @@ from gi.repository import Gtk
 # Import constants using relative import
 from elevate.constants import DEFAULT, STATE_DATA, StateType
 
+# pylint: disable=E1101
 
 @Gtk.Template(resource_path="/org/thecodenomad/elevate/sidebar.ui")
 class Sidebar(Gtk.Box):
@@ -55,6 +56,7 @@ class Sidebar(Gtk.Box):
         self.set_defaults()
 
     def set_defaults(self):
+        """Helper method to load saved settings into the sidebar widgets."""
         # Set Intended State
         state_idx = self.settings.intended_state
         self.intended_state_combo.set_selected(state_idx)
@@ -121,6 +123,7 @@ class Sidebar(Gtk.Box):
                 self.controller.set_stimuli_type(0)
 
     def set_bindings(self):
+        """Helper method for establishing bindings for the relevant widgets."""
         self.intended_state_combo.connect("notify::selected-item", self.on_intended_state_combo_changed)
         self.stimuli_type_combo.connect("notify::selected-item", self.on_stimuli_type_combo_changed)
         self.advanced_settings_switch.connect("notify::active", self.on_advanced_settings_toggle)

@@ -20,7 +20,7 @@
 """Unit tests for the VisualStimulus class."""
 
 import pytest
-from src.backend.visual_stimulus import VisualStimulus
+from elevate.backend.visual_stimulus import VisualStimulus
 
 
 class TestVisualStimulus:
@@ -76,7 +76,7 @@ class TestVisualStimulus:
         # Create a mock widget
         class MockWidget:
             pass
-        
+
         widget = MockWidget()
         visual.set_widget(widget)
         assert visual._widget == widget

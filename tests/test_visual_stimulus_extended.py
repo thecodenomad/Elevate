@@ -1,7 +1,7 @@
 import types
 import math
 import pytest
-from src.backend.visual_stimulus import VisualStimulus
+from elevate.backend.visual_stimulus import VisualStimulus
 
 
 class MockCR:

@@ -1,5 +1,5 @@
 import pytest
-from src.backend.state_induction_controller import StateInductionController
+from elevate.backend.state_induction_controller import StateInductionController
 
 
 def test_play_skips_visual_when_disabled(monkeypatch):

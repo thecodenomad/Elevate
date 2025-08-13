@@ -1,6 +1,6 @@
 [MASTER]
 jobs=4 #number of processes to use
-ignore = src/blueprints,tests
+ignore = elevate/blueprints,main.py,window.py,tests
 
 [BASIC]
 # Good variable names which should always be accepted, separated by a comma
@@ -14,4 +14,4 @@ bad-names=foo,bar,baz,toto,tutu,tata
 max-line-length=127
 
 [MESSAGE CONTROL]
-disable=C0305,E0611,W0108,W0511,R0913,R0917,R0904,R0914,I1101
+disable=C0305,C0413,E0611,W0108,W0511,R0913,R0917,R0904,R0914,I1101

@@ -1,6 +1,6 @@
-from src.backend.animations import get_animation_class
-from src.backend.animations.base import Animation
-from src.backend.animations.bouncy_ball import BouncyBallAnimation
+from elevate.backend.animations import get_animation_class
+from elevate.backend.animations.base import Animation
+from elevate.backend.animations.bouncy_ball import BouncyBallAnimation
 
 
 class Dummy(Animation):
@@ -30,7 +30,7 @@ def test_base_set_breath_cycle_noop():
     d = Dummy()
     d.set_breath_cycle((1, 1, 1, 1))
     d.update(0.0, 0, 0)
-    class _C: 
+    class _C:
         def set_source_rgb(self, r: float, g: float, b: float): pass
         def rectangle(self, x: float, y: float, w: float, h: float): pass
         def fill(self): pass

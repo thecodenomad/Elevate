@@ -164,6 +164,9 @@ class AudioStimulus(GObject.Object):
                     self._create_pipeline()
                 left_freq = float(self._base_frequency)
                 right_freq = float(self._base_frequency + self._channel_offset)
+
+                print(f"Play initiated...Left: {left_freq} Right: {right_freq}")
+
                 self._source_left.set_property("freq", left_freq)
                 self._source_right.set_property("freq", right_freq)
                 self._pipeline.set_state(Gst.State.PLAYING)

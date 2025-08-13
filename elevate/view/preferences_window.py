@@ -19,20 +19,22 @@
 
 """Preferences window for the Elevate application."""
 
-from gi.repository import Adw, Gio, Gtk
+from gi.repository import Adw, Gtk
 
 from elevate.constants import (
     DESCRIPTION,
     LANGUAGES,
-    LANGUAGE_CODES,
     StateType,
     STATE_DATA,
     STATE_TYPE_NAMES,
 )
 
+# pylint: disable=E1101,W0718
 
 @Gtk.Template(resource_path="/org/thecodenomad/elevate/preferences_window.ui")
 class PreferencesWindow(Adw.PreferencesDialog):
+    """The Preferences Window exposing user selected defaults."""
+
     __gtype_name__ = "PreferencesWindow"
 
     # General Settings
@@ -83,7 +85,7 @@ class PreferencesWindow(Adw.PreferencesDialog):
         # Set epileptic warning
         self.epileptic_warning_switch.set_active(self.settings.epileptic_warning)
 
-    def _on_default_state_changed(self, combo, pspec):
+    def _on_default_state_changed(self, combo, _pspec):
         sel = combo.get_selected()
         self.settings.intended_state = sel
 
@@ -99,7 +101,7 @@ class PreferencesWindow(Adw.PreferencesDialog):
         sel = self.language_selection_combo.get_selected()
         self.settings.language = sel
 
-    def _on_session_length_changed(self, row, pspec):
+    def _on_session_length_changed(self, row, _pspec):
         session_length = row.get_value()
         self.settings.session_length = session_length
 

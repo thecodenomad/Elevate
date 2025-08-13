@@ -4,6 +4,8 @@ import types
 import sys
 import pytest
 
+import elevate.backend.elevate_settings as elevate_settings
+
 
 @pytest.fixture(autouse=True, scope="session")
 def mock_gsettings_for_tests():
@@ -44,8 +46,6 @@ def mock_gsettings_for_tests():
                 target.set_property(target_prop, bool(val))
             else:
                 target.set_property(target_prop, int(val))
-
-    import src.backend.elevate_settings as elevate_settings
 
     orig_init = elevate_settings.ElevateSettings.__init__
 

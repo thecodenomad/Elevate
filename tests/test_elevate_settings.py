@@ -20,7 +20,7 @@
 """Unit tests for the ElevateSettings class."""
 
 import pytest
-from src.backend.elevate_settings import ElevateSettings
+from elevate.backend.elevate_settings import ElevateSettings
 
 
 class TestElevateSettings:

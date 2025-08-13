@@ -28,6 +28,7 @@ from gi.repository import GObject, GLib
 from .animations import get_animation_class
 from .animations.base import Animation
 
+# pylint: disable=R0902
 
 class VisualStimulus(GObject.Object):
     """Visual stimulus renderer for mental state induction."""
@@ -105,6 +106,7 @@ class VisualStimulus(GObject.Object):
     def _start_animation(self):
         """Start the animation loop."""
         if self._animation_source is None:
+            print("Animation should be starting...")
             self._last_ts = GLib.get_monotonic_time() / 1_000_000.0
             self._animation_source = GLib.timeout_add(16, self._animate)
 

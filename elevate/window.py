@@ -81,7 +81,7 @@ class ElevateWindow(Adw.Window):
         self._setup_bindings()
         self._setup_signals()
 
-        self.controller._visual_stimulus.set_widget(self.stimuli_renderer)
+        self.controller.visual_stimulus.set_widget(self.stimuli_renderer)
         self.stimuli_renderer.connect("resize", self._on_renderer_resize)
         self.stimuli_renderer.set_draw_func(self._on_draw)
 
@@ -320,7 +320,7 @@ class ElevateWindow(Adw.Window):
     def _bind_volume(self):
         """Initialize volume slider from audio stimulus if available."""
         try:
-            self.volume_scale.set_value(self.controller._audio_stimulus.get_volume())
+            self.volume_scale.set_value(self.controller.audio_stimulus.get_volume())
         except AttributeError:
             pass
 
@@ -334,7 +334,7 @@ class ElevateWindow(Adw.Window):
 
     def _on_draw(self, widget, cr, width, height):
         """Render visual stimuli on the drawing area."""
-        self.controller._visual_stimulus.render(widget, cr, width, height)
+        self.controller.visual_stimulus.render(widget, cr, width, height)
 
     def _on_renderer_resize(self, *_args):
         """Handle renderer resize by scheduling a redraw."""
@@ -463,7 +463,7 @@ class ElevateWindow(Adw.Window):
 
     def _on_volume_changed(self, scale):
         """Update audio volume when the slider changes."""
-        self.controller._audio_stimulus.set_volume(scale.get_value())
+        self.controller.audio_stimulus.set_volume(scale.get_value())
         self._reset_toolbar_visible()
 
     def _on_volume_popover_active(self, *_):

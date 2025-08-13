@@ -1,4 +1,4 @@
-from src.backend.animations import get_animation_class
+from elevate.backend.animations import get_animation_class
 
 
 def test_get_animation_class_case_and_strip_and_default():

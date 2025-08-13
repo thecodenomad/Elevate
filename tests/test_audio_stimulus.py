@@ -20,7 +20,7 @@
 """Unit tests for the AudioStimulus class."""
 
 import pytest
-from src.backend.audio_stimulus import AudioStimulus
+from elevate.backend.audio_stimulus import AudioStimulus
 
 
 class TestAudioStimulus:

@@ -1,3 +1,22 @@
+# main.py
+#
+# Copyright 2025 thecodenomad
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 """Main application module for Elevate.
 
 This module contains the main application class and entry point for the Elevate application.
@@ -10,6 +29,7 @@ gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
 from gi.repository import Gio, Adw
+from elevate.constants import APPLICATION_ID
 from elevate.settings import ElevateSettings
 from elevate.window import ElevateWindow
 from elevate.view.preferences_window import PreferencesWindow
@@ -20,18 +40,19 @@ class ElevateApplication(Adw.Application):
 
     def __init__(self):
         super().__init__(
-            application_id="org.thecodenomad.elevate", flags=0  # Gio.ApplicationFlags.DEFAULT_FLAGS
+            application_id=APPLICATION_ID, flags=0  # Gio.ApplicationFlags.DEFAULT_FLAGS
         )
         self.create_action("quit", self.on_quit_action, ["<primary>q"])
         self.create_action("about", self.on_about_action)
         self.create_action("preferences", self.on_preferences_action)
-        self._settings = ElevateSettings(Gio.Settings.new("org.thecodenomad.elevate"))
+        self._settings = ElevateSettings()
 
     @property
     def settings(self):
+        """GSchema settings presented as a property."""
         return self._settings
 
-    def do_activate(self):
+    def do_activate(self, *args, **kwargs):
         """Called when the application is activated.
 
         We raise the application's main window, creating it if
@@ -42,11 +63,11 @@ class ElevateApplication(Adw.Application):
             win = ElevateWindow(self.settings, application=self)
         win.present()
 
-    def on_quit_action(self, *args):
+    def on_quit_action(self):
         """Callback for the app.quit action."""
         self.quit()
 
-    def on_about_action(self, *args):
+    def on_about_action(self):
         """Callback for the app.about action."""
         about = Adw.AboutDialog.new()
         about.set_application_name("Elevate")

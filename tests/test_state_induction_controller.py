@@ -20,7 +20,7 @@
 """Unit tests for the StateInductionController class."""
 
 import pytest
-from src.backend.state_induction_controller import StateInductionController
+from elevate.backend.state_induction_controller import StateInductionController
 
 
 class TestStateInductionController:
