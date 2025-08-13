@@ -27,10 +27,9 @@ import time
 
 from gi.repository import Adw, Gtk, Gio, GLib, GObject
 from elevate.backend.state_induction_controller import StateInductionController
-from elevate.view.epileptic_warning_dialog import EpilepticWarningDialog
-from elevate.view.preferences_window import PreferencesWindow
-from elevate.view.sidebar import Sidebar
 from elevate.view.stimuli_renderer import StimuliRenderer
+from elevate.view.epileptic_warning_dialog import EpilepticWarningDialog
+from elevate.view.sidebar import Sidebar
 
 
 @Gtk.Template(resource_path="/org/thecodenomad/elevate/window.ui")
@@ -97,19 +96,18 @@ class ElevateWindow(Adw.Window):
         if self._minutes_spin_button:
             try:
                 self._max_seconds = self._minutes_spin_button.get_value() * 60
-                # Keep max_seconds in sync when minutes change
-                self._minutes_spin_button.connect(
-                    "notify::selected-item", lambda *args: self._update_max_seconds()
-                )
-
                 # Bind minutes_spin_button value to time_scale upper limit
                 self._minutes_spin_button.bind_property(
                     "value",
                     self._time_adjustment,
                     "upper",
-                    GObject.BindingFlags.DEFAULT,
+                    GObject.BindingFlags.DEFAULT | GObject.BindingFlags.SYNC_CREATE,
                     lambda binding, value: value * 60,  # Convert minutes to seconds
                     None,
+                )
+                # Update settings and max_seconds on minutes change
+                self._minutes_spin_button.connect(
+                    "notify::value", self._on_minutes_spin_button_changed
                 )
             except Exception as e:
                 print(f"[ElevateWindow] Warning initializing minutes binding: {e}")
@@ -175,8 +173,13 @@ class ElevateWindow(Adw.Window):
         if self._minutes_spin_button:
             try:
                 self._max_seconds = self._minutes_spin_button.get_value() * 60
-            except Exception:
-                pass
+                self.settings.session_length = int(self._minutes_spin_button.get_value())
+            except Exception as e:
+                print(f"[ElevateWindow] Error updating max_seconds: {e}")
+
+    def _on_minutes_spin_button_changed(self, spin_button, _pspec):
+        """Handle changes to minutes_spin_button."""
+        self._update_max_seconds()
 
     def update_timer(self):
         """Update the run time label and scale with elapsed time."""
@@ -457,6 +460,7 @@ class ElevateWindow(Adw.Window):
 
     def _on_preferences_clicked(self, *_):
         """Open the Preferences window dialog."""
+        from .view.preferences_window import PreferencesWindow
 
         dlg = PreferencesWindow(self.settings)
         dlg.present(self)

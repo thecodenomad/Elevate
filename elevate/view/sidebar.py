@@ -125,7 +125,13 @@ class Sidebar(Gtk.Box):
             self.advanced_visual_settings.set_property("opacity", 0)
             self.intended_state_combo.set_sensitive(True)
 
+    def _on_playing_state_changed(self, controller, _pspec):
+        """Toggle minutes_spin_button sensitivity based on playback state."""
+        is_playing = controller.is_playing
+        self.minutes_spin_button.set_sensitive(not is_playing)
+
     def set_bindings(self):
         """Helper method for establishing bindings for the relevant widgets."""
         self.intended_state_combo.connect("notify::selected-item", self.on_intended_state_combo_changed)
         self.advanced_settings_switch.connect("notify::active", self.on_advanced_settings_toggle)
+        self.controller.connect("notify::is-playing", self._on_playing_state_changed)
