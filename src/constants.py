@@ -14,6 +14,7 @@ UPPER_BOUND = "upper_bound"
 DEFAULT = "default"
 DESCRIPTION = "description"
 
+
 class StateType(Enum):
     """Enumeration of brainwave state types and their frequency ranges."""
 
@@ -22,6 +23,7 @@ class StateType(Enum):
     ALPHA = 2
     BETA = 3
     GAMMA = 4
+
 
 STATE_TYPE_NAMES = ["Delta", "Theta", "Alpha", "Beta", "Gamma"]
 
@@ -39,7 +41,7 @@ STATE_DATA = {
         DESCRIPTION: (
             "Promotes profound relaxation and unconscious processes "
             "like physical recovery and immune function."
-        )
+        ),
     },
     StateType.THETA: {
         LOWER_BOUND: 4.1,
@@ -48,16 +50,15 @@ STATE_DATA = {
         DESCRIPTION: (
             "Enhances intuition, emotional processing, "
             "and access to subconscious insights or vivid imagery."
-        )
+        ),
     },
     StateType.ALPHA: {
         LOWER_BOUND: 8.1,
         UPPER_BOUND: 13.0,
         DEFAULT: 10.0,
         DESCRIPTION: (
-            "Boosts learning, stress relief, and a bridge between "
-            "conscious and subconscious mind."
-        )
+            "Boosts learning, stress relief, and a bridge between " "conscious and subconscious mind."
+        ),
     },
     StateType.BETA: {
         LOWER_BOUND: 13.1,
@@ -66,7 +67,7 @@ STATE_DATA = {
         DESCRIPTION: (
             "Supports logical thinking, focus, and engagement in "
             "tasks requiring mental effort or decision-making."
-        )
+        ),
     },
     StateType.GAMMA: {
         LOWER_BOUND: 30.0,
@@ -75,8 +76,8 @@ STATE_DATA = {
         DESCRIPTION: (
             "Linked to advanced learning, memory consolidation, "
             "and moments of clarity or inspiration."
-        )
-    }
+        ),
+    },
 }
 
 LANGUAGE_CODES = [
@@ -116,5 +117,5 @@ LANGUAGES = [
     "Indonesian",
     "Vietnamese",
     "Swahili",
-    "Thai"
+    "Thai",
 ]

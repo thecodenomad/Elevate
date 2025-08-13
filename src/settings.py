@@ -34,8 +34,8 @@ class ElevateSettings:
     DEFAULT_LANGUAGE = 0
     DEFAULT_SESSION_LENGTH = 10
     DEFAULT_STATE = 0
-#    DEFAULT_VISUAL = "BouncyBall"
-#    DEFAULT_BREATH_TYPE = "4-7-8"
+    #    DEFAULT_VISUAL = "BouncyBall"
+    #    DEFAULT_BREATH_TYPE = "4-7-8"
 
     DEFAULT_ENABLE_VISUAL = True
     DEFAULT_BASE_FREQUENCY = 30

@@ -348,7 +348,11 @@ class ElevateWindow(Adw.Window):
 
         # Rate limit: only process once per 100ms
         current_time = time.monotonic()
-        if hasattr(self, "_last_motion_time") and self._last_motion_time is not None and (current_time - self._last_motion_time) < 0.1:
+        if (
+            hasattr(self, "_last_motion_time")
+            and self._last_motion_time is not None
+            and (current_time - self._last_motion_time) < 0.1
+        ):
             return
         self._last_motion_time = current_time
 

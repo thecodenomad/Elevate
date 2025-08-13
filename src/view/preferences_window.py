@@ -21,7 +21,14 @@
 
 from gi.repository import Adw, Gio, Gtk
 
-from elevate.constants import DESCRIPTION, LANGUAGES, LANGUAGE_CODES, StateType, STATE_DATA, STATE_TYPE_NAMES
+from elevate.constants import (
+    DESCRIPTION,
+    LANGUAGES,
+    LANGUAGE_CODES,
+    StateType,
+    STATE_DATA,
+    STATE_TYPE_NAMES,
+)
 
 
 @Gtk.Template(resource_path="/org/thecodenomad/elevate/preferences_window.ui")

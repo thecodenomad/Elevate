@@ -14,6 +14,7 @@ from elevate.settings import ElevateSettings
 from elevate.window import ElevateWindow
 from elevate.view.preferences_window import PreferencesWindow
 
+
 class ElevateApplication(Adw.Application):
     """The main application singleton class."""
 

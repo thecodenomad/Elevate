@@ -21,7 +21,7 @@
 
 import gi
 
-gi.require_version('Gtk', '4.0')
+gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk
 
 # Import constants using relative import
@@ -122,5 +122,5 @@ class Sidebar(Gtk.Box):
 
     def set_bindings(self):
         self.intended_state_combo.connect("notify::selected-item", self.on_intended_state_combo_changed)
-        self.stimuli_type_combo.connect('notify::selected-item', self.on_stimuli_type_combo_changed)
+        self.stimuli_type_combo.connect("notify::selected-item", self.on_stimuli_type_combo_changed)
         self.advanced_settings_switch.connect("notify::active", self.on_advanced_settings_toggle)
