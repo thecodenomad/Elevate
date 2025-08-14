@@ -20,7 +20,7 @@
 """Unit tests for the AudioStimulus class."""
 
 import pytest
-from src.backend.audio_stimulus import AudioStimulus
+from elevate.backend.audio_stimulus import AudioStimulus
 
 
 class TestAudioStimulus:
@@ -30,8 +30,8 @@ class TestAudioStimulus:
         """Test audio stimulus initialization."""
         audio = AudioStimulus()
         assert audio is not None
-        assert audio.base_frequency == 200.0
-        assert audio.channel_offset == 10.0
+        assert audio.base_frequency == 30.0 # Defined in Settings.py
+        assert audio.channel_offset == 10.0 # Defined in GSchema (needs overrides)
 
     def test_set_base_frequency(self):
         """Test setting base frequency."""

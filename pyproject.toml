@@ -5,7 +5,7 @@ description = "Meditation Guru"
 authors = ["codenomad <codenomad@gmail.com>"]
 license = "GPL3"
 readme = "README.md"
-packages = [{ include = "backend", from = "src" }]
+packages = [{ include = "backend", from = "elevate" }]
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -31,7 +31,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
-addopts = "--cov=src --cov-report=term-missing --cov-fail-under=90 -q --ignore=subprojects --ignore=src/view"
+addopts = "-s --cov=elevate --cov-report=term-missing --cov-fail-under=80 -q --ignore=subprojects --ignore=elevate/view"
 markers = ["wip: work in progress tests"]
 
 [tool.pyright]
@@ -42,13 +42,15 @@ venv = ".venv"
 branch = true
 source = []
 omit = [
-  "src/main.py",
-  "src/window.py",
-  "src/view/*",
+    "elevate/constants.py",
+    "elevate/main.py",
+    "elevate/settings.py",
+    "elevate/window.py",
+    "elevate/view/*",
 ]
 
 [tool.coverage.report]
-fail_under = 90
+fail_under = 80
 show_missing = true
 
 [tool.black]

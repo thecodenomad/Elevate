@@ -17,27 +17,40 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+"""Main application module for Elevate.
+
+This module contains the main application class and entry point for the Elevate application.
+"""
+
 import sys
 import gi
 
-gi.require_version('Gtk', '4.0')
-gi.require_version('Adw', '1')
+gi.require_version("Gtk", "4.0")
+gi.require_version("Adw", "1")
 
-from gi.repository import Gtk, Gio, Adw
-from .window import ElevateWindow
+from gi.repository import Gio, Adw
+from elevate.constants import APPLICATION_ID
+from elevate.settings import ElevateSettings
+from elevate.window import ElevateWindow
+from elevate.view.preferences_window import PreferencesWindow
 
 
 class ElevateApplication(Adw.Application):
     """The main application singleton class."""
 
     def __init__(self):
-        super().__init__(application_id='org.thecodenomad.elevate',
-                         flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
-        self.create_action('quit', self.on_quit_action, ['<primary>q'])
-        self.create_action('about', self.on_about_action)
-        self.create_action('preferences', self.on_preferences_action)
+        super().__init__(application_id=APPLICATION_ID, flags=0)  # Gio.ApplicationFlags.DEFAULT_FLAGS
+        self.create_action("quit", self.on_quit_action, ["<primary>q"])
+        self.create_action("about", self.on_about_action)
+        self.create_action("preferences", self.on_preferences_action)
+        self._settings = ElevateSettings()
 
-    def do_activate(self):
+    @property
+    def settings(self):
+        """GSchema settings presented as a property."""
+        return self._settings
+
+    def do_activate(self, *args, **kwargs):
         """Called when the application is activated.
 
         We raise the application's main window, creating it if
@@ -45,30 +58,30 @@ class ElevateApplication(Adw.Application):
         """
         win = self.props.active_window
         if not win:
-            win = ElevateWindow(application=self)
+            win = ElevateWindow(self.settings, application=self)
         win.present()
 
-    def on_quit_action(self, *args):
+    def on_quit_action(self):
         """Callback for the app.quit action."""
         self.quit()
 
-    def on_about_action(self, *args):
+    def on_about_action(self):
         """Callback for the app.about action."""
         about = Adw.AboutDialog.new()
-        about.set_application_name('Elevate')
-        about.set_application_icon('org.thecodenomad.elevate')
-        about.set_developer_name('thecodenomad')
-        about.set_version('0.1.0')
-        about.set_developers(['thecodenomad'])
-        about.set_copyright('© 2025 thecodenomad')
+        about.set_application_name("Elevate")
+        about.set_application_icon("org.thecodenomad.elevate")
+        about.set_developer_name("thecodenomad")
+        about.set_version("0.1.0")
+        about.set_developers(["thecodenomad"])
+        about.set_copyright("© 2025 thecodenomad")
         # Translators: Replace "translator-credits" with your name/username, and optionally an email or URL.
         # about.set_translator_credits(_('translator-credits'))
         about.present(self.props.active_window)
 
     def on_preferences_action(self, widget, _):
         """Callback for the app.preferences action."""
-        from .view.preferences_window import PreferencesWindow
-        win = PreferencesWindow()
+
+        win = PreferencesWindow(self.settings)
         win.set_transient_for(self.props.active_window)
         win.present()
 
@@ -89,6 +102,13 @@ class ElevateApplication(Adw.Application):
 
 
 def main(version):
-    """The application's entry point."""
+    """The application's entry point.
+
+    Args:
+        version: The version of the application
+
+    Returns:
+        int: The exit code of the application
+    """
     app = ElevateApplication()
     return app.run(sys.argv)

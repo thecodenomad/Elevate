@@ -20,7 +20,7 @@
 """Unit tests for the VisualStimulus class."""
 
 import pytest
-from src.backend.visual_stimulus import VisualStimulus
+from elevate.backend.visual_stimulus import VisualStimulus
 
 
 class TestVisualStimulus:
@@ -30,25 +30,25 @@ class TestVisualStimulus:
         """Test visual stimulus initialization."""
         visual = VisualStimulus()
         assert visual is not None
-        assert visual.get_enable_visual_stimuli() is False
-        assert visual.get_stimuli_type() == 0
+        assert visual.enable_visual_stimuli is False
+        assert visual.stimuli_type == 0
 
     def test_set_enable_visual_stimuli(self):
         """Test enabling visual stimuli."""
         visual = VisualStimulus()
-        visual.set_enable_visual_stimuli(True)
-        assert visual.get_enable_visual_stimuli() is True
+        visual.enable_visual_stimuli = True
+        assert visual.enable_visual_stimuli is True
 
     def test_set_stimuli_type(self):
         """Test setting stimuli type."""
         visual = VisualStimulus()
-        visual.set_stimuli_type(1)  # Breath Pattern
-        assert visual.get_stimuli_type() == 1
+        visual.stimuli_type = 1  # Breath Pattern
+        assert visual.stimuli_type == 1
 
     def test_play(self):
         """Test play functionality."""
         visual = VisualStimulus()
-        visual.set_enable_visual_stimuli(True)
+        visual.enable_visual_stimuli = True
         visual.play()
         # Note: We're not actually testing visual rendering here
         # as it would require a GUI environment. We're testing
@@ -57,7 +57,7 @@ class TestVisualStimulus:
     def test_pause(self):
         """Test pause functionality."""
         visual = VisualStimulus()
-        visual.set_enable_visual_stimuli(True)
+        visual.enable_visual_stimuli = True
         visual.play()
         visual.pause()
         assert visual._is_playing is False
@@ -65,7 +65,7 @@ class TestVisualStimulus:
     def test_stop(self):
         """Test stop functionality."""
         visual = VisualStimulus()
-        visual.set_enable_visual_stimuli(True)
+        visual.enable_visual_stimuli = True
         visual.play()
         visual.stop()
         assert visual._is_playing is False
@@ -76,7 +76,7 @@ class TestVisualStimulus:
         # Create a mock widget
         class MockWidget:
             pass
-        
+
         widget = MockWidget()
         visual.set_widget(widget)
         assert visual._widget == widget

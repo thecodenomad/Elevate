@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from src.backend.audio_stimulus import AudioStimulus
+from elevate.backend.audio_stimulus import AudioStimulus
 
 
 def test_generate_audio_buffer_shapes(monkeypatch):

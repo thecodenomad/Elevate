@@ -1,8 +1,29 @@
+# conftest.py
+#
+# Copyright 2025 thecodenomad
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 import os
 import builtins
 import types
 import sys
 import pytest
+
+import elevate.settings as elevate_settings
 
 
 @pytest.fixture(autouse=True, scope="session")
@@ -12,29 +33,38 @@ def mock_gsettings_for_tests():
     class _MemorySettings:
         def __init__(self):
             self._values = {
-                "base-frequency": 200.0,
-                "channel-offset": 10.0,
-                "enable-visual-stimuli": False,
-                "stimuli-type": 0,
+                "base-frequency": 30.0,
+                "channel-offset": 6.0,
+                "intended-state": 0,
+                "session-length": 10,
+                "epileptic-warning": True,
+                "language": 0,
+                "enable-visual-stimuli": True,
+                "saved-volume": 25,
+                "stimuli-type": 1,
             }
+            self._callbacks = {}
 
         def get_double(self, key):
             return float(self._values[key])
 
         def set_double(self, key, value):
             self._values[key] = float(value)
+            self._emit_changed(key)
 
         def get_boolean(self, key):
             return bool(self._values[key])
 
         def set_boolean(self, key, value):
             self._values[key] = bool(value)
+            self._emit_changed(key)
 
         def get_int(self, key):
             return int(self._values[key])
 
         def set_int(self, key, value):
             self._values[key] = int(value)
+            self._emit_changed(key)
 
         def bind(self, source_prop, target, target_prop, flags):
             val = self._values.get(source_prop)
@@ -45,13 +75,21 @@ def mock_gsettings_for_tests():
             else:
                 target.set_property(target_prop, int(val))
 
-    import src.backend.elevate_settings as elevate_settings
+        def connect(self, signal, callback):
+            if signal.startswith("changed::"):
+                key = signal[len("changed::"):]
+                self._callbacks[key] = callback
+
+        def _emit_changed(self, key):
+            callback = self._callbacks.get(key)
+            if callback:
+                callback(self, key)
 
     orig_init = elevate_settings.ElevateSettings.__init__
 
     def _patched_init(self):
         builtins.super(elevate_settings.ElevateSettings, self).__init__()
-        self._settings = _MemorySettings()
+        self.app_config = _MemorySettings()
 
     elevate_settings.ElevateSettings.__init__ = _patched_init
 

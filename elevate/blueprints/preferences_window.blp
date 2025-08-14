@@ -1,0 +1,72 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $PreferencesWindow : Adw.PreferencesDialog {
+  title: _("Preferences");
+
+  Adw.PreferencesPage {
+
+    /* General Group */
+    Adw.PreferencesGroup {
+      title: _("General Settings");
+
+      Adw.SwitchRow epileptic_warning_switch {
+        title: _("Show Epileptic Warning");
+        active: true;
+      }
+
+      Adw.ComboRow language_selection_combo {
+        title: _("Language");
+        enable-search: true;
+      }
+
+      Adw.SpinRow minutes_spin_button {
+        title: _("Default Session Length in Minutes");
+        climb-rate: 1;
+
+        adjustment: Adjustment {
+          lower: 5;
+          upper: 600;
+          step-increment: 5;
+          value: 10;
+        };
+      }
+    }
+
+    /* Stimuli Group */
+    Adw.PreferencesGroup {
+      title: _("Stimuli Settings");
+
+      Adw.ComboRow default_state_combo {
+        title: _("Default State");
+        enable-search: true;
+      }
+
+      Adw.ComboRow default_visual_stimuli_combo {
+        title: _("Default Visual Stimuli");
+        model: visual_stimuli_types;
+        enable-search: true;
+      }
+
+      Adw.ComboRow breath_type {
+        title: _("Breath Type");
+        model: breath_types;
+        enable-search: true;
+        sensitive: false;
+        tooltip-text: "Disabled for now.";
+      }
+
+    }
+  }
+}
+
+
+StringList visual_stimuli_types { strings: [
+  "Bouncy Ball"
+]; }
+
+StringList breath_types { strings: [
+  "4-7-8",
+  "Box-4",
+  "Box-8"
+]; }

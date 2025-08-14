@@ -3,9 +3,11 @@ using Adw 1;
 
 template $ElevateWindow: Adw.Window {
   title: _("Elevate");
-  width-request: 500;
+
+  /* TODO: Rework for mobile */
+  width-request: 675;
   height-request: 500;
-  default-width: 640;
+  default-width: 675;
   default-height: 480;
 
   Adw.Breakpoint {

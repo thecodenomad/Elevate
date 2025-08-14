@@ -1,4 +1,4 @@
-from src.backend.animations.bouncy_ball import BouncyBallAnimation
+from elevate.backend.animations.bouncy_ball import BouncyBallAnimation
 
 class CR:
     def set_source_rgb(self, r: float, g: float, b: float): pass

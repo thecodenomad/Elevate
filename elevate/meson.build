@@ -1,5 +1,5 @@
 pkgdatadir = get_option('prefix') / get_option('datadir') / meson.project_name()
-moduledir = get_option('prefix') / get_option('libdir') / 'python3.12' / 'site-packages' / 'elevate'
+moduledir = pkgdatadir / 'elevate'
 gnome = import('gnome')
 
 # Add a reference to the compiler to use
