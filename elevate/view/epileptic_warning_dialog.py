@@ -22,6 +22,8 @@
 from gi.repository import Adw, Gtk
 
 
+# pylint: disable=W0246,R0903
+
 @Gtk.Template(resource_path="/org/thecodenomad/elevate/epileptic_warning_dialog.ui")
 class EpilepticWarningDialog(Adw.AlertDialog):
     """Dialog shown for user to acknowledge the epileptic warning."""
