@@ -30,7 +30,7 @@ class TestStateInductionController:
         """Test controller initialization."""
         controller = StateInductionController()
         assert controller is not None
-        assert controller.get_is_playing() is False
+        assert controller.is_playing is False
 
     def test_play(self):
         """Test play functionality."""
@@ -45,14 +45,14 @@ class TestStateInductionController:
         controller = StateInductionController()
         controller.play()  # Start playing first
         controller.pause()
-        assert controller.get_is_playing() is False
+        assert controller.is_playing is False
 
     def test_stop(self):
         """Test stop functionality."""
         controller = StateInductionController()
         controller.play()  # Start playing first
         controller.stop()
-        assert controller.get_is_playing() is False
+        assert controller.is_playing is False
 
     def test_set_stimuli_type(self):
         """Test setting stimuli type."""
