@@ -38,8 +38,8 @@ jobs:
         run: poetry install --with dev --no-root
       - name: Run Pylint and Black
         run: |
-          poetry run black --check src
-          poetry run pylint src
+          poetry run black --check elevate
+          poetry run pylint elevate
       - name: Tests
         run: poetry run python -m pytest -v -s
 
