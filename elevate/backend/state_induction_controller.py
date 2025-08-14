@@ -48,6 +48,8 @@ class StateInductionController(GObject.Object):
         self._elapsed_time = None
         self._start_time = None
 
+        # pylint: disable=E1101
+
         # Bind settings to audio stimulus using Gio.Settings.bind
         self._settings.app_config.bind(
             "base-frequency",
@@ -75,18 +77,19 @@ class StateInductionController(GObject.Object):
             "stimuli-type",
             Gio.SettingsBindFlags.DEFAULT | Gio.SettingsBindFlags.GET | Gio.SettingsBindFlags.SET,
         )
+        # pylint: enable=E1101
 
         # Debug logging for settings changes
         self._settings.connect("notify::base-frequency", self._on_settings_base_frequency_changed)
         self._settings.connect("notify::channel-offset", self._on_settings_channel_offset_changed)
 
-    def _on_settings_base_frequency_changed(self, obj, pspec):
+    def _on_settings_base_frequency_changed(self, _obj, _pspec):
         """Debug handler for settings base-frequency changes."""
         print(
             f"StateInductionController: settings.base-frequency changed to {self._settings.base_frequency} Hz"
         )
 
-    def _on_settings_channel_offset_changed(self, obj, pspec):
+    def _on_settings_channel_offset_changed(self, _obj, _pspec):
         """Debug handler for settings channel-offset changes."""
         print(
             f"StateInductionController: settings.channel-offset changed to {self._settings.channel_offset} Hz"
@@ -94,10 +97,8 @@ class StateInductionController(GObject.Object):
 
     @GObject.Property(type=bool, default=False)
     def is_playing(self):
+        """Property used to determine if controller is playing"""
         return self._is_playing
-
-    def get_is_playing(self):
-        return self.is_playing
 
     @GObject.Property(type=bool, default=False)
     def is_paused(self):
@@ -133,6 +134,8 @@ class StateInductionController(GObject.Object):
         Raises:
             RuntimeError: If stimuli playback interfaces are not properly initialized
         """
+
+        # pylint: disable=W0125
         if not self._is_playing:
             self.audio_stimulus.play()
             if self._settings.enable_visual_stimuli:
@@ -144,6 +147,7 @@ class StateInductionController(GObject.Object):
 
             self.notify("is-playing")
             self._is_paused = False
+        # pylint: enable=W0125
 
     def pause(self):
         """Pause all active audio/visual stimuli and update tracking state.
@@ -194,4 +198,4 @@ class StateInductionController(GObject.Object):
             ValueError: If the stimulus type index is out of range
             RuntimeError: If visual stimulus interface not initialized
         """
-        self.visual_stimulus.set_stimuli_type(stimuli_type)
+        self.visual_stimulus.stimuli_type = stimuli_type

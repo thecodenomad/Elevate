@@ -33,8 +33,6 @@ from gi.repository import GObject, GLib
 from .animations import get_animation_class
 from .animations.base import Animation
 
-# pylint: disable=R0902
-
 
 class VisualStimulus(GObject.Object):
     """Visual stimulus renderer for mental state induction.

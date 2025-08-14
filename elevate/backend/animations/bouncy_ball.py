@@ -1,3 +1,14 @@
+"""Bouncy ball animation implementation.
+
+This module provides the BouncyBallAnimation class which implements
+a breathing-focused animation with a bouncing ball effect. The animation
+cycles through four phases that represent breathing patterns:
+inhale, hold, exhale, and hold.
+
+The animation can be customized with different colors, durations,
+and visual cues to support guided breathing exercises.
+"""
+
 from __future__ import annotations
 
 import math
@@ -10,8 +21,28 @@ SOFT_BLUE = (0.2, 0.6, 0.9)  # Color for breath phases
 LAVENDER = (0.6, 0.4, 0.8)  # Color for hold phases
 DEEP_INDIGO = (0.2, 0.2, 0.6)  # Background color
 
+# For a complete implementation, we would use Cairo text rendering functions:
+# Define constants for font slant and weight (these would normally come from cairo)
+FONT_SLANT_NORMAL = 0
+FONT_WEIGHT_BOLD = 1
+
 
 class BouncyBallAnimation(Animation):
+    """Bouncy ball animation implementation for breathing guidance.
+
+    This animation creates a visual breathing guide using a pulsating
+    circle that represents a bouncing ball. The animation consists of
+    four distinct phases:
+
+    1. Inhale: Circle grows from small to large
+    2. Hold: Circle pulses gently at maximum size
+    3. Exhale: Circle shrinks from large to small
+    4. Hold: Circle pulses gently at minimum size
+
+    The animation supports color transitions, customizable durations,
+    and visual/audio cues for each phase.
+    """
+
     def __init__(
         self,
         breath_color: tuple[float, float, float] = SOFT_BLUE,
@@ -20,15 +51,22 @@ class BouncyBallAnimation(Animation):
         pulse_factor: float = 0.05,
         fade_duration: float = 0.5,
     ) -> None:
-        """
-        Initialize the BouncyBall animation with configurable parameters.
+        """Initialize the BouncyBall animation with configurable parameters.
 
         Args:
-            breath_color: Color for inhale/exhale phases
-            hold_color: Color for hold phases
-            background: Background color
-            pulse_factor: Intensity of pulsation effect (0.0 to 1.0)
+            breath_color: RGB color tuple for inhale/exhale phases (0.0 to 1.0 range)
+            hold_color: RGB color tuple for hold phases (0.0 to 1.0 range)
+            background: RGB color tuple for background (0.0 to 1.0 range)
+            pulse_factor: Intensity of pulsation effect during hold phases (0.0 to 1.0)
             fade_duration: Duration for color fading transitions in seconds
+
+        Attributes:
+            breath_color (tuple[float, float, float]): Color for breath phases
+            hold_color (tuple[float, float, float]): Color for hold phases
+            background (tuple[float, float, float]): Background color
+            pulse_factor (float): Pulsation intensity factor
+            fade_duration (float): Color transition duration
+            phase_cues (list[str]): Phase cue texts for visual guidance
         """
         self.breath_color = breath_color
         self.hold_color = hold_color
@@ -40,18 +78,26 @@ class BouncyBallAnimation(Animation):
         self.phase_cues = ["Inhale", "Hold", "Exhale", "Hold"]  # Visual/audio cues for each phase
 
     def reset(self) -> None:
-        """Reset the animation to its initial state."""
+        """Reset the animation to its initial state.
+
+        Sets the animation time counter back to zero, effectively
+        restarting the breathing cycle from the beginning.
+        """
         self._t = 0.0
 
     def set_breath_cycle(self, cycle: Tuple[float, float, float, float]) -> None:
-        """Set the duration of each phase (inhale, hold1, exhale, hold2)."""
+        """Set the duration of each phase (inhale, hold1, exhale, hold2).
+
+        Args:
+            cycle: Tuple of durations for each phase in seconds as
+                (inhale_duration, hold1_duration, exhale_duration, hold2_duration)
+        """
         self.phase_durations = cycle
 
     def set_phase_cues(
         self, cues: Tuple[Optional[str], Optional[str], Optional[str], Optional[str]]
     ) -> None:
-        """
-        Set the phase cues for each of the 4 phases.
+        """Set the phase cues for each of the 4 phases.
 
         Args:
             cues: Tuple of cues for each phase (phase1, phase2, phase3, phase4)
@@ -60,15 +106,14 @@ class BouncyBallAnimation(Animation):
         self.phase_cues = list(cues)
 
     def is_phase_active(self, phase_index: int, t: float) -> bool:
-        """
-        Check if a specific phase is active at time t.
+        """Check if a specific phase is active at time t.
 
         Args:
             phase_index: Index of phase (0-3)
             t: Time in seconds
 
         Returns:
-            True if phase is active, False otherwise
+            bool: True if phase is active, False otherwise
         """
         if sum(self.phase_durations) == 0:
             return False
@@ -77,11 +122,32 @@ class BouncyBallAnimation(Animation):
         return phase_start <= t % sum(self.phase_durations) < phase_end
 
     def update(self, dt: float, width: int, height: int) -> None:
-        """Update the animation state based on elapsed time."""
+        """Update the animation state based on elapsed time.
+
+        Advances the internal time counter by the specified delta time.
+        This method is called periodically to update the animation's
+        internal state.
+
+        Args:
+            dt: Time elapsed since last update in seconds
+            width: Current width of the drawing area (unused)
+            height: Current height of the drawing area (unused)
+        """
         self._t += dt
 
     def phase1(self, t: float, max_radius: float) -> tuple[float, tuple[float, float, float]]:
-        """Phase 1: Inhale - Growing from 0 to max_radius."""
+        """Phase 1: Inhale - Growing from 0 to max_radius.
+
+        The circle grows from its minimum size to the maximum size
+        over the duration of the inhale phase.
+
+        Args:
+            t: Time within the current phase in seconds
+            max_radius: Maximum radius of the circle
+
+        Returns:
+            tuple[float, tuple[float, float, float]]: Current radius and color as (radius, color)
+        """
         duration = self.phase_durations[0]
         if duration == 0:
             return 0.0, self.breath_color
@@ -89,7 +155,17 @@ class BouncyBallAnimation(Animation):
         return radius, self.breath_color
 
     def phase2(self, t: float, max_radius: float) -> tuple[float, tuple[float, float, float]]:
-        """Phase 2: Hold - Pulsating between max_radius * (1 - pulse_factor) and max_radius."""
+        """Phase 2: Hold - Pulsating between max_radius * (1 - pulse_factor) and max_radius.
+
+        The circle gently pulses at its maximum size during the hold phase.
+
+        Args:
+            t: Time within the current phase in seconds
+            max_radius: Maximum radius of the circle
+
+        Returns:
+            tuple[float, tuple[float, float, float]]: Current radius and color as (radius, color)
+        """
         pulse_time = t - self.phase_durations[0]
         # Period of 1 second for pulsation
         pulse = 0.5 * (1.0 + math.cos(2.0 * math.pi * pulse_time / 1.0 + math.pi))
@@ -98,7 +174,18 @@ class BouncyBallAnimation(Animation):
         return radius, self.hold_color
 
     def phase3(self, t: float, max_radius: float) -> tuple[float, tuple[float, float, float]]:
-        """Phase 3: Exhale - Shrinking from max_radius to 0."""
+        """Phase 3: Exhale - Shrinking from max_radius to 0.
+
+        The circle shrinks from its maximum size to minimum size
+        over the duration of the exhale phase.
+
+        Args:
+            t: Time within the current phase in seconds
+            max_radius: Maximum radius of the circle
+
+        Returns:
+            tuple[float, tuple[float, float, float]]: Current radius and color as (radius, color)
+        """
         phase_start = sum(self.phase_durations[:2])
         duration = self.phase_durations[2]
         if duration == 0:
@@ -107,7 +194,17 @@ class BouncyBallAnimation(Animation):
         return radius, self.breath_color
 
     def phase4(self, t: float, max_radius: float) -> tuple[float, tuple[float, float, float]]:
-        """Phase 4: Hold - Pulsating between 0 and max_radius * pulse_factor."""
+        """Phase 4: Hold - Pulsating between 0 and max_radius * pulse_factor.
+
+        The circle gently pulses at its minimum size during the hold phase.
+
+        Args:
+            t: Time within the current phase in seconds
+            max_radius: Maximum radius of the circle
+
+        Returns:
+            tuple[float, tuple[float, float, float]]: Current radius and color as (radius, color)
+        """
         phase_start = sum(self.phase_durations[:3])
         pulse_time = t - phase_start
         # Period of 1 second for pulsation
@@ -118,13 +215,33 @@ class BouncyBallAnimation(Animation):
     def interpolate_color(
         self, color1: tuple[float, float, float], color2: tuple[float, float, float], alpha: float
     ) -> tuple[float, float, float]:
-        """Interpolate between two RGB colors based on alpha (0 to 1)."""
+        """Interpolate between two RGB colors based on alpha (0 to 1).
+
+        Args:
+            color1: First RGB color tuple (r, g, b)
+            color2: Second RGB color tuple (r, g, b)
+            alpha: Interpolation factor (0.0 = color1, 1.0 = color2)
+
+        Returns:
+            tuple[float, float, float]: Interpolated RGB color tuple
+        """
         r1, g1, b1 = color1
         r2, g2, b2 = color2
         return (r1 + (r2 - r1) * alpha, g1 + (g2 - g1) * alpha, b1 + (b2 - b1) * alpha)
 
     def render(self, cr: CairoContext, width: int, height: int, now_s: float) -> None:
-        """Render the animation with phase-specific logic and color fading."""
+        """Render the animation with phase-specific logic and color fading.
+
+        Draws the current frame of the animation, including the bouncing
+        ball circle and any active phase cues. Handles all phase transitions,
+        color fading, and visual effects.
+
+        Args:
+            cr: Cairo context for drawing operations
+            width: Width of the drawing area
+            height: Height of the drawing area
+            now_s: Current time in seconds for animation calculations
+        """
         total_cycle = sum(self.phase_durations)
         if total_cycle == 0:
             # Handle edge case of zero total duration
@@ -160,7 +277,7 @@ class BouncyBallAnimation(Animation):
         # Handle color fading at phase transitions
         color = base_color
         for i, end in enumerate(phase_ends[1:], 1):
-            if t > end - fade_half and t < end + fade_half:
+            if end - fade_half < t < end + fade_half:
                 alpha = (t - (end - fade_half)) / self.fade_duration
                 prev_color = self.breath_color if i % 2 == 1 else self.hold_color
                 next_color = self.hold_color if i % 2 == 1 else self.breath_color
@@ -187,14 +304,13 @@ class BouncyBallAnimation(Animation):
         if self.phase_cues[current_phase] is not None:
             self._render_phase_cue(cr, current_phase, width, height)
 
-    def _render_phase_cue(self, cr: CairoContext, phase_index: int, width: int, height: int) -> None:
-        """
-        Render a visual phase cue.
+    def _render_phase_cue(self, cr: CairoContext, phase_index: int, _width: int, height: int) -> None:
+        """Render a visual phase cue.
 
         Args:
             cr: Cairo context
             phase_index: Index of the current phase (0-3)
-            width: Width of the rendering area
+            _width: Width of the rendering area
             height: Height of the rendering area
         """
         # Phase cue text mapping
@@ -212,11 +328,6 @@ class BouncyBallAnimation(Animation):
         # Set up text rendering
         cr.set_source_rgb(1.0, 1.0, 1.0)  # White text
 
-        # For a complete implementation, we would use Cairo text rendering functions:
-        # Define constants for font slant and weight (these would normally come from cairo)
-        FONT_SLANT_NORMAL = 0
-        FONT_WEIGHT_BOLD = 1
-
         cr.select_font_face("Sans", FONT_SLANT_NORMAL, FONT_WEIGHT_BOLD)
         cr.set_font_size(48)
 
@@ -225,11 +336,8 @@ class BouncyBallAnimation(Animation):
         if cue_text is None:
             return
 
-        x_bearing, y_bearing, text_width, text_height, _, _ = cr.text_extents(cue_text)
+        cr.text_extents(cue_text)
         x = 12  # width / 2 - text_width / 2
         y = height - 20  # height / 2 - text_height / 2 + 20
         cr.move_to(x, y)
         cr.show_text(cue_text)
-
-        # For now, we'll just print the text to the console as a placeholder
-        # print(f"Phase {phase_index + 1} cue: {self.phase_cues[phase_index]}")

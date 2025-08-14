@@ -22,8 +22,6 @@ class ColorLayersAnimation(BouncyBallAnimation):
         A proper implementation will be added in future versions.
     """
 
-    pass
-
 
 _REGISTRY: Dict[str, Type[Animation]] = {
     "ball": BouncyBallAnimation,
