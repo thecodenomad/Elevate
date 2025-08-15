@@ -75,7 +75,7 @@ class ElevateWindow(Adw.Window):
         self._settings = settings
         self.timeout_id = None  # Initialize to avoid AttributeError
 
-        self.controller = StateInductionController()
+        self.controller = StateInductionController(settings)
         self.sidebar = Sidebar(self.controller, self.settings)
         self.scrolled_window.set_child(self.sidebar)
 

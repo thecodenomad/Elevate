@@ -30,7 +30,7 @@ from elevate.settings import ElevateSettings
 class StateInductionController(GObject.Object):
     """Controller for managing mental state induction workflow."""
 
-    def __init__(self):
+    def __init__(self, settings):
         """Initialize the state induction controller.
 
         Sets up audio/visual stimuli interfaces, connects property bindings, and initializes
@@ -40,7 +40,7 @@ class StateInductionController(GObject.Object):
             RuntimeError: If system resources are unavailable for stimulus creation
         """
         super().__init__()
-        self._settings = ElevateSettings()
+        self._settings = settings
         self.audio_stimulus = AudioStimulus()
         self.visual_stimulus = VisualStimulus()
         self._is_playing = False
