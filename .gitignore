@@ -3,3 +3,4 @@
 subprojects
 **/__pycache__
 .coverage
+.ropeproject/

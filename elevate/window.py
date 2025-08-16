@@ -513,5 +513,5 @@ class ElevateWindow(Adw.Window):
         """Open the Preferences window dialog."""
         from .view.preferences_window import PreferencesWindow
 
-        dlg = PreferencesWindow(self.settings)
+        dlg = PreferencesWindow(self, self.settings)
         dlg.present(self)
