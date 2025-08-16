@@ -116,6 +116,7 @@ class PreferencesWindow(Adw.PreferencesDialog):
         combo_row.set_model(string_list)
 
     def on_closed(self, dialog):
+        """Helper method to make sure the play button has focus when preferences dialog is closed."""
         # Set focus to the target button when the dialog closes
         if self.parent.play_button:
             self.parent.play_button.grab_focus()
