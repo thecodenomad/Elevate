@@ -41,12 +41,15 @@ class Sidebar(Gtk.Box):
     advanced_settings_switch = Gtk.Template.Child()
 
     advanced_audio_settings = Gtk.Template.Child()
-    advanced_visual_settings = Gtk.Template.Child()
+    # TODO: Not supported yet
+    # advanced_visual_settings = Gtk.Template.Child()
 
     frequency_scale = Gtk.Template.Child()
     channel_offset_scale = Gtk.Template.Child()
     visual_stimuli_switch = Gtk.Template.Child()
-    stimuli_type_combo = Gtk.Template.Child()
+
+    # TODO: Not supported yet
+    # stimuli_type_combo = Gtk.Template.Child()
 
     def __init__(self, controller, settings, **kwargs):
         """Initialize the sidebar."""
@@ -124,8 +127,10 @@ class Sidebar(Gtk.Box):
             self.intended_state_combo.set_sensitive(False)
         else:
             self.advanced_audio_settings.set_property("opacity", 0)
-            self.advanced_visual_settings.set_property("opacity", 0)
             self.intended_state_combo.set_sensitive(True)
+
+            # TODO
+            # self.advanced_visual_settings.set_property("opacity", 0)
 
     def _on_playing_state_changed(self, controller, _pspec):
         """Toggle minutes_spin_button sensitivity based on playback state."""

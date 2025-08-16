@@ -20,44 +20,53 @@
 """Unit tests for the StateInductionController class."""
 
 import pytest
+from gi.repository import GLib
 from elevate.backend.state_induction_controller import StateInductionController
+from elevate.settings import ElevateSettings
+
+@pytest.fixture
+def settings():
+    """Fixture to create an ElevateSettings instance with a mock GSettings schema."""
+    try:
+        settings = ElevateSettings()
+        print(settings.__dict__)
+        return settings
+    except GLib.Error as e:
+        pytest.skip(f"GSettings schema not available: {e}")
 
 
-class TestStateInductionController:
-    """Test suite for StateInductionController."""
+def test_init(settings):
+    """Test controller initialization."""
+    controller = StateInductionController(settings)
+    assert controller is not None
+    assert controller.is_playing is False
 
-    def test_init(self):
-        """Test controller initialization."""
-        controller = StateInductionController()
-        assert controller is not None
-        assert controller.is_playing is False
+def test_play(settings):
+    """Test play functionality."""
+    controller = StateInductionController(settings)
+    controller.play()
+    # Note: Actual audio/visual playback is not tested here
+    # as it would require mocking the audio/visual components
+    # and we're testing the controller logic only
 
-    def test_play(self):
-        """Test play functionality."""
-        controller = StateInductionController()
-        controller.play()
-        # Note: Actual audio/visual playback is not tested here
-        # as it would require mocking the audio/visual components
-        # and we're testing the controller logic only
+def test_pause(settings):
+    """Test pause functionality."""
+    controller = StateInductionController(settings)
+    controller.play()  # Start playing first
+    controller.pause()
+    assert controller.is_playing is False
 
-    def test_pause(self):
-        """Test pause functionality."""
-        controller = StateInductionController()
-        controller.play()  # Start playing first
-        controller.pause()
-        assert controller.is_playing is False
+def test_stop(settings):
+    """Test stop functionality."""
+    controller = StateInductionController(settings)
+    controller.play()  # Start playing first
+    controller.stop()
+    assert controller.is_playing is False
 
-    def test_stop(self):
-        """Test stop functionality."""
-        controller = StateInductionController()
-        controller.play()  # Start playing first
-        controller.stop()
-        assert controller.is_playing is False
-
-    def test_set_stimuli_type(self):
-        """Test setting stimuli type."""
-        controller = StateInductionController()
-        # Test setting different stimuli types
-        controller.stimuli_type = 0  # Color
-        controller.stimuli_type = 1  # Breath Pattern
-        # The actual effect is tested in visual_stimulus tests
+def test_set_stimuli_type(settings):
+    """Test setting stimuli type."""
+    controller = StateInductionController(settings)
+    # Test setting different stimuli types
+    controller.stimuli_type = 0  # Color
+    controller.stimuli_type = 1  # Breath Pattern
+    # The actual effect is tested in visual_stimulus tests

@@ -24,7 +24,6 @@ import time
 from gi.repository import GObject, Gio
 from elevate.backend.audio_stimulus import AudioStimulus
 from elevate.backend.visual_stimulus import VisualStimulus
-from elevate.settings import ElevateSettings
 
 
 class StateInductionController(GObject.Object):

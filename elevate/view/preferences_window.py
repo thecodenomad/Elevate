@@ -45,12 +45,15 @@ class PreferencesWindow(Adw.PreferencesDialog):
 
     # Stimuli Settings
     default_state_combo: Adw.ComboRow = Gtk.Template.Child()
-    default_visual_stimuli_combo: Adw.ComboRow = Gtk.Template.Child()
-    breath_type: Adw.ComboRow = Gtk.Template.Child()
 
-    def __init__(self, settings, **kwargs):
+    # TODO: Not supported yet
+    # default_visual_stimuli_combo: Adw.ComboRow = Gtk.Template.Child()
+    # breath_type: Adw.ComboRow = Gtk.Template.Child()
+
+    def __init__(self, parent, settings, **kwargs):
         super().__init__(**kwargs)
 
+        self.parent = parent
         self.settings = settings
 
         self._populate_combo_row(self.language_selection_combo, LANGUAGES)
@@ -64,7 +67,9 @@ class PreferencesWindow(Adw.PreferencesDialog):
         self.epileptic_warning_switch.connect("notify::active", self._on_epileptic_warning_toggle)
         self.language_selection_combo.connect("notify::selected", self._on_lang_changed)
         self.minutes_spin_button.connect("notify::value", self._on_session_length_changed)
-        self.default_state_combo.connect("notify::selected", self._on_default_state_changed)
+        self.connect("closed", self.on_closed)
+
+        # self.default_state_combo.connect("notify::selected", self._on_default_state_changed)
 
     def set_default_states(self):
         """Helper method to set the default states for the Preferences widgets."""
@@ -109,3 +114,9 @@ class PreferencesWindow(Adw.PreferencesDialog):
     def _populate_combo_row(self, combo_row, entries):
         string_list = Gtk.StringList.new(entries)
         combo_row.set_model(string_list)
+
+    def on_closed(self, _dialog):
+        """Helper method to make sure the play button has focus when preferences dialog is closed."""
+        # Set focus to the target button when the dialog closes
+        if self.parent.play_button:
+            self.parent.play_button.grab_focus()

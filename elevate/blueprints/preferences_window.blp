@@ -10,14 +10,16 @@ template $PreferencesWindow : Adw.PreferencesDialog {
     Adw.PreferencesGroup {
       title: _("General Settings");
 
-      Adw.SwitchRow epileptic_warning_switch {
-        title: _("Show Epileptic Warning");
-        active: true;
-      }
-
       Adw.ComboRow language_selection_combo {
         title: _("Language");
         enable-search: true;
+        sensitive: false;
+        tooltip-text: _("Disabled until localization is supported");
+      }
+
+      Adw.SwitchRow epileptic_warning_switch {
+        title: _("Show Epileptic Warning");
+        active: true;
       }
 
       Adw.SpinRow minutes_spin_button {
@@ -42,10 +44,14 @@ template $PreferencesWindow : Adw.PreferencesDialog {
         enable-search: true;
       }
 
+/* TODO */
+/*
       Adw.ComboRow default_visual_stimuli_combo {
         title: _("Default Visual Stimuli");
         model: visual_stimuli_types;
         enable-search: true;
+        sensitive: false;
+        tooltip-text: "Disabled for now.";
       }
 
       Adw.ComboRow breath_type {
@@ -55,12 +61,13 @@ template $PreferencesWindow : Adw.PreferencesDialog {
         sensitive: false;
         tooltip-text: "Disabled for now.";
       }
-
+*/
     }
   }
 }
 
-
+/* TODO: Move to code when supported */
+/*
 StringList visual_stimuli_types { strings: [
   "Bouncy Ball"
 ]; }
@@ -70,3 +77,4 @@ StringList breath_types { strings: [
   "Box-4",
   "Box-8"
 ]; }
+*/
