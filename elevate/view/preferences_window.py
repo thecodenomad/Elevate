@@ -45,8 +45,10 @@ class PreferencesWindow(Adw.PreferencesDialog):
 
     # Stimuli Settings
     default_state_combo: Adw.ComboRow = Gtk.Template.Child()
-    default_visual_stimuli_combo: Adw.ComboRow = Gtk.Template.Child()
-    breath_type: Adw.ComboRow = Gtk.Template.Child()
+
+    # TODO: Not supported yet
+    # default_visual_stimuli_combo: Adw.ComboRow = Gtk.Template.Child()
+    # breath_type: Adw.ComboRow = Gtk.Template.Child()
 
     def __init__(self, settings, **kwargs):
         super().__init__(**kwargs)
@@ -64,7 +66,8 @@ class PreferencesWindow(Adw.PreferencesDialog):
         self.epileptic_warning_switch.connect("notify::active", self._on_epileptic_warning_toggle)
         self.language_selection_combo.connect("notify::selected", self._on_lang_changed)
         self.minutes_spin_button.connect("notify::value", self._on_session_length_changed)
-        self.default_state_combo.connect("notify::selected", self._on_default_state_changed)
+
+        # self.default_state_combo.connect("notify::selected", self._on_default_state_changed)
 
     def set_default_states(self):
         """Helper method to set the default states for the Preferences widgets."""

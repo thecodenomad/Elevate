@@ -71,14 +71,20 @@ template $ElevateWindow: Adw.Window {
               orientation: horizontal;
               hexpand: true;
 
+              ToggleButton toolbar_sidebar_toggle {
+                icon-name: "sidebar-show-symbolic";
+                tooltip-text: _("Configuration");
+                visible: false;
+              }
+
               ToggleButton play_button {
                 icon-name: "media-playback-start-symbolic";
-                tooltip-text: "Play";
+                tooltip-text: _("Play");
               }
 
               MenuButton volume_button {
                 icon-name: "audio-volume-high-symbolic";
-                tooltip-text: "Volume";
+                tooltip-text: _("Volume");
                 primary: true;
                 direction: up;
 
@@ -130,7 +136,7 @@ template $ElevateWindow: Adw.Window {
 
               ToggleButton fullscreen_button {
                 icon-name: "view-fullscreen-symbolic";
-                tooltip-text: "Fullscreen";
+                tooltip-text: _("Fullscreen");
               }
             }
 

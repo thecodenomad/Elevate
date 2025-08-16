@@ -25,7 +25,7 @@ settings, and controls playback of visual and audio stimuli.
 
 import time
 
-from gi.repository import Adw, Gtk, Gio, GLib, GObject
+from gi.repository import Adw, Gdk, Gtk, Gio, GLib, GObject
 from elevate.backend.state_induction_controller import StateInductionController
 from elevate.view.stimuli_renderer import StimuliRenderer
 from elevate.view.epileptic_warning_dialog import EpilepticWarningDialog
@@ -44,26 +44,29 @@ class ElevateWindow(Adw.Window):
     __gtype_name__ = "ElevateWindow"
 
     # Header bar and buttons
-    header_bar = Gtk.Template.Child()
-    sidebar_toggle_button = Gtk.Template.Child()
-    play_button = Gtk.Template.Child()
-    volume_button = Gtk.Template.Child()
-    volume_scale = Gtk.Template.Child()
-    fullscreen_button = Gtk.Template.Child()
-    preferences_button = Gtk.Template.Child()
+    header_bar: Adw.HeaderBar = Gtk.Template.Child()
+    sidebar_toggle_button: Gtk.ToggleButton = Gtk.Template.Child()
+    preferences_button: Gtk.Button = Gtk.Template.Child()
 
     # Sidebar controls
-    scrolled_window = Gtk.Template.Child()
-    split_view = Gtk.Template.Child()
+    split_view: Adw.OverlaySplitView = Gtk.Template.Child()
+    scrolled_window: Gtk.ScrolledWindow = Gtk.Template.Child()
 
     # Main content area
-    run_time_label = Gtk.Template.Child()
-    overlay_area = Gtk.Template.Child()
-    toolbar = Gtk.Template.Child()
-    time_scale = Gtk.Template.Child()
-    content_area = Gtk.Template.Child()
-    stimuli_renderer = Gtk.Template.Child()
-    volume_popover = Gtk.Template.Child()
+    content_area: Gtk.Box = Gtk.Template.Child()
+    overlay_area: Gtk.Overlay = Gtk.Template.Child()
+    stimuli_renderer: Gtk.DrawingArea = Gtk.Template.Child()
+
+    # Toolbar
+    toolbar: Gtk.Box = Gtk.Template.Child()
+    toolbar_sidebar_toggle: Gtk.ToggleButton = Gtk.Template.Child()
+    play_button: Gtk.ToggleButton = Gtk.Template.Child()
+    volume_button: Gtk.MenuButton = Gtk.Template.Child()
+    volume_popover: Gtk.Popover = Gtk.Template.Child()
+    volume_scale: Gtk.Scale = Gtk.Template.Child()
+    time_scale: Gtk.Scale = Gtk.Template.Child()
+    run_time_label: Gtk.Label = Gtk.Template.Child()
+    fullscreen_button: Gtk.ToggleButton = Gtk.Template.Child()
 
     def __init__(self, settings, **kwargs):
         """Initialize the ElevateWindow.
@@ -159,12 +162,38 @@ class ElevateWindow(Adw.Window):
         self._last_elapsed = None  # Track last elapsed time for UI updates
         self._last_motion_time = None  # Track last motion time for rate limiting
 
+        # Create an event controller for keypress events
+        key_controller = Gtk.EventControllerKey()
+        key_controller.connect("key-pressed", self.on_key_pressed)
+        self.add_controller(key_controller)
+
         # Fallback timer if controller.elapsed_time fails
         self._start_time = time.monotonic()
 
     @property
     def settings(self):
         return self._settings
+
+    def on_key_pressed(self, controller, keyval, keycode, state):
+        """Helper method to handle key events"""
+
+        # Get the key name from the keyval
+        key_name = Gdk.keyval_name(keyval).lower()
+        if key_name == "f":
+            self.fullscreen_button.set_active(not self.fullscreen_button.get_active())
+            self._on_fullscreen_toggled(self.fullscreen_button)
+            return True
+        if key_name == "s":
+            self._toggle_sidebar(not self.sidebar_toggle_button.get_active())
+            return True
+        elif key_name == "escape" and self.is_fullscreen():
+            self.fullscreen_button.set_active(False)
+            self._on_fullscreen_toggled(self.fullscreen_button)
+            return True
+        elif key_name == "space" and self.controller.is_playing:
+            self._handle_stop(self.play_button)
+            return True
+        return False  # Event not handled
 
     def _update_max_seconds(self):
         """Update cached max_seconds from minutes spin button."""
@@ -241,15 +270,17 @@ class ElevateWindow(Adw.Window):
             "active",
             flags,
         )
-        self.settings.bind_property(
-            "stimuli-type",
-            self.sidebar.stimuli_type_combo,
-            "selected",
-            flags,
-        )
         self.fullscreen_button.bind_property(
             "active", self.header_bar, "visible", GObject.BindingFlags.INVERT_BOOLEAN
         )
+        # TODO
+        # self.settings.bind_property(
+        #     "stimuli-type",
+        #     self.sidebar.stimuli_type_combo,
+        #     "selected",
+        #     flags,
+        # )
+        #
 
     def _setup_signals(self):
         """Connect UI signals to their handlers and controller notifications."""
@@ -257,9 +288,9 @@ class ElevateWindow(Adw.Window):
         self.play_button.connect("toggled", self._on_play_toggled)
         self.volume_scale.connect("value-changed", self._on_volume_changed)
         self.preferences_button.connect("clicked", self._on_preferences_clicked)
-        self.controller.connect("notify::is-playing", self._on_playing_state_changed)
         self.volume_button.connect("notify::active", self._on_volume_popover_active)
         self.fullscreen_button.connect("toggled", self._on_fullscreen_toggled)
+        self.toolbar_sidebar_toggle.connect("toggled", self._on_toolbar_sidebar_toggle)
         if self.timeout_id is None:
             self.timeout_id = GLib.timeout_add(500, self.update_timer, priority=GLib.PRIORITY_DEFAULT)
 
@@ -293,10 +324,14 @@ class ElevateWindow(Adw.Window):
         """Toggle fullscreen state."""
         if button.get_active():
             self.fullscreen()
+            self.play_button.grab_focus()
             button.set_icon_name("view-restore-symbolic")
         else:
             self.unfullscreen()
             button.set_icon_name("view-fullscreen-symbolic")
+
+        # Toggle sidebar button in toolbar when appropriate
+        self._toggle_toolbar_sidebar_button()
 
     def _on_stimuli_type_changed(self, *_):
         """Persist selected stimuli type to settings."""
@@ -316,6 +351,14 @@ class ElevateWindow(Adw.Window):
         except AttributeError:
             sel = 0
         self.sidebar.stimuli_type_combo.set_selected(int(sel))
+
+    def is_fullscreen(self):
+        """Helper method to determine if the window is in fullscreen mode."""
+        surface = self.get_surface()
+        if surface is None:
+            return False
+        state = surface.get_state()
+        return state & Gdk.ToplevelState.FULLSCREEN != 0
 
     def _on_draw(self, widget, cr, width, height):
         """Render visual stimuli on the drawing area."""
@@ -383,6 +426,44 @@ class ElevateWindow(Adw.Window):
         else:
             self._start_playback(button)
 
+    def _handle_stop(self, button):
+        """Handle pause/stop state when play button is toggled off."""
+
+        print("Stop Button Clicked")
+        button.set_icon_name("media-playback-start-symbolic")
+        self._toggle_sidebar(True)
+        print(f"Sidebar should be active: {self.sidebar_toggle_button.get_active()}")
+        self.controller.pause()
+        if self.timeout_id:
+            GLib.source_remove(self.timeout_id)
+            self.timeout_id = None
+        self._safe_queue_draw()
+
+    def _on_toolbar_sidebar_toggle(self, button):
+        """Helper method when toolbar's sidebar button is clicked"""
+        # When this is triggered, always show the sidebar
+        # the toggling will set visible == False when the sidebar is toggled
+        self._toggle_sidebar(button.get_active())
+
+    def _toggle_toolbar_sidebar_button(self):
+        """Helper method to show the sidebar when in fullscreen mode."""
+        # The sidebar button only active when playing
+        fullscreen = self.fullscreen_button.get_active()
+        self.toolbar_sidebar_toggle.set_visible(fullscreen)
+
+    def _toggle_sidebar(self, active: bool):
+        """Helper method to toggle the sidebar."""
+        if not active:
+            print("Hiding sidebar")
+        else:
+            print("Showing sidebar")
+
+        self.sidebar_toggle_button.set_active(active)
+        self.split_view.set_show_sidebar(active)
+
+        # Enable the sidebar in toolbar if in fullscreen mode
+        self._toggle_toolbar_sidebar_button()
+
     def _show_warning_and_start(self, button):
         """Show epileptic warning dialog before starting playback."""
         if not self.settings.epileptic_warning:
@@ -411,39 +492,11 @@ class ElevateWindow(Adw.Window):
     def _start_playback(self, button):
         """Start playback, update UI, and schedule timer updates."""
         button.set_icon_name("media-playback-stop-symbolic")
-        self.sidebar_toggle_button.set_active(False)
-        self.split_view.set_show_sidebar(False)
+        self._toggle_sidebar(False)
         self.controller.play()
         if self.timeout_id is None:
             self.timeout_id = GLib.timeout_add(500, self.update_timer, priority=GLib.PRIORITY_DEFAULT)
         self._safe_queue_draw()
-
-    def _handle_stop(self, button):
-        """Handle pause/stop state when play button is toggled off."""
-        button.set_icon_name("media-playback-start-symbolic")
-        self.controller.pause()
-        if self.timeout_id:
-            GLib.source_remove(self.timeout_id)
-            self.timeout_id = None
-        self._safe_queue_draw()
-
-    def _on_stop_clicked(self, button):
-        """Stop playback and reset play button state."""
-        self.controller.stop()
-        self._start_time = time.monotonic()  # Reset fallback timer
-        self.time_scale.set_value(0)  # Reset scale
-        self.run_time_label.set_text("00:00")  # Reset label
-        if self.play_button.get_active():
-            self.play_button.set_active(False)
-        if self.timeout_id:
-            GLib.source_remove(self.timeout_id)
-            self.timeout_id = None
-        self._on_mouse_motion(None, None, None)
-
-    def _on_playing_state_changed(self, controller, param):
-        """Enable/disable stop button based on playing state."""
-        is_playing = controller.is_playing
-        # self.stop_button.set_sensitive(is_playing)
 
     def _on_volume_changed(self, scale):
         """Update audio volume when the slider changes."""
