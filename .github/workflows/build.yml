@@ -104,6 +104,7 @@ jobs:
 
   BuildFlatpak:
     needs: Quality
+    runs-on: ubuntu-latest
     steps:
       - name: Install Dependencies
         run: |
