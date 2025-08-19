@@ -47,7 +47,7 @@ jobs:
       - name: Tests
         run: poetry run python -m pytest -v -s
 
-  Release:
+  Versioning:
     needs: Quality
     if: (github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main') || (github.event_name == 'merge_group')
     runs-on: ubuntu-latest
@@ -102,22 +102,20 @@ jobs:
           git push origin main
           git push origin --tags
 
-  Flatpak:
-    name: "Flatpak"
-    needs: Quality
+  Release:
+    needs: Versioning
+    if: (github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main') || (github.event_name == 'merge_group')
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-48
       options: --privileged
     steps:
       - uses: actions/checkout@v4
-      - name: "Blueprint Compiler"
+      - name: "Install Blueprint Compiler"
         run: |
-          ls -al
-          pwd
           git clone https://gitlab.gnome.org/GNOME/blueprint-compiler.git ./subprojects/blueprint-compiler
       - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
-          bundle: elevate.flatpak
+          bundle: Elevate.flatpak
           manifest-path: org.thecodenomad.elevate.json
           cache-key: flatpak-builder-${{ github.sha }}
