@@ -111,6 +111,11 @@ jobs:
       options: --privileged
     steps:
       - uses: actions/checkout@v4
+      - name: "Blueprint Compiler"
+        run: |
+          ls -al
+          pwd
+          git clone https://gitlab.gnome.org/GNOME/blueprint-compiler.git ./subprojects/blueprint-compiler
       - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
           bundle: elevate.flatpak
