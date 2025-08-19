@@ -101,3 +101,37 @@ jobs:
           git tag v${APP_VERSION}
           git push origin main
           git push origin --tags
+
+  BuildFlatpak:
+    needs: Quality
+    steps:
+      - name: Install Dependencies
+        run: |
+          sudo apt update && sudo apt install -y python3-gobject cairo-devel cmake enchant2-devel flatpak-devel \
+            flatpak-spawn flatpak-builder fuse gcc gdk-pixbuf2-devel gi-docgen gjs-devel git gom-devel \
+            gobject-introspection-devel gtksourceview5-devel json-glib-devel jsonrpc-glib-devel libatomic \
+            libdex-devel libgit2-devel libirc libpeas-devel libsoup3-devel libspelling-devel liburing-devel \
+            libyaml-devel meson valac
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          check-latest: true
+      - name: Install Foundry
+        run: |
+          flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          sudo flatpak install -y --system flathub org.gnome.Sdk//47
+          sudo flatpak install -y --system flathub org.gnome.Platform//47
+          git clone https://gitlab.gnome.org/chergert/foundry.git /tmp/foundry
+          push /tmp/foundry
+          meson setup _build --prefix=/usr
+          sudo ninja install -C _build/
+          popd
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PAT }}
+
+      - name: Build the flatpak
+        run: |
+          foundry export
