@@ -358,7 +358,6 @@ class AudioStimulus(GObject.Object):
         try:
             if self._volume_element:
                 self._volume_element.set_property("volume", float(self._volume))
-                print(f"Volume set to: {self._volume}")
         except (TypeError, ValueError) as e:
             print(f"Error setting volume {value}: {e}")
         except (RuntimeError, GLib.Error) as e:

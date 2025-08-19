@@ -54,8 +54,8 @@
       "buildsystem": "meson",
       "sources": [
         {
-          "type": "git",
-          "url": "file:///var/home/codenomad/Projects"
+          "type": "dir",
+          "path": "."
         }
       ],
       "config-opts": ["--libdir=lib"]
