@@ -1,9 +1,9 @@
 # List of source files containing translatable strings.
 # Please keep this file sorted alphabetically.
 
-data/org.thecodenomad.elevate.desktop.in
-data/org.thecodenomad.elevate.metainfo.xml.in
-data/org.thecodenomad.elevate.gschema.xml
+data/io.github.thecodenomad.elevate.desktop.in
+data/io.github.thecodenomad.elevate.metainfo.xml.in
+data/io.github.thecodenomad.elevate.gschema.xml
 
 src/main.py
 src/window.py

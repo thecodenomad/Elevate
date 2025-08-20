@@ -69,7 +69,7 @@ class ElevateApplication(Adw.Application):
         """Callback for the app.about action."""
         about = Adw.AboutDialog.new()
         about.set_application_name("Elevate")
-        about.set_application_icon("org.thecodenomad.elevate")
+        about.set_application_icon("io.github.thecodenomad.elevate")
         about.set_developer_name("thecodenomad")
         about.set_version("0.1.0")
         about.set_developers(["thecodenomad"])

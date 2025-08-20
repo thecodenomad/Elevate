@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=elevate
 Exec=elevate
-Icon=org.thecodenomad.elevate
+Icon=io.github.thecodenomad.elevate
 Terminal=false
 Type=Application
 Categories=Utility;

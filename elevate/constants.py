@@ -7,7 +7,7 @@ including brainwave state types and their frequency ranges.
 from enum import Enum
 
 # TODO: This should be a part of the build pipeline
-APPLICATION_ID = "org.thecodenomad.elevate"
+APPLICATION_ID = "io.github.thecodenomad.elevate"
 
 LOWER_BOUND = "lower_bound"
 UPPER_BOUND = "upper_bound"
