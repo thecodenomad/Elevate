@@ -2,6 +2,8 @@
 
 Elevate is a desktop meditation app for inducing mental states (e.g., Sleep, Focus) through audio (binaural beats) and visual stimuli.
 
+![Demo](./raw/main_demo.gif)
+
 # Keybindings
 
 `s` - Show Sidebar

@@ -32,12 +32,32 @@
   </keywords>
   <screenshots>
     <screenshot type="default">
-      <image>https://github.com/thecodenomad/elevate/raw/v0.1.1/screenshots/main.png</image>
-      <caption>Main meditation interface</caption>
+      <image>https://github.com/thecodenomad/elevate/raw/screenshots/main_first_open.png</image>
+      <caption>Welcome Screen</caption>
     </screenshot>
     <screenshot>
-      <image>https://github.com/thecodenomad/elevate/raw/v0.1.1/screenshots/breathing.png</image>
-      <caption>Breathing exercise screen</caption>
+      <image>https://github.com/thecodenomad/elevate/raw/screenshots/epileptic_warning.png</image>
+      <caption>Epileptic Warning</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/thecodenomad/elevate/raw/screenshots/preferences.png</image>
+      <caption>Preferences Screen</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/thecodenomad/elevate/raw/screenshots/main_visual_hold.png</image>
+      <caption>Hold Visual</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/thecodenomad/elevate/raw/screenshots/main_visual_exhale.png</image>
+      <caption>Exhale Visual</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/thecodenomad/elevate/raw/screenshots/main_only_audio.png</image>
+      <caption>Only Audio</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/thecodenomad/elevate/raw/screenshots/advanced_audio_settings.png</image>
+      <caption>Advanced Audio Settings</caption>
     </screenshot>
   </screenshots>
   <releases>
