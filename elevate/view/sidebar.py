@@ -127,7 +127,7 @@ class Sidebar(Gtk.Box):
 
                 adjustment = self.channel_offset_scale.get_adjustment()
                 adjustment.set_value(default_value)
-                print(f"User intends to state: {state_type.name} with offset: {default_value}")
+                print(f"User set state: {state_type.name} with offset: {default_value}")
             except (IndexError, KeyError) as e:
                 print(f"Error setting state: {e}")
 
@@ -146,12 +146,19 @@ class Sidebar(Gtk.Box):
             # TODO:
             # self.advanced_visual_settings.set_property("opacity", 1.0)
             self.intended_state_combo.set_sensitive(False)
+
+            # Block Signal being emitted since the offset is changing the intended_state_combo
+            GObject.signal_handler_block(self.intended_state_combo, self.state_handler_id)
+
         else:
             self.advanced_audio_settings.set_property("opacity", 0)
             self.intended_state_combo.set_sensitive(True)
 
             # TODO
             # self.advanced_visual_settings.set_property("opacity", 0)
+
+            # Unblock Signal being emitted since user is not using advanced settings
+            GObject.signal_handler_unblock(self.intended_state_combo, self.state_handler_id)
 
     def _on_playing_state_changed(self, controller, _pspec):
         """Toggle minutes_spin_button sensitivity based on playback state."""
@@ -171,13 +178,10 @@ class Sidebar(Gtk.Box):
         state_index = self._get_state_name(offset_value)
         state_type = StateType(state_index)
 
-        # Block Signal being emitted since the offset is changing the intended_state_combo
-        GObject.signal_handler_block(self.intended_state_combo, self.state_handler_id)
         self.intended_state_combo.set_selected(state_index)
         self.intended_state_combo.set_title(
             f"{STATE_TYPE_NAMES[state_index]} ({STATE_DATA[state_type][DEFAULT]} Hz)"
         )
-        GObject.signal_handler_unblock(self.intended_state_combo, self.state_handler_id)
 
     def set_bindings(self):
         """Helper method for establishing bindings for the relevant widgets."""

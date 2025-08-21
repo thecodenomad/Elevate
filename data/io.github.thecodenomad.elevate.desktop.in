@@ -1,9 +1,9 @@
 [Desktop Entry]
 Type=Application
 Name=Elevate
-Comment=_('Guided meditation and mindfulness application')
+Comment=Guided meditation and mindfulness application
 Exec=elevate
 Icon=io.github.thecodenomad.elevate
 Terminal=false
-Categories=Utility;Health;
+Categories=Utility;Education;
 Keywords=meditation;mindfulness;relaxation;breathing;

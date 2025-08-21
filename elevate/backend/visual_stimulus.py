@@ -150,7 +150,7 @@ class VisualStimulus(GObject.Object):
         """
 
         if self._animation_source is None:
-            print("Animation should be starting...")
+            print("Starting animation...")
             self._last_ts = GLib.get_monotonic_time() / 1_000_000.0
             self._animation_source = GLib.timeout_add(16, self._animate)
 

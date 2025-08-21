@@ -1,0 +1,20 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $WelcomeDialog : Adw.AlertDialog {
+  heading: "Welcome to Elevate";
+  body: "Elevate produces binaural audio and visual stimuli to help aid in relaxation, focus, and meditation.";
+
+  Gtk.Box {
+    orientation: horizontal;
+    halign: center;
+    Gtk.Image {
+      icon-name: "io.github.thecodenomad.elevate";
+      pixel-size: 128;
+    }
+  }
+
+  responses [
+    proceed: "Ok" suggested
+  ]
+}

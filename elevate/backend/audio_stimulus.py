@@ -310,7 +310,7 @@ class AudioStimulus(GObject.Object):
                 left_freq = float(self._base_frequency)
                 right_freq = float(self._base_frequency + self._channel_offset)
 
-                print(f"Play initiated...Left: {left_freq} Hz, Right: {right_freq} Hz")
+                print(f"Play initiated...\n\tLeft Channel: {left_freq} Hz, Right Channel: {right_freq} Hz")
 
                 # Ensure frequencies are applied to pipeline elements
                 if self._source_left and self._source_right:

@@ -5,50 +5,50 @@
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-only</project_license>
   <name>Elevate</name>
-  <summary>_('Guided meditation and mindfulness application')</summary>
+  <summary>Guided meditation and mindfulness application</summary>
   <developer id="io.github.thecodenomad">
-    <name>_('codenomad')</name>
+    <name>thecodenomad</name>
   </developer>
   <description>
-    <p>_('Elevate is a meditation and mindfulness application designed to help users achieve calm and focus through guided sessions, breathing exercises, and progress tracking.')</p>
-    <p>_('Key features include:')</p>
+    <p>Elevate is a meditation and mindfulness application designed to help users achieve calm and focus through guided sessions, breathing exercises, and progress tracking.</p>
+    <p>Key features include:</p>
     <ul>
-      <li>_('Guided meditation sessions for beginners and advanced users')</li>
-      <li>_('Breathing exercises to reduce stress')</li>
-      <li>_('Progress tracking to monitor your mindfulness journey')</li>
-      <li>_('Integration with Bluetooth devices for potential EEG input (future support)')</li>
+      <li>Guided meditation sessions for beginners and advanced users</li>
+      <li>Breathing exercises to reduce stress</li>
+      <li>Progress tracking to monitor your mindfulness journey</li>
+      <li>Integration with Bluetooth devices for potential EEG input (future support)</li>
     </ul>
   </description>
   <launchable type="desktop-id">io.github.thecodenomad.elevate.desktop</launchable>
   <categories>
-    <category>Health</category>
+    <category>Education</category>
     <category>Utility</category>
   </categories>
   <keywords>
-    <keyword>_('meditation')</keyword>
-    <keyword>_('mindfulness')</keyword>
-    <keyword>_('relaxation')</keyword>
-    <keyword>_('breathing')</keyword>
+    <keyword>meditation</keyword>
+    <keyword>mindfulness</keyword>
+    <keyword>relaxation</keyword>
+    <keyword>breathing</keyword>
   </keywords>
   <screenshots>
     <screenshot type="default">
       <image>https://github.com/thecodenomad/elevate/raw/v0.1.1/screenshots/main.png</image>
-      <caption>_('Main meditation interface')</caption>
+      <caption>Main meditation interface</caption>
     </screenshot>
     <screenshot>
       <image>https://github.com/thecodenomad/elevate/raw/v0.1.1/screenshots/breathing.png</image>
-      <caption>_('Breathing exercise screen')</caption>
+      <caption>Breathing exercise screen</caption>
     </screenshot>
   </screenshots>
   <releases>
     <release version="0.1.1" date="2025-08-01">
       <url type="details">https://github.com/thecodenomad/elevate/releases/tag/v0.1.1</url>
       <description>
-        <p>_('Initial release of Elevate with core meditation features.')</p>
+        <p>Initial release of Elevate with core meditation features.</p>
         <ul>
-          <li>_('Added guided meditation sessions')</li>
-          <li>_('Introduced breathing exercise module')</li>
-          <li>_('Basic progress tracking implemented')</li>
+          <li>Added guided meditation sessions</li>
+          <li>Introduced breathing exercise module</li>
+          <li>Basic progress tracking implemented</li>
         </ul>
       </description>
     </release>

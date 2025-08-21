@@ -78,49 +78,32 @@ class ElevateWindow(Adw.Window):
         self._settings = settings
         self.timeout_id = None  # Initialize to avoid AttributeError
 
+        self.toolbar_visible = True
+        self._max_seconds = 3600
+        self._pointer_in_toolbar = False
+        self._volume_popover_open = False
+        self._fade_timeout_id = None
+        self._last_motion_pos = None  # Track last mouse position for debouncing
+        self._last_elapsed = None  # Track last elapsed time for UI updates
+        self._last_motion_time = None  # Track last motion time for rate limiting
+
+        # Setup Controls
         self.controller = StateInductionController(settings)
         self.sidebar = Sidebar(self.controller, self.settings)
         self.scrolled_window.set_child(self.sidebar)
+        self._minutes_spin_button = self.sidebar.minutes_spin_button
+        self._time_adjustment = self.time_scale.get_adjustment()
+
+        # Setup the Visual elements
+        self.placeholder_content = self._create_placeholder_content()
+        self.current_content = self.stimuli_renderer
 
         self._setup_bindings()
         self._setup_signals()
+        self._setup_default_values()
 
         self.controller.visual_stimulus.set_widget(self.stimuli_renderer)
-        self.stimuli_renderer.connect("resize", self._on_renderer_resize)
         self.stimuli_renderer.set_draw_func(self._on_draw)
-
-        self._bind_volume()
-        # Cache frequently accessed UI elements for performance
-        self._minutes_spin_button = getattr(self.sidebar, "minutes_spin_button", None)
-        self._time_adjustment = self.time_scale.get_adjustment()
-
-        # Initialize max runtime (seconds)
-        self._max_seconds = 3600
-        if self._minutes_spin_button:
-            try:
-                self._max_seconds = self._minutes_spin_button.get_value() * 60
-                # Bind minutes_spin_button value to time_scale upper limit
-                self._minutes_spin_button.bind_property(
-                    "value",
-                    self._time_adjustment,
-                    "upper",
-                    GObject.BindingFlags.DEFAULT | GObject.BindingFlags.SYNC_CREATE,
-                    lambda binding, value: value * 60,  # Convert minutes to seconds
-                    None,
-                )
-                # Update settings and max_seconds on minutes change
-                self._minutes_spin_button.connect("notify::value", self._on_minutes_spin_button_changed)
-            except Exception as e:
-                print(f"[ElevateWindow] Warning initializing minutes binding: {e}")
-                self._time_adjustment.set_upper(3600)  # Default to 1 hour
-        else:
-            self._time_adjustment.set_upper(3600)  # Default to 1 hour
-
-        # Set fixed width for timer label to avoid layout changes
-        self.run_time_label.set_width_chars(6)  # Fits "00:00"
-        self.time_scale.set_draw_value(False)  # Look like progress bar
-        self.time_scale.set_sensitive(False)  # Read-only
-        self.time_scale.set_digits(0)  # Avoid fractional display
 
         # Apply CSS for fade-out transition
         css_provider = Gtk.CssProvider()
@@ -142,6 +125,8 @@ class ElevateWindow(Adw.Window):
         Gtk.StyleContext.add_provider_for_display(
             self.get_display(), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
         )
+
+
         self.toolbar.set_name("toolbar")
         self.run_time_label.set_name("run-time-label")
 
@@ -149,18 +134,11 @@ class ElevateWindow(Adw.Window):
         self.motion_controller.connect("motion", self._on_mouse_motion)
         self.content_area.add_controller(self.motion_controller)
 
+        # Setup Toolbar Fade In and Fade Out
         self._toolbar_motion = Gtk.EventControllerMotion()
         self._toolbar_motion.connect("enter", self._on_toolbar_enter)
         self._toolbar_motion.connect("leave", self._on_toolbar_leave)
         self.toolbar.add_controller(self._toolbar_motion)
-
-        self.toolbar_visible = True
-        self._pointer_in_toolbar = False
-        self._volume_popover_open = False
-        self._fade_timeout_id = None
-        self._last_motion_pos = None  # Track last mouse position for debouncing
-        self._last_elapsed = None  # Track last elapsed time for UI updates
-        self._last_motion_time = None  # Track last motion time for rate limiting
 
         # Create an event controller for keypress events
         key_controller = Gtk.EventControllerKey()
@@ -169,10 +147,26 @@ class ElevateWindow(Adw.Window):
 
         # Fallback timer if controller.elapsed_time fails
         self._start_time = time.monotonic()
+        self._toggle_main_content()
 
     @property
     def settings(self):
         return self._settings
+
+    def _create_placeholder_content(self):
+        """Create a centered box with a label and icon."""
+        box = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL,
+            halign=Gtk.Align.CENTER,
+            valign=Gtk.Align.CENTER,
+            spacing=12
+        )
+        label = Gtk.Label(label="Headphones Required")
+        icon = Gtk.Image.new_from_icon_name("audio-headphones-symbolic")
+        icon.set_pixel_size(128)
+        box.append(label)
+        box.append(icon)
+        return box
 
     def on_key_pressed(self, controller, keyval, keycode, state):
         """Helper method to handle key events"""
@@ -282,15 +276,58 @@ class ElevateWindow(Adw.Window):
         # )
         #
 
+    def _setup_default_values(self):
+        """Helper method to set defaults."""
+
+        # Setup Volume
+        try:
+            self.volume_scale.set_value(self.controller.audio_stimulus.get_volume())
+        except AttributeError:
+            pass
+
+        # Setup Minutes
+        if self._minutes_spin_button:
+            try:
+                self._max_seconds = self._minutes_spin_button.get_value() * 60
+                # Bind minutes_spin_button value to time_scale upper limit
+                self._minutes_spin_button.bind_property(
+                    "value",
+                    self._time_adjustment,
+                    "upper",
+                    GObject.BindingFlags.DEFAULT | GObject.BindingFlags.SYNC_CREATE,
+                    lambda binding, value: value * 60,  # Convert minutes to seconds
+                    None,
+                )
+                # Update settings and max_seconds on minutes change
+                self._minutes_spin_button.connect("notify::value", self._on_minutes_spin_button_changed)
+            except Exception as e:
+                print(f"[ElevateWindow] Warning initializing minutes binding: {e}")
+                self._time_adjustment.set_upper(3600)  # Default to 1 hour
+        else:
+            self._time_adjustment.set_upper(3600)  # Default to 1 hour
+
+        # Set fixed width for timer label to avoid layout changes
+        self.run_time_label.set_width_chars(6)  # Fits "00:00"
+        self.time_scale.set_draw_value(False)  # Look like progress bar
+        self.time_scale.set_sensitive(False)  # Read-only
+        self.time_scale.set_digits(0)  # Avoid fractional display
+
+        # Show the correct main content
+        self._toggle_main_content()
+
     def _setup_signals(self):
         """Connect UI signals to their handlers and controller notifications."""
-        self.sidebar_toggle_button.connect("clicked", self._on_sidebar_toggle_clicked)
-        self.play_button.connect("toggled", self._on_play_toggled)
-        self.volume_scale.connect("value-changed", self._on_volume_changed)
-        self.preferences_button.connect("clicked", self._on_preferences_clicked)
-        self.volume_button.connect("notify::active", self._on_volume_popover_active)
+
         self.fullscreen_button.connect("toggled", self._on_fullscreen_toggled)
+        self.play_button.connect("toggled", self._on_play_toggled)
+        self.preferences_button.connect("clicked", self._on_preferences_clicked)
+        self.sidebar_toggle_button.connect("clicked", self._on_sidebar_toggle_clicked)
+        self.stimuli_renderer.connect("resize", self._on_renderer_resize)
         self.toolbar_sidebar_toggle.connect("toggled", self._on_toolbar_sidebar_toggle)
+        self.volume_button.connect("notify::active", self._on_volume_popover_active)
+        self.volume_scale.connect("value-changed", self._on_volume_changed)
+        self.sidebar.visual_stimuli_switch.connect("notify::active", self._toggle_main_content)
+
         if self.timeout_id is None:
             self.timeout_id = GLib.timeout_add(500, self.update_timer, priority=GLib.PRIORITY_DEFAULT)
 
@@ -336,13 +373,6 @@ class ElevateWindow(Adw.Window):
     def _on_stimuli_type_changed(self, *_):
         """Persist selected stimuli type to settings."""
         self.controller._settings.set_stimuli_type(self.sidebar.stimuli_type_combo.get_selected())
-
-    def _bind_volume(self):
-        """Initialize volume slider from audio stimulus if available."""
-        try:
-            self.volume_scale.set_value(self.controller.audio_stimulus.get_volume())
-        except AttributeError:
-            pass
 
     def _init_stimuli_type_binding(self):
         """Initialize sidebar combo selection from settings, defaulting to 0."""
@@ -416,12 +446,24 @@ class ElevateWindow(Adw.Window):
             self._handle_stop(button)
         self._on_mouse_motion(None, None, None)
 
+    def _toggle_main_content(self, _button=None, _pspec=None):
+        """Helper method to toggle the stimuli renderer or the headphone placeholder."""
+
+        visual_stimuli_active = self.sidebar.visual_stimuli_switch.get_active()
+        new_content = self.stimuli_renderer if visual_stimuli_active else self.placeholder_content
+        if new_content != self.current_content:
+            self.overlay_area.set_child(new_content)
+            self.current_content = new_content
+
     def _handle_start(self, button):
         """Initialize play state and optionally show warning dialog."""
         self._start_time = time.monotonic()  # Reset fallback timer
         self.time_scale.set_value(0)
         self.run_time_label.set_text("00:00")
-        if self.sidebar.visual_stimuli_switch.get_active():
+        self._toggle_main_content()
+
+        visual_stimuli_active = self.sidebar.visual_stimuli_switch.get_active()
+        if visual_stimuli_active:
             self._show_warning_and_start(button)
         else:
             self._start_playback(button)
@@ -429,10 +471,8 @@ class ElevateWindow(Adw.Window):
     def _handle_stop(self, button):
         """Handle pause/stop state when play button is toggled off."""
 
-        print("Stop Button Clicked")
         button.set_icon_name("media-playback-start-symbolic")
         self._toggle_sidebar(True)
-        print(f"Sidebar should be active: {self.sidebar_toggle_button.get_active()}")
         self.controller.pause()
         if self.timeout_id:
             GLib.source_remove(self.timeout_id)
@@ -453,10 +493,6 @@ class ElevateWindow(Adw.Window):
 
     def _toggle_sidebar(self, active: bool):
         """Helper method to toggle the sidebar."""
-        if not active:
-            print("Hiding sidebar")
-        else:
-            print("Showing sidebar")
 
         self.sidebar_toggle_button.set_active(active)
         self.split_view.set_show_sidebar(active)

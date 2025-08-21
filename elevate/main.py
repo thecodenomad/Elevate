@@ -33,6 +33,7 @@ from elevate.constants import APPLICATION_ID
 from elevate.settings import ElevateSettings
 from elevate.window import ElevateWindow
 from elevate.view.preferences_window import PreferencesWindow
+from elevate.view.welcome_dialog import WelcomeDialog
 
 
 class ElevateApplication(Adw.Application):
@@ -44,6 +45,9 @@ class ElevateApplication(Adw.Application):
         self.create_action("about", self.on_about_action)
         self.create_action("preferences", self.on_preferences_action)
         self._settings = ElevateSettings()
+
+        # TODO: Remove for release
+        # self._settings.show_welcome_dialog = True
 
     @property
     def settings(self):
@@ -60,6 +64,20 @@ class ElevateApplication(Adw.Application):
         if not win:
             win = ElevateWindow(self.settings, application=self)
         win.present()
+
+        self._show_welcome_dialog(win)
+
+    def _show_welcome_dialog(self, win):
+        """Show the Welcome Dialog"""
+
+        def _save_showed_welcome_dialog(_dialog, _result):
+            self.settings.show_welcome_dialog = False
+
+        # Only show the Welcome Dialog once
+        if self.settings.show_welcome_dialog:
+            dlg = WelcomeDialog()
+            dlg.present(win)
+            dlg.choose(win, None, _save_showed_welcome_dialog)
 
     def on_quit_action(self):
         """Callback for the app.quit action."""
