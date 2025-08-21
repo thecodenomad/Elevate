@@ -7,7 +7,7 @@ including brainwave state types and their frequency ranges.
 from enum import Enum
 
 # TODO: This should be a part of the build pipeline
-APPLICATION_ID = "org.thecodenomad.elevate"
+APPLICATION_ID = "io.github.thecodenomad.elevate"
 
 LOWER_BOUND = "lower_bound"
 UPPER_BOUND = "upper_bound"
@@ -26,7 +26,7 @@ class StateType(Enum):
 
 
 STATE_TYPE_NAMES = ["Delta", "Theta", "Alpha", "Beta", "Gamma"]
-
+STATE_FUNC_NAMES = ["Sleep", "Creativity", "Relaxation", "Focus", "Cognition"]
 
 # NOTE: Information obtained via Grok
 # https://grok.com/share/bGVnYWN5_c323e05e-2640-4309-94c4-ea65c9259e01

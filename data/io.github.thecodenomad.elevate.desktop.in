@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Elevate
+Comment=Guided meditation and mindfulness application
+Exec=elevate
+Icon=io.github.thecodenomad.elevate
+Terminal=false
+Categories=Utility;Education;
+Keywords=meditation;mindfulness;relaxation;breathing;

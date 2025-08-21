@@ -1,19 +1,10 @@
 {
-  "id": "org.thecodenomad.elevate",
+  "id": "io.github.thecodenomad.elevate",
   "runtime": "org.gnome.Platform",
   "runtime-version": "47",
   "sdk": "org.gnome.Sdk",
   "command": "elevate",
-  "finish-args": [
-    "--share=network",
-    "--share=ipc",
-    "--socket=fallback-x11",
-    "--device=dri",
-    "--socket=wayland",
-    "--allow=bluetooth",
-    "--talk-name=org.bluez",
-    "--socket=pulseaudio"
-  ],
+  "finish-args": ["--device=dri", "--socket=wayland", "--socket=pulseaudio"],
   "cleanup": [
     "/include",
     "/lib/pkgconfig",

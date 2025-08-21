@@ -1,4 +1,4 @@
-application_id = 'org.thecodenomad.elevate'
+application_id = 'io.github.thecodenomad.elevate'
 
 scalable_dir = 'hicolor' / 'scalable' / 'apps'
 install_data(

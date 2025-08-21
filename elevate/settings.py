@@ -119,6 +119,7 @@ class ElevateSettings(GObject.Object):
         Args:
             value (int): The intended state to set.
         """
+        print(f"Setting intended state to: {value}")
         self.app_config.set_int("intended-state", value)
 
     @GObject.Property(type=int, default=0)
@@ -260,6 +261,27 @@ class ElevateSettings(GObject.Object):
             value (int): The volume to set.
         """
         self.app_config.set_int("saved-volume", value)
+
+    @GObject.Property(type=bool, default=True)
+    def show_welcome_dialog(self) -> bool:
+        """The Welcome Dialog setting
+
+        Returns:
+            bool: Whether or not the application should show the welcome dialog
+        """
+        try:
+            return self.app_config.get_boolean("show-welcome-dialog")
+        except GLib.Error:
+            return True
+
+    @show_welcome_dialog.setter
+    def show_welcome_dialog(self, value: bool) -> None:
+        """Sets the state of the Welcome Dialog.
+
+        Args:
+            value (bool): The state of the Welcome Dialog.
+        """
+        self.app_config.set_boolean("show-welcome-dialog", value)
 
     @GObject.Property(type=int, default=0)
     def stimuli_type(self) -> int:

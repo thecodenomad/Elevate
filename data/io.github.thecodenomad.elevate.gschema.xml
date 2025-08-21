@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <schemalist gettext-domain="elevate">
-	<schema id="org.thecodenomad.elevate" path="/org/thecodenomad/elevate/">
+	<schema
+        id="io.github.thecodenomad.elevate"
+        path="/io/github/thecodenomad/elevate/"
+    >
 
         <!-- Preferences -->
         <key name="base-frequency" type="d">
@@ -57,5 +60,12 @@
 			<description
             >The type of visual stimuli to use (e.g., 0 for color, 1 for breath patterns)</description>
 		</key>
+
+		<key name="show-welcome-dialog" type="b">
+			<default>true</default>
+			<summary>Show Welcome Dialog</summary>
+			<description>Show's the welcome dialog</description>
+		</key>
+
 	</schema>
 </schemalist>
