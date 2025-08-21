@@ -126,7 +126,6 @@ class ElevateWindow(Adw.Window):
             self.get_display(), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
         )
 
-
         self.toolbar.set_name("toolbar")
         self.run_time_label.set_name("run-time-label")
 
@@ -159,7 +158,7 @@ class ElevateWindow(Adw.Window):
             orientation=Gtk.Orientation.VERTICAL,
             halign=Gtk.Align.CENTER,
             valign=Gtk.Align.CENTER,
-            spacing=12
+            spacing=12,
         )
         label = Gtk.Label(label="Headphones Required")
         icon = Gtk.Image.new_from_icon_name("audio-headphones-symbolic")
@@ -312,6 +311,9 @@ class ElevateWindow(Adw.Window):
         self.time_scale.set_sensitive(False)  # Read-only
         self.time_scale.set_digits(0)  # Avoid fractional display
 
+        # Set the sidbar defaults to avoid binding issues resetting state
+        self.sidebar.set_defaults()
+
         # Show the correct main content
         self._toggle_main_content()
 
@@ -326,7 +328,7 @@ class ElevateWindow(Adw.Window):
         self.toolbar_sidebar_toggle.connect("toggled", self._on_toolbar_sidebar_toggle)
         self.volume_button.connect("notify::active", self._on_volume_popover_active)
         self.volume_scale.connect("value-changed", self._on_volume_changed)
-        self.sidebar.visual_stimuli_switch.connect("notify::active", self._toggle_main_content)
+        # self.sidebar.visual_stimuli_switch.connect("notify::active", self._toggle_main_content)
 
         if self.timeout_id is None:
             self.timeout_id = GLib.timeout_add(500, self.update_timer, priority=GLib.PRIORITY_DEFAULT)

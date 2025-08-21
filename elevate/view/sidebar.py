@@ -63,6 +63,7 @@ class Sidebar(Gtk.Box):
         """Initialize the sidebar."""
         super().__init__(**kwargs)
         self.state_handler_id = None
+        self.offset_handler_id = None
         self.controller = controller
         self.settings = settings
 
@@ -70,22 +71,29 @@ class Sidebar(Gtk.Box):
         self.intended_state_combo.set_model(string_list)
 
         self.set_bindings()
-        self.set_defaults()
 
     def set_defaults(self):
         """Helper method to load saved settings into the sidebar widgets."""
+        # Block the channel_offset_scale signal to prevent unwanted updates
+
+        GObject.signal_handler_block(self.channel_offset_scale, self.offset_handler_id)
+        GObject.signal_handler_block(self.intended_state_combo, self.state_handler_id)
+
         # Set Intended State
         state_idx = self.settings.intended_state
         state_type = list(StateType)[state_idx]
         self.intended_state_combo.set_selected(state_idx)
-        tooltip = f"{state_type.name}: {STATE_DATA[state_type][LOWER_BOUND]} to {STATE_DATA[state_type][UPPER_BOUND]} Hz - {STATE_DATA[state_type]['description']}"
+
+        tooltip = (
+                    f"{state_type.name}: {STATE_DATA[state_type][LOWER_BOUND]} "
+                    f"to {STATE_DATA[state_type][UPPER_BOUND]} Hz - {STATE_DATA[state_type]['description']}"
+                )
         self.intended_state_combo.set_tooltip_text(tooltip)
         self.intended_state_combo.set_title(
             f"{STATE_TYPE_NAMES[state_idx]} ({STATE_DATA[state_type][DEFAULT]} Hz)"
         )
 
         # Set Default Channel Offset
-        state_type = list(StateType)[state_idx]
         default_offset = STATE_DATA[state_type][DEFAULT]
         self.channel_offset_scale.set_value(default_offset)
 
@@ -101,6 +109,10 @@ class Sidebar(Gtk.Box):
         enable_visuals = self.settings.enable_visual_stimuli
         self.visual_stimuli_switch.set_active(enable_visuals)
 
+        # Unblock the channel_offset_scale signal
+        GObject.signal_handler_unblock(self.channel_offset_scale, self.offset_handler_id)
+        GObject.signal_handler_unblock(self.intended_state_combo, self.state_handler_id)
+
     def on_intended_state_combo_changed(self, combo, _pspec):
         """Handle changes to the intended_state_combo.
 
@@ -109,17 +121,19 @@ class Sidebar(Gtk.Box):
         2. Set the channel_offset_scale to the default value for that state
         3. Update the settings with the new intended state
         """
+
         selected_index = combo.get_selected()
         if selected_index != Gtk.INVALID_LIST_POSITION:
-            # Update the intended state in settings
-            self.settings.intended_state = selected_index
 
             # Map the index to the StateType enum
             try:
                 state_type = list(StateType)[selected_index]
                 # Set the channel_offset_scale to the default value for this state
                 default_value = STATE_DATA[state_type][DEFAULT]
-                tooltip = f"{state_type.name}: {STATE_DATA[state_type][LOWER_BOUND]} to {STATE_DATA[state_type][UPPER_BOUND]} Hz - {STATE_DATA[state_type]['description']}"
+                tooltip = (
+                    f"{state_type.name}: {STATE_DATA[state_type][LOWER_BOUND]} "
+                    f"to {STATE_DATA[state_type][UPPER_BOUND]} Hz - {STATE_DATA[state_type]['description']}"
+                )
                 combo.set_tooltip_text(tooltip)
                 combo.set_title(
                     f"{STATE_TYPE_NAMES[selected_index]} ({STATE_DATA[state_type][DEFAULT]} Hz)"
@@ -188,6 +202,9 @@ class Sidebar(Gtk.Box):
         self.state_handler_id = self.intended_state_combo.connect(
             "notify::selected-item", self.on_intended_state_combo_changed
         )
+        self.offset_handler_id = self.channel_offset_scale.connect(
+            "notify::value", self._on_channel_offset_changed
+        )
+
         self.advanced_settings_switch.connect("notify::active", self.on_advanced_settings_toggle)
         self.controller.connect("notify::is-playing", self._on_playing_state_changed)
-        self.channel_offset_scale.connect("notify::value", self._on_channel_offset_changed)
