@@ -26,7 +26,8 @@ from elevate.constants import (
     LANGUAGES,
     StateType,
     STATE_DATA,
-    STATE_TYPE_NAMES,
+    STATE_FUNC_NAMES,
+    STATE_TYPE_NAMES
 )
 
 # pylint: disable=E1101,W0718
@@ -57,19 +58,18 @@ class PreferencesWindow(Adw.PreferencesDialog):
         self.settings = settings
 
         self._populate_combo_row(self.language_selection_combo, LANGUAGES)
-        self._populate_combo_row(self.default_state_combo, STATE_TYPE_NAMES)
+        self._populate_combo_row(self.default_state_combo, STATE_FUNC_NAMES)
 
         self.set_bindings()
         self.set_default_states()
 
     def set_bindings(self):
         """Helper method to set the bindings for the Preferences window."""
+        self.default_state_combo.connect("notify::selected", self._on_default_state_changed)
         self.epileptic_warning_switch.connect("notify::active", self._on_epileptic_warning_toggle)
         self.language_selection_combo.connect("notify::selected", self._on_lang_changed)
         self.minutes_spin_button.connect("notify::value", self._on_session_length_changed)
         self.connect("closed", self.on_closed)
-
-        # self.default_state_combo.connect("notify::selected", self._on_default_state_changed)
 
     def set_default_states(self):
         """Helper method to set the default states for the Preferences widgets."""
@@ -97,7 +97,7 @@ class PreferencesWindow(Adw.PreferencesDialog):
 
         state_type = StateType(sel)
         self.default_state_combo.set_tooltip_text(STATE_DATA[state_type][DESCRIPTION])
-        print(f"Saving default intended state to: {sel} - {STATE_TYPE_NAMES[sel]}")
+        print(f"Saving default intended state to: {sel} - {STATE_TYPE_NAMES[sel]} with tooltip text: {STATE_DATA[state_type][DESCRIPTION]}")
 
     def _on_epileptic_warning_toggle(self, button, _pspec):
         print(f"Toggling epileptic warning to: {self.settings.epileptic_warning}")
