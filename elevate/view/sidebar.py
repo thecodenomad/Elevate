@@ -25,7 +25,15 @@ gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, GObject
 
 # Import constants using relative import
-from elevate.constants import DEFAULT, LOWER_BOUND, UPPER_BOUND, STATE_DATA, StateType, STATE_FUNC_NAMES, STATE_TYPE_NAMES
+from elevate.constants import (
+    DEFAULT,
+    LOWER_BOUND,
+    UPPER_BOUND,
+    STATE_DATA,
+    StateType,
+    STATE_FUNC_NAMES,
+    STATE_TYPE_NAMES,
+)
 
 # pylint: disable=E1101
 
@@ -72,7 +80,9 @@ class Sidebar(Gtk.Box):
         self.intended_state_combo.set_selected(state_idx)
         tooltip = f"{state_type.name}: {STATE_DATA[state_type][LOWER_BOUND]} to {STATE_DATA[state_type][UPPER_BOUND]} Hz - {STATE_DATA[state_type]['description']}"
         self.intended_state_combo.set_tooltip_text(tooltip)
-        self.intended_state_combo.set_title(f"{STATE_TYPE_NAMES[state_idx]} ({STATE_DATA[state_type][DEFAULT]} Hz)")
+        self.intended_state_combo.set_title(
+            f"{STATE_TYPE_NAMES[state_idx]} ({STATE_DATA[state_type][DEFAULT]} Hz)"
+        )
 
         # Set Default Channel Offset
         state_type = list(StateType)[state_idx]
@@ -111,7 +121,9 @@ class Sidebar(Gtk.Box):
                 default_value = STATE_DATA[state_type][DEFAULT]
                 tooltip = f"{state_type.name}: {STATE_DATA[state_type][LOWER_BOUND]} to {STATE_DATA[state_type][UPPER_BOUND]} Hz - {STATE_DATA[state_type]['description']}"
                 combo.set_tooltip_text(tooltip)
-                combo.set_title(f"{STATE_TYPE_NAMES[selected_index]} ({STATE_DATA[state_type][DEFAULT]} Hz)")
+                combo.set_title(
+                    f"{STATE_TYPE_NAMES[selected_index]} ({STATE_DATA[state_type][DEFAULT]} Hz)"
+                )
 
                 adjustment = self.channel_offset_scale.get_adjustment()
                 adjustment.set_value(default_value)
@@ -146,12 +158,11 @@ class Sidebar(Gtk.Box):
         is_playing = controller.is_playing
         self.minutes_spin_button.set_sensitive(not is_playing)
 
-
     def _get_state_name(self, offset_value):
         """Get the state name for the given offset."""
         for state, state_obj in STATE_DATA.items():
             if state_obj[LOWER_BOUND] <= offset_value <= state_obj[UPPER_BOUND]:
-               return state.value
+                return state.value
         return None
 
     def _on_channel_offset_changed(self, spin_row, _pspec):
@@ -163,12 +174,16 @@ class Sidebar(Gtk.Box):
         # Block Signal being emitted since the offset is changing the intended_state_combo
         GObject.signal_handler_block(self.intended_state_combo, self.state_handler_id)
         self.intended_state_combo.set_selected(state_index)
-        self.intended_state_combo.set_title(f"{STATE_TYPE_NAMES[state_index]} ({STATE_DATA[state_type][DEFAULT]} Hz)")
+        self.intended_state_combo.set_title(
+            f"{STATE_TYPE_NAMES[state_index]} ({STATE_DATA[state_type][DEFAULT]} Hz)"
+        )
         GObject.signal_handler_unblock(self.intended_state_combo, self.state_handler_id)
 
     def set_bindings(self):
         """Helper method for establishing bindings for the relevant widgets."""
-        self.state_handler_id = self.intended_state_combo.connect("notify::selected-item", self.on_intended_state_combo_changed)
+        self.state_handler_id = self.intended_state_combo.connect(
+            "notify::selected-item", self.on_intended_state_combo_changed
+        )
         self.advanced_settings_switch.connect("notify::active", self.on_advanced_settings_toggle)
         self.controller.connect("notify::is-playing", self._on_playing_state_changed)
         self.channel_offset_scale.connect("notify::value", self._on_channel_offset_changed)
