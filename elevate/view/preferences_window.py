@@ -99,7 +99,7 @@ class PreferencesWindow(Adw.PreferencesDialog):
         self.default_state_combo.set_tooltip_text(STATE_DATA[state_type][DESCRIPTION])
         print(
             f"Saving default intended state to: {sel} - {STATE_TYPE_NAMES[sel]} "
-            "with tooltip text: {STATE_DATA[state_type][DESCRIPTION]}"
+            f"with tooltip text: {STATE_DATA[state_type][DESCRIPTION]}"
         )
 
     def _on_epileptic_warning_toggle(self, button, _pspec):

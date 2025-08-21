@@ -47,7 +47,7 @@ class ElevateApplication(Adw.Application):
         self._settings = ElevateSettings()
 
         # TODO: Remove for release
-        # self._settings.show_welcome_dialog = True
+        self._settings.show_welcome_dialog = True
 
     @property
     def settings(self):

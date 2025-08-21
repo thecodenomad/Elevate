@@ -85,9 +85,9 @@ class Sidebar(Gtk.Box):
         self.intended_state_combo.set_selected(state_idx)
 
         tooltip = (
-                    f"{state_type.name}: {STATE_DATA[state_type][LOWER_BOUND]} "
-                    f"to {STATE_DATA[state_type][UPPER_BOUND]} Hz - {STATE_DATA[state_type]['description']}"
-                )
+            f"{state_type.name}: {STATE_DATA[state_type][LOWER_BOUND]} "
+            f"to {STATE_DATA[state_type][UPPER_BOUND]} Hz - {STATE_DATA[state_type]['description']}"
+        )
         self.intended_state_combo.set_tooltip_text(tooltip)
         self.intended_state_combo.set_title(
             f"{STATE_TYPE_NAMES[state_idx]} ({STATE_DATA[state_type][DEFAULT]} Hz)"
