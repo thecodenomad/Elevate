@@ -94,10 +94,9 @@ class PreferencesWindow(Adw.PreferencesDialog):
         # Set epileptic warning
         self.epileptic_warning_switch.set_active(self.settings.epileptic_warning)
 
-    def _on_about_button_clicked(self, button):
+    def _on_about_button_clicked(self, _button):
         """Callback for the app.about action."""
         self.parent.get_application().activate_action("about")
-
 
     def _on_default_state_changed(self, combo, _pspec):
         sel = combo.get_selected()
