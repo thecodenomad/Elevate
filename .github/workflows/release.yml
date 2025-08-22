@@ -2,7 +2,7 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 permissions:
   contents: write
@@ -18,15 +18,27 @@ jobs:
       options: --privileged
     steps:
       - uses: actions/checkout@v4
-      - name: "Install Blueprint Compiler"
+      - name: Install Dependencies
+        run: |
+          dnf install -y flatpak-builder elfutils-libelf-devel \
+            libgirepository1.0-dev libgirepository-2.0-dev gcc \
+            libcairo2-dev pkgconf python3-devel gtk4 libgtk-4-media-gstreamer \
+            gstreamer1.0-devel gstreamer1.0-plugins-base \
+            gstreamer1.0-plugins-good gstreamer1.0-plugins-bad
+      - name: Install Blueprint Compiler
         run: |
           git clone https://gitlab.gnome.org/GNOME/blueprint-compiler.git ./subprojects/blueprint-compiler
-      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+          cd ./subprojects/blueprint-compiler
+          meson setup build
+          meson install -C build
+      - name: Build Flatpak
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
           bundle: Elevate-${{ matrix.arch }}.flatpak
           manifest-path: io.github.thecodenomad.elevate.json
           cache-key: flatpak-builder-${{ github.sha }}-${{ matrix.arch }}
           arch: ${{ matrix.arch }}
+          xvfb: ${{ matrix.arch == 'x86_64' && 'true' || 'false' }} # Disable xvfb for aarch64
       - name: Compute SHA256
         run: |
           sha256sum Elevate-${{ matrix.arch }}.flatpak > Elevate-${{ matrix.arch }}.flatpak.sha256
@@ -60,7 +72,7 @@ jobs:
           fi
           gh release create "$TAG" \
             --title "$TAG" \
-            --notes "Automated release for $TAG" \
+            --notes "Automated release for $TAG\n\nFlatpak bundles for x86_64 and aarch64 with SHA256 checksums." \
             --prerelease "$IS_PRERELEASE" \
             artifacts/Elevate-x86_64.flatpak \
             artifacts/Elevate-x86_64.flatpak.sha256 \
