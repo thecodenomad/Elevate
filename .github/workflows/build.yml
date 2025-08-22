@@ -92,12 +92,13 @@ jobs:
       - name: Version and build the package
         shell: bash
         run: |
-          poetry version prepatch
+          # Increment patch version without pre-release suffix
+          poetry version patch
           export APP_VERSION=$(poetry version -s)
           echo "New Version: ${APP_VERSION}"
           sed -i "s/version: '[0-9.]*'/version: '${APP_VERSION}'/" meson.build
           git add pyproject.toml meson.build
-          git commit -a -m "chore(release): v${APP_VERSION}"
+          git commit -a -m "chore(release): v${APP_VERSION}" || echo "No changes to commit"
           git tag v${APP_VERSION}
           git push origin main
           git push origin --tags
