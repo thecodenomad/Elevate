@@ -92,7 +92,7 @@ jobs:
       - name: Version and build the package
         shell: bash
         run: |
-          poetry version patch
+          poetry version prepatch
           export APP_VERSION=$(poetry version -s)
           echo "New Version: ${APP_VERSION}"
           sed -i "s/version: '[0-9.]*'/version: '${APP_VERSION}'/" meson.build
@@ -101,21 +101,3 @@ jobs:
           git tag v${APP_VERSION}
           git push origin main
           git push origin --tags
-
-  Release:
-    needs: Versioning
-    if: (github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main') || (github.event_name == 'merge_group')
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-48
-      options: --privileged
-    steps:
-      - uses: actions/checkout@v4
-      - name: "Install Blueprint Compiler"
-        run: |
-          git clone https://gitlab.gnome.org/GNOME/blueprint-compiler.git ./subprojects/blueprint-compiler
-      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
-        with:
-          bundle: Elevate.flatpak
-          manifest-path: io.github.thecodenomad.elevate.json
-          cache-key: flatpak-builder-${{ github.sha }}
