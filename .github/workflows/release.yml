@@ -31,6 +31,8 @@ jobs:
         run: |
           git clone https://gitlab.gnome.org/GNOME/blueprint-compiler.git ./subprojects/blueprint-compiler
           cd ./subprojects/blueprint-compiler
+          # TODO: Remove when break is fixed
+          git checkout 2774ff191f6eb26d8a2fd30a3f22b3a1c3c79
           meson setup build
           meson install -C build
       - name: Build Flatpak
