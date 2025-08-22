@@ -1,3 +1,5 @@
+# Ref: https://github.com/flatpak/flatpak-github-actions
+
 name: Release
 on:
   workflow_dispatch:
@@ -14,15 +16,14 @@ jobs:
   build-flatpak:
     strategy:
       matrix:
-        arch: [x86_64, aarch64]
-        include:
+        variant:
           - arch: x86_64
-            container: ghcr.io/flathub-infra/flatpak-github-actions:gnome-48-amd64
+            runner: ubuntu-24.04
           - arch: aarch64
-            container: ghcr.io/flathub-infra/flatpak-github-actions:gnome-48-arm64
-    runs-on: ubuntu-latest
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.variant.runner }}
     container:
-      image: ${{ matrix.container }}
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-48
       options: --privileged
     steps:
       - uses: actions/checkout@v4
@@ -35,21 +36,21 @@ jobs:
       - name: Build Flatpak
         uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
-          bundle: Elevate-${{ matrix.arch }}.flatpak
+          bundle: Elevate-${{ matrix.variant.arch }}.flatpak
           manifest-path: io.github.thecodenomad.elevate.json
-          cache-key: flatpak-builder-${{ github.sha }}-${{ matrix.arch }}
-          arch: ${{ matrix.arch }}
-          xvfb: ${{ matrix.arch == 'x86_64' && 'true' || 'false' }}
+          cache-key: flatpak-builder-${{ github.sha }}-${{ matrix.variant.arch }}
+          arch: ${{ matrix.variant.arch }}
+          verbose: true
       - name: Compute SHA256
         run: |
-          sha256sum Elevate-${{ matrix.arch }}.flatpak > Elevate-${{ matrix.arch }}.flatpak.sha256
+          sha256sum Elevate-${{ matrix.variant.arch }}.flatpak > Elevate-${{ matrix.variant.arch }}.flatpak.sha256
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: flatpak-${{ matrix.arch }}
+          name: flatpak-${{ matrix.variant.arch }}
           path: |
-            Elevate-${{ matrix.arch }}.flatpak
-            Elevate-${{ matrix.arch }}.flatpak.sha256
+            Elevate-${{ matrix.variant.arch }}.flatpak
+            Elevate-${{ matrix.variant.arch }}.flatpak.sha256
 
   create-release:
     needs: build-flatpak
