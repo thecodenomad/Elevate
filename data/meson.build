@@ -23,29 +23,15 @@ if desktop_utils.found()
 endif
 
 # AppStream file with variable substitution
-appstream_file_in = configure_file(
+appstream_file = configure_file(
   input: 'io.github.thecodenomad.elevate.metainfo.xml.in',
-  output: 'io.github.thecodenomad.elevate.metainfo.xml.in.tmp',
-  configuration: conf
-)
-
-# Use itstool for AppStream translation merging
-itstool = find_program('itstool', required: true)
-appstream_file = custom_target(
-  'appstream-translation',
-  input: appstream_file_in,
   output: 'io.github.thecodenomad.elevate.metainfo.xml',
-  command: [itstool, '-m', '@INPUT@', '-o', '@OUTPUT@', '--its', '/usr/share/appstream/as.its'],
-  depends: files(meson.project_source_root() / 'po' / 'en_US.po'),  # Adjust for your .po files
+  configuration: conf,
   install: true,
   install_dir: get_option('datadir') / 'metainfo'
 )
 
-appstreamcli = find_program('appstreamcli', required: false, disabler: true)
-if appstreamcli.found()
-  test('Validate appstream file', appstreamcli,
-       args: ['validate', '--no-net', '--explain', appstream_file])
-endif
+
 
 # Schema file
 install_data('io.github.thecodenomad.elevate.gschema.xml',

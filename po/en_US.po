@@ -1,0 +1,323 @@
+# English translations for PACKAGE package.
+# Copyright (C) 2025 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Automatically generated, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-08-22 12:49-0700\n"
+"PO-Revision-Date: 2025-08-22 12:49-0700\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: data/io.github.thecodenomad.elevate.desktop.in:3
+#: elevate/blueprints/window.blp:5
+msgid "Elevate"
+msgstr "Elevate"
+
+#: data/io.github.thecodenomad.elevate.desktop.in:4
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:8
+msgid "Guided meditation and mindfulness application"
+msgstr "Guided meditation and mindfulness application"
+
+#: data/io.github.thecodenomad.elevate.desktop.in:9
+msgid "meditation;mindfulness;relaxation;breathing;"
+msgstr "meditation;mindfulness;relaxation;breathing;"
+
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:7
+msgid "@APP_NAME@"
+msgstr "@APP_NAME@"
+
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:10
+msgid "@DEVELOPER_NAME@"
+msgstr "@DEVELOPER_NAME@"
+
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:13
+msgid ""
+"Elevate is a meditation and mindfulness application designed to help users "
+"achieve calm and focus through guided sessions, breathing exercises, and "
+"progress tracking."
+msgstr ""
+"Elevate is a meditation and mindfulness application designed to help users "
+"achieve calm and focus through guided sessions, breathing exercises, and "
+"progress tracking."
+
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:14
+msgid "Key features include:"
+msgstr "Key features include:"
+
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:16
+msgid "Guided meditation sessions for beginners and advanced users"
+msgstr "Guided meditation sessions for beginners and advanced users"
+
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:17
+msgid "Breathing exercises to reduce stress"
+msgstr "Breathing exercises to reduce stress"
+
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:18
+msgid "Progress tracking to monitor your mindfulness journey"
+msgstr "Progress tracking to monitor your mindfulness journey"
+
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:19
+msgid ""
+"Integration with Bluetooth devices for potential EEG input (future support)"
+msgstr ""
+"Integration with Bluetooth devices for potential EEG input (future support)"
+
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:28
+msgid "meditation"
+msgstr "meditation"
+
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:29
+msgid "mindfulness"
+msgstr "mindfulness"
+
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:30
+msgid "relaxation"
+msgstr "relaxation"
+
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:31
+msgid "breathing"
+msgstr "breathing"
+
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:36
+msgid "Welcome Screen"
+msgstr "Welcome Screen"
+
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:40
+msgid "Epileptic Warning"
+msgstr "Epileptic Warning"
+
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:44
+msgid "Preferences Screen"
+msgstr "Preferences Screen"
+
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:48
+msgid "Hold Visual"
+msgstr "Hold Visual"
+
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:52
+msgid "Exhale Visual"
+msgstr "Exhale Visual"
+
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:56
+msgid "Only Audio"
+msgstr "Only Audio"
+
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:60
+#: elevate/blueprints/sidebar.blp:64
+msgid "Advanced Audio Settings"
+msgstr "Advanced Audio Settings"
+
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:67
+msgid "Initial release of Elevate with core meditation features."
+msgstr "Initial release of Elevate with core meditation features."
+
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:69
+msgid "Added guided meditation sessions"
+msgstr "Added guided meditation sessions"
+
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:70
+msgid "Introduced breathing exercise module"
+msgstr "Introduced breathing exercise module"
+
+#: data/io.github.thecodenomad.elevate.metainfo.xml.in:71
+msgid "Basic progress tracking implemented"
+msgstr "Basic progress tracking implemented"
+
+#: data/io.github.thecodenomad.elevate.gschema.xml:11
+msgid "Base frequency for audio stimuli"
+msgstr "Base frequency for audio stimuli"
+
+#: data/io.github.thecodenomad.elevate.gschema.xml:13
+msgid "The base frequency in Hz for binaural beats (100-300 Hz range)"
+msgstr "The base frequency in Hz for binaural beats (100-300 Hz range)"
+
+#: data/io.github.thecodenomad.elevate.gschema.xml:17
+msgid "Default Intended State"
+msgstr "Default Intended State"
+
+#: data/io.github.thecodenomad.elevate.gschema.xml:18
+msgid "The intended brainwave state."
+msgstr "The intended brainwave state."
+
+#: data/io.github.thecodenomad.elevate.gschema.xml:22
+msgid "Default Session Length"
+msgstr "Default Session Length"
+
+#: data/io.github.thecodenomad.elevate.gschema.xml:23
+msgid "The length of a meditation session."
+msgstr "The length of a meditation session."
+
+#: data/io.github.thecodenomad.elevate.gschema.xml:27
+msgid "Show epileptic warning"
+msgstr "Show epileptic warning"
+
+#: data/io.github.thecodenomad.elevate.gschema.xml:29
+msgid "Shows the epileptic warning when starting a session"
+msgstr "Shows the epileptic warning when starting a session"
+
+#: data/io.github.thecodenomad.elevate.gschema.xml:33
+msgid "UI language"
+msgstr "UI language"
+
+#: data/io.github.thecodenomad.elevate.gschema.xml:34
+msgid "The language/locale code for the user interface."
+msgstr "The language/locale code for the user interface."
+
+#: data/io.github.thecodenomad.elevate.gschema.xml:38
+msgid "Version"
+msgstr "Version"
+
+#: data/io.github.thecodenomad.elevate.gschema.xml:39
+msgid "The application settings version."
+msgstr "The application settings version."
+
+#: data/io.github.thecodenomad.elevate.gschema.xml:46
+msgid "Channel offset for audio stimuli"
+msgstr "Channel offset for audio stimuli"
+
+#: data/io.github.thecodenomad.elevate.gschema.xml:48
+msgid "The channel offset in Hz for binaural beats (1-20 Hz range)"
+msgstr "The channel offset in Hz for binaural beats (1-20 Hz range)"
+
+#: data/io.github.thecodenomad.elevate.gschema.xml:53
+msgid "Enable visual stimuli"
+msgstr "Enable visual stimuli"
+
+#: data/io.github.thecodenomad.elevate.gschema.xml:55
+msgid "Whether to enable visual stimuli for mental state induction"
+msgstr "Whether to enable visual stimuli for mental state induction"
+
+#: data/io.github.thecodenomad.elevate.gschema.xml:59
+msgid "Saved volume state"
+msgstr "Saved volume state"
+
+#: data/io.github.thecodenomad.elevate.gschema.xml:60
+msgid "The last volume used state."
+msgstr "The last volume used state."
+
+#: data/io.github.thecodenomad.elevate.gschema.xml:64
+msgid "Type of visual stimuli"
+msgstr "Type of visual stimuli"
+
+#: data/io.github.thecodenomad.elevate.gschema.xml:66
+msgid ""
+"The type of visual stimuli to use (e.g., 0 for color, 1 for breath patterns)"
+msgstr ""
+"The type of visual stimuli to use (e.g., 0 for color, 1 for breath patterns)"
+
+#: data/io.github.thecodenomad.elevate.gschema.xml:71
+msgid "Show Welcome Dialog"
+msgstr "Show Welcome Dialog"
+
+#: data/io.github.thecodenomad.elevate.gschema.xml:72
+msgid "Show's the welcome dialog"
+msgstr "Show's the welcome dialog"
+
+#: elevate/blueprints/preferences_window.blp:5
+msgid "Preferences"
+msgstr "Preferences"
+
+#: elevate/blueprints/preferences_window.blp:11
+msgid "General Settings"
+msgstr "General Settings"
+
+#: elevate/blueprints/preferences_window.blp:14
+msgid "Language"
+msgstr "Language"
+
+#: elevate/blueprints/preferences_window.blp:17
+msgid "Disabled until localization is supported"
+msgstr "Disabled until localization is supported"
+
+#: elevate/blueprints/preferences_window.blp:21
+msgid "Show Epileptic Warning"
+msgstr "Show Epileptic Warning"
+
+#: elevate/blueprints/preferences_window.blp:26
+msgid "Default Session Length in Minutes"
+msgstr "Default Session Length in Minutes"
+
+#: elevate/blueprints/preferences_window.blp:40
+msgid "Stimuli Settings"
+msgstr "Stimuli Settings"
+
+#: elevate/blueprints/preferences_window.blp:43
+msgid "Default State"
+msgstr "Default State"
+
+#: elevate/blueprints/preferences_window.blp:70
+msgid "About"
+msgstr "About"
+
+#: elevate/blueprints/sidebar.blp:16
+msgid "Session Settings"
+msgstr "Session Settings"
+
+#: elevate/blueprints/sidebar.blp:17
+msgid "Customize the audio stimuli"
+msgstr "Customize the audio stimuli"
+
+#: elevate/blueprints/sidebar.blp:21
+msgid "Intended State"
+msgstr "Intended State"
+
+#: elevate/blueprints/sidebar.blp:27
+msgid "Session Time (min)"
+msgstr "Session Time (min)"
+
+#: elevate/blueprints/sidebar.blp:29
+msgid "The length of the session in minutes"
+msgstr "The length of the session in minutes"
+
+#: elevate/blueprints/sidebar.blp:40
+msgid "Binaural Base Frequency"
+msgstr "Binaural Base Frequency"
+
+#: elevate/blueprints/sidebar.blp:41
+msgid "This is the base frequency used to create a binaural audio effect."
+msgstr "This is the base frequency used to create a binaural audio effect."
+
+#: elevate/blueprints/sidebar.blp:54
+msgid "Enable Visual Stimuli"
+msgstr "Enable Visual Stimuli"
+
+#: elevate/blueprints/sidebar.blp:58
+msgid "Enable Advanced Settings"
+msgstr "Enable Advanced Settings"
+
+#: elevate/blueprints/sidebar.blp:65
+msgid "Customize the visual stimuli"
+msgstr "Customize the visual stimuli"
+
+#: elevate/blueprints/sidebar.blp:71
+msgid "Channel Offset"
+msgstr "Channel Offset"
+
+#: elevate/blueprints/sidebar.blp:72
+msgid "The offset between left and right channels"
+msgstr "The offset between left and right channels"
+
+#: elevate/blueprints/window.blp:76
+msgid "Configuration"
+msgstr "Configuration"
+
+#: elevate/blueprints/window.blp:82
+msgid "Play"
+msgstr "Play"
+
+#: elevate/blueprints/window.blp:88
+msgid "Volume"
+msgstr "Volume"
+
+#: elevate/blueprints/window.blp:140
+msgid "Fullscreen"
+msgstr "Fullscreen"
