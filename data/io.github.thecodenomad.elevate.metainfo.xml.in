@@ -32,31 +32,31 @@
   </keywords>
   <screenshots>
     <screenshot type="default">
-      <image>https://github.com/thecodenomad/elevate/raw/screenshots/main_first_open.png</image>
+      <image>https://github.com/thecodenomad/Elevate/blob/main/raw/screeenshots/main_first_open.png</image>
       <caption>Welcome Screen</caption>
     </screenshot>
     <screenshot>
-      <image>https://github.com/thecodenomad/elevate/raw/screenshots/epileptic_warning.png</image>
+      <image>https://github.com/thecodenomad/Elevate/blob/main/raw/screeenshots/epileptic_warning.png</image>
       <caption>Epileptic Warning</caption>
     </screenshot>
     <screenshot>
-      <image>https://github.com/thecodenomad/elevate/raw/screenshots/preferences.png</image>
+      <image>https://github.com/thecodenomad/Elevate/blob/main/raw/screeenshots/preferences.png</image>
       <caption>Preferences Screen</caption>
     </screenshot>
     <screenshot>
-      <image>https://github.com/thecodenomad/elevate/raw/screenshots/main_visual_hold.png</image>
+      <image>https://github.com/thecodenomad/Elevate/blob/main/raw/screeenshots/main_visual_hold.png</image>
       <caption>Hold Visual</caption>
     </screenshot>
     <screenshot>
-      <image>https://github.com/thecodenomad/elevate/raw/screenshots/main_visual_exhale.png</image>
+      <image>https://github.com/thecodenomad/Elevate/blob/main/raw/screeenshots/main_visual_exhale.png</image>
       <caption>Exhale Visual</caption>
     </screenshot>
     <screenshot>
-      <image>https://github.com/thecodenomad/elevate/raw/screenshots/main_only_audio.png</image>
+      <image>https://github.com/thecodenomad/Elevate/blob/main/raw/screeenshots/main_only_audio.png</image>
       <caption>Only Audio</caption>
     </screenshot>
     <screenshot>
-      <image>https://github.com/thecodenomad/elevate/raw/screenshots/advanced_audio_settings.png</image>
+      <image>https://github.com/thecodenomad/Elevate/blob/main/raw/screeenshots/advanced_audio_settings.png</image>
       <caption>Advanced Audio Settings</caption>
     </screenshot>
   </screenshots>
@@ -81,11 +81,11 @@
     <color type="primary" scheme_preference="light">#4CAF50</color>
     <color type="primary" scheme_preference="dark">#388E3C</color>
   </branding>
-  <requires>
+  <recommends>
     <control>keyboard</control>
     <control>pointing</control>
     <display_length compare="ge">768</display_length>
-  </requires>
+  </recommends>
   <translation type="gettext">elevate</translation>
   <custom>
     <value key="flathub::manifest">https://github.com/thecodenomad/elevate/raw/v0.1.1/io.github.thecodenomad.elevate.json</value>
