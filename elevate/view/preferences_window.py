@@ -51,6 +51,8 @@ class PreferencesWindow(Adw.PreferencesDialog):
     # default_visual_stimuli_combo: Adw.ComboRow = Gtk.Template.Child()
     # breath_type: Adw.ComboRow = Gtk.Template.Child()
 
+    about_button: Gtk.Button = Gtk.Template.Child()
+
     def __init__(self, parent, settings, **kwargs):
         super().__init__(**kwargs)
 
@@ -69,6 +71,7 @@ class PreferencesWindow(Adw.PreferencesDialog):
         self.epileptic_warning_switch.connect("notify::active", self._on_epileptic_warning_toggle)
         self.language_selection_combo.connect("notify::selected", self._on_lang_changed)
         self.minutes_spin_button.connect("notify::value", self._on_session_length_changed)
+        self.about_button.connect("clicked", self._on_about_button_clicked)
         self.connect("closed", self.on_closed)
 
     def set_default_states(self):
@@ -90,6 +93,11 @@ class PreferencesWindow(Adw.PreferencesDialog):
 
         # Set epileptic warning
         self.epileptic_warning_switch.set_active(self.settings.epileptic_warning)
+
+    def _on_about_button_clicked(self, button):
+        """Callback for the app.about action."""
+        self.parent.get_application().activate_action("about")
+
 
     def _on_default_state_changed(self, combo, _pspec):
         sel = combo.get_selected()

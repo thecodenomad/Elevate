@@ -75,7 +75,11 @@ class ElevateWindow(Adw.Window):
           **kwargs: Keyword args forwarded to Adw.Window initializer.
         """
         super().__init__(**kwargs)
+        self._application = kwargs.get("application")
         self._settings = settings
+
+        print(f"Application version: {self._settings.version}")
+
         self.timeout_id = None  # Initialize to avoid AttributeError
 
         self.toolbar_visible = True

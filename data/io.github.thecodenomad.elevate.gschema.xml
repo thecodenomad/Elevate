@@ -33,6 +33,11 @@
 			<summary>UI language</summary>
 			<description>The language/locale code for the user interface.</description>
 		</key>
+		<key name="version" type="s">
+			<default>"0.1"</default>
+			<summary>Version</summary>
+			<description>The application settings version.</description>
+		</key>
 
 		<!-- Saved Application State -->
 		<!-- Don't save for now, this is set by the Intended State -->

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2025 codenomad -->
 <component type="desktop-application">
-  <id>io.github.thecodenomad.elevate</id>
+  <id>@APP_ID@</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-only</project_license>
-  <name>Elevate</name>
+  <name>@APP_NAME@</name>
   <summary>Guided meditation and mindfulness application</summary>
-  <developer id="io.github.thecodenomad">
-    <name>thecodenomad</name>
+  <developer id="@DEVELOPER_ID@">
+    <name>@DEVELOPER_NAME@</name>
   </developer>
   <description>
     <p>Elevate is a meditation and mindfulness application designed to help users achieve calm and focus through guided sessions, breathing exercises, and progress tracking.</p>

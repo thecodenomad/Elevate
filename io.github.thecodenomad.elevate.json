@@ -37,7 +37,6 @@
         }
       ]
     },
-    "python-build-deps.json",
     "python-deps.json",
     {
       "name": "elevate",
