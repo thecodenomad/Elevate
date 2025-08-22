@@ -19,9 +19,9 @@ jobs:
         variant:
           - arch: x86_64
             runner: ubuntu-24.04
-# Disabled for now, issues with xvfb right now
-#          - arch: aarch64
-#            runner: ubuntu-24.04-arm
+    # Disabled for now, issues with xvfb right now
+    #          - arch: aarch64
+    #            runner: ubuntu-24.04-arm
     runs-on: ${{ matrix.variant.runner }}
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-48
@@ -75,6 +75,8 @@ jobs:
             --title "$TAG" \
             --notes "Stable release for $TAG\n\nFlatpak bundles for x86_64 and aarch64 with SHA256 checksums." \
             artifacts/Elevate-x86_64.flatpak \
-            artifacts/Elevate-x86_64.flatpak.sha256 \
-            artifacts/Elevate-aarch64.flatpak \
-            artifacts/Elevate-aarch64.flatpak.sha256
+            artifacts/Elevate-x86_64.flatpak.sha256
+
+# TODO: Manifest stuff
+#            artifacts/Elevate-aarch64.flatpak \
+#            artifacts/Elevate-aarch64.flatpak.sha256
