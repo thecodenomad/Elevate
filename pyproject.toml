@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "elevate"
-version = "0.1.8"
+version = "0.1.9"
 description = "Meditation Guru"
 authors = ["codenomad <codenomad@gmail.com>"]
 license = "GPL3"
