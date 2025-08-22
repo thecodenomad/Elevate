@@ -6,7 +6,7 @@ Elevate is a desktop meditation application for helping to achieve mental states
   <img src="./raw/demo.gif">
 </p>
 
-NOTE: The project is still in it's infancy, but feedback is welcome!
+NOTE: The project is still in it's infancy, but feedback is welcomed!
 
 # Keybindings
 
