@@ -72,7 +72,7 @@ jobs:
           TAG=${{ inputs.tag }}
           gh release create "$TAG" \
             --title "$TAG" \
-            --notes "Stable release for $TAG\n\nFlatpak bundles for x86_64 and aarch64 with SHA256 checksums." \
+            --generate-notes \
             artifacts/Elevate-x86_64.flatpak \
             artifacts/Elevate-x86_64.flatpak.sha256
            artifacts/Elevate-aarch64.flatpak \
