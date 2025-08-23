@@ -1,14 +1,16 @@
+from elevate.constants import StateType
 """Test brain wave state functionality in BouncyBallAnimation."""
 
 import pytest
 from elevate.backend.animations.bouncy_ball import BouncyBallAnimation, BRAIN_WAVE_COLORS
+from elevate.constants import StateType
 
 
 def test_brain_wave_state_initialization():
     """Test that brain wave states initialize with correct colors."""
     # Test delta state
     delta_anim = BouncyBallAnimation(brain_wave_state="delta")
-    delta_colors = BRAIN_WAVE_COLORS["delta"]
+    delta_colors = BRAIN_WAVE_COLORS[StateType.DELTA]
     assert delta_anim.breath_color == delta_colors["breath"]
     assert delta_anim.hold_color == delta_colors["hold"]
     assert delta_anim.background == delta_colors["background"]
@@ -16,7 +18,7 @@ def test_brain_wave_state_initialization():
 
     # Test alpha state
     alpha_anim = BouncyBallAnimation(brain_wave_state="alpha")
-    alpha_colors = BRAIN_WAVE_COLORS["alpha"]
+    alpha_colors = BRAIN_WAVE_COLORS[StateType.ALPHA]
     assert alpha_anim.breath_color == alpha_colors["breath"]
     assert alpha_anim.hold_color == alpha_colors["hold"]
     assert alpha_anim.background == alpha_colors["background"]
@@ -24,7 +26,7 @@ def test_brain_wave_state_initialization():
 
     # Test beta state
     beta_anim = BouncyBallAnimation(brain_wave_state="beta")
-    beta_colors = BRAIN_WAVE_COLORS["beta"]
+    beta_colors = BRAIN_WAVE_COLORS[StateType.BETA]
     assert beta_anim.breath_color == beta_colors["breath"]
     assert beta_anim.hold_color == beta_colors["hold"]
     assert beta_anim.background == beta_colors["background"]
@@ -32,7 +34,7 @@ def test_brain_wave_state_initialization():
 
     # Test gamma state
     gamma_anim = BouncyBallAnimation(brain_wave_state="gamma")
-    gamma_colors = BRAIN_WAVE_COLORS["gamma"]
+    gamma_colors = BRAIN_WAVE_COLORS[StateType.GAMMA]
     assert gamma_anim.breath_color == gamma_colors["breath"]
     assert gamma_anim.hold_color == gamma_colors["hold"]
     assert gamma_anim.background == gamma_colors["background"]
@@ -43,7 +45,7 @@ def test_brain_wave_state_case_insensitive():
     """Test that brain wave states work case insensitively."""
     # Test uppercase
     anim = BouncyBallAnimation(brain_wave_state="DELTA")
-    delta_colors = BRAIN_WAVE_COLORS["delta"]
+    delta_colors = BRAIN_WAVE_COLORS[StateType.DELTA]
     assert anim.breath_color == delta_colors["breath"]
     assert anim.hold_color == delta_colors["hold"]
     assert anim.background == delta_colors["background"]
@@ -53,9 +55,9 @@ def test_brain_wave_state_case_insensitive():
 def test_invalid_brain_wave_state():
     """Test that invalid brain wave states fall back to default colors."""
     # Test with invalid state - should use default colors
-    default_breath = (0.2, 0.6, 0.9)  # SOFT_BLUE
-    default_hold = (0.6, 0.4, 0.8)    # LAVENDER
-    default_background = (0.2, 0.2, 0.6)  # DEEP_INDIGO
+    default_breath = BRAIN_WAVE_COLORS[StateType.THETA]["breath"]  # Default breath color
+    default_hold = BRAIN_WAVE_COLORS[StateType.THETA]["hold"]  # Default hold color
+    default_background = BRAIN_WAVE_COLORS[StateType.THETA]["background"]  # Default background color
     
     anim = BouncyBallAnimation(brain_wave_state="invalid", 
                               breath_color=default_breath,
@@ -73,7 +75,7 @@ def test_set_brain_wave_state():
     
     # Set to delta state
     anim.set_brain_wave_state("delta")
-    delta_colors = BRAIN_WAVE_COLORS["delta"]
+    delta_colors = BRAIN_WAVE_COLORS[StateType.DELTA]
     assert anim.breath_color == delta_colors["breath"]
     assert anim.hold_color == delta_colors["hold"]
     assert anim.background == delta_colors["background"]
@@ -81,7 +83,7 @@ def test_set_brain_wave_state():
     
     # Set to alpha state
     anim.set_brain_wave_state("alpha")
-    alpha_colors = BRAIN_WAVE_COLORS["alpha"]
+    alpha_colors = BRAIN_WAVE_COLORS[StateType.ALPHA]
     assert anim.breath_color == alpha_colors["breath"]
     assert anim.hold_color == alpha_colors["hold"]
     assert anim.background == alpha_colors["background"]

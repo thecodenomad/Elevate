@@ -187,6 +187,19 @@ class StateInductionController(GObject.Object):
 
         self.notify("is-playing")
 
+    def set_brain_wave_state(self, state: str):
+        """Set the brain wave state for visual stimuli.
+
+        Args:
+            state (str): Brain wave state (delta, theta, alpha, beta, gamma)
+        """
+        if self.visual_stimulus:
+            try:
+                self.visual_stimulus.set_brain_wave_state(state)
+            except AttributeError:
+                pass  # Visual stimulus does not support brain wave states
+            self.visual_stimulus.set_brain_wave_state(state)
+
     def set_stimuli_type(self, stimuli_type):
         """Configure the visual stimulus pattern type.
 

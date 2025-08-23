@@ -142,6 +142,23 @@ class VisualStimulus(GObject.Object):
             widget: The GTK widget to render on.
         """
         self._widget = widget
+        # Reset cached dimensions when widget changes
+        if hasattr(self, "_cached_width"):
+            delattr(self, "_cached_width")
+        if hasattr(self, "_cached_height"):
+            delattr(self, "_cached_height")
+
+    def set_brain_wave_state(self, state: str):
+        """Set the brain wave state for the current animation.
+
+        Args:
+            state (str): Brain wave state (delta, theta, alpha, beta, gamma)
+        """
+        if self._animation:
+            try:
+                self._animation.set_brain_wave_state(state)
+            except AttributeError:
+                print("Animation does not support setting a brain wave state type")
 
     # pylint: disable=E1120
     def _start_animation(self):

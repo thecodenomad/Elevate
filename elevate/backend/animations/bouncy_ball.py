@@ -17,11 +17,6 @@ from typing import Tuple, Optional
 from elevate.backend.animations.base import Animation, CairoContext
 from elevate.constants import StateType
 
-# Default color constants
-SOFT_BLUE = (0.2, 0.6, 0.9)  # Color for breath phases
-LAVENDER = (0.6, 0.4, 0.8)  # Color for hold phases
-DEEP_INDIGO = (0.2, 0.2, 0.6)  # Background color
-
 # Brain wave state color schemes
 BRAIN_WAVE_COLORS = {
     StateType.DELTA: {
@@ -102,12 +97,28 @@ class BouncyBallAnimation(Animation):
             brain_wave_state (str): Current brain wave state for color scheme
         """
         # Set colors based on brain wave state if provided
-        if brain_wave_state and brain_wave_state.lower() in BRAIN_WAVE_COLORS:
-            colors = BRAIN_WAVE_COLORS[brain_wave_state.lower()]
-            self.breath_color = colors["breath"]
-            self.hold_color = colors["hold"]
-            self.background = colors["background"]
-            self.brain_wave_state = brain_wave_state.lower()
+        if brain_wave_state:
+            # Map string state names to StateType enum values
+            state_mapping = {
+                "delta": StateType.DELTA,
+                "theta": StateType.THETA,
+                "alpha": StateType.ALPHA,
+                "beta": StateType.BETA,
+                "gamma": StateType.GAMMA,
+            }
+
+            state_lower = brain_wave_state.lower()
+            if state_lower in state_mapping and state_mapping[state_lower] in BRAIN_WAVE_COLORS:
+                colors = BRAIN_WAVE_COLORS[state_mapping[state_lower]]
+                self.breath_color = colors["breath"]
+                self.hold_color = colors["hold"]
+                self.background = colors["background"]
+                self.brain_wave_state = state_lower
+            else:
+                self.breath_color = breath_color
+                self.hold_color = hold_color
+                self.background = background
+                self.brain_wave_state = brain_wave_state
         else:
             self.breath_color = breath_color
             self.hold_color = hold_color
@@ -166,11 +177,20 @@ class BouncyBallAnimation(Animation):
         """Set the brain wave state and update colors accordingly.
 
         Args:
-            state: Brain wave state (delta, alpha, beta, gamma)
+            state: Brain wave state (delta, theta, alpha, beta, gamma)
         """
+        # Map string state names to StateType enum values
+        state_mapping = {
+            "delta": StateType.DELTA,
+            "theta": StateType.THETA,
+            "alpha": StateType.ALPHA,
+            "beta": StateType.BETA,
+            "gamma": StateType.GAMMA,
+        }
+
         state_lower = state.lower()
-        if state_lower in BRAIN_WAVE_COLORS:
-            colors = BRAIN_WAVE_COLORS[state_lower]
+        if state_lower in state_mapping and state_mapping[state_lower] in BRAIN_WAVE_COLORS:
+            colors = BRAIN_WAVE_COLORS[state_mapping[state_lower]]
             self.breath_color = colors["breath"]
             self.hold_color = colors["hold"]
             self.background = colors["background"]
