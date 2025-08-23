@@ -74,6 +74,6 @@ jobs:
             --title "$TAG" \
             --generate-notes \
             artifacts/Elevate-x86_64.flatpak \
-            artifacts/Elevate-x86_64.flatpak.sha256
-           artifacts/Elevate-aarch64.flatpak \
-           artifacts/Elevate-aarch64.flatpak.sha256
+            artifacts/Elevate-x86_64.flatpak.sha256 \
+            artifacts/Elevate-aarch64.flatpak \
+            artifacts/Elevate-aarch64.flatpak.sha256
