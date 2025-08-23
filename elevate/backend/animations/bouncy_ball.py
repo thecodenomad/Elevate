@@ -71,11 +71,35 @@ class BouncyBallAnimation(Animation):
         self.breath_color = breath_color
         self.hold_color = hold_color
         self.background = background
-        self._t = 0.0
-        self.phase_durations = (4.0, 4.0, 4.0, 4.0)  # Default phase durations
         self.pulse_factor = pulse_factor
         self.fade_duration = fade_duration
+        self.phase_durations = (4.0, 4.0, 4.0, 4.0)  # Default phase durations
         self.phase_cues = ["Inhale", "Hold", "Exhale", "Hold"]  # Visual/audio cues for each phase
+        self._t = 0.0
+
+        # Cache calculated values for performance
+        self._phase_ends = None
+        self._total_cycle = None
+        self._fade_half = None
+        self._last_width = None
+        self._last_height = None
+        self._last_max_radius = None
+        self._last_phase = None
+        self._last_cue_text = None
+
+    def _update_cached_values(self) -> None:
+        """Update cached calculation values for performance optimization."""
+        if self._total_cycle is None:
+            # Calculate total cycle duration
+            self._total_cycle = sum(self.phase_durations)
+
+            # Calculate fade half duration
+            self._fade_half = self.fade_duration / 2.0
+
+            # Calculate phase boundaries only when needed
+            self._phase_ends = [0.0]
+            for duration in self.phase_durations:
+                self._phase_ends.append(self._phase_ends[-1] + duration)
 
     def reset(self) -> None:
         """Reset the animation to its initial state.
@@ -84,6 +108,7 @@ class BouncyBallAnimation(Animation):
         restarting the breathing cycle from the beginning.
         """
         self._t = 0.0
+        self._last_phase = None  # Reset phase cache
 
     def set_breath_cycle(self, cycle: Tuple[float, float, float, float]) -> None:
         """Set the duration of each phase (inhale, hold1, exhale, hold2).
@@ -242,17 +267,24 @@ class BouncyBallAnimation(Animation):
             height: Height of the drawing area
             now_s: Current time in seconds for animation calculations
         """
-        total_cycle = sum(self.phase_durations)
-        if total_cycle == 0:
+        # Update cached values if needed
+        self._update_cached_values()
+
+        if self._total_cycle == 0:
             # Handle edge case of zero total duration
             cr.set_source_rgb(*self.background)
             if hasattr(cr, "paint"):
                 cr.paint()
             return
 
-        t = self._t % total_cycle
-        max_radius = min(width, height) / 2
-        fade_half = self.fade_duration / 2.0
+        t = self._t % self._total_cycle
+
+        # Cache max_radius calculation
+        if self._last_width != width or self._last_height != height:
+            self._last_width = width
+            self._last_height = height
+            self._last_max_radius = min(width, height) / 2
+        max_radius = self._last_max_radius
 
         # Set background color
         cr.set_source_rgb(*self.background)
@@ -262,29 +294,29 @@ class BouncyBallAnimation(Animation):
         # Determine phase boundaries
         phase_ends = [0.0]
         for duration in self.phase_durations:
-            phase_ends.append(phase_ends[-1] + duration)
+            phase_ends.append(self._phase_ends[-1] + duration)
 
         # Calculate radius and base color based on current phase
-        if t <= phase_ends[1]:  # Phase 1: Inhale
+        if t <= self._phase_ends[1]:  # Phase 1: Inhale
             radius, base_color = self.phase1(t, max_radius)
-        elif t <= phase_ends[2]:  # Phase 2: Hold
+        elif t <= self._phase_ends[2]:  # Phase 2: Hold
             radius, base_color = self.phase2(t, max_radius)
-        elif t <= phase_ends[3]:  # Phase 3: Exhale
+        elif t <= self._phase_ends[3]:  # Phase 3: Exhale
             radius, base_color = self.phase3(t, max_radius)
         else:  # Phase 4: Hold
             radius, base_color = self.phase4(t, max_radius)
 
         # Handle color fading at phase transitions
         color = base_color
-        for i, end in enumerate(phase_ends[1:], 1):
-            if end - fade_half < t < end + fade_half:
-                alpha = (t - (end - fade_half)) / self.fade_duration
+        for i, end in enumerate(self._phase_ends[1:], 1):
+            if end - self._fade_half < t < end + self._fade_half:
+                alpha = (t - (end - self._fade_half)) / self.fade_duration
                 prev_color = self.breath_color if i % 2 == 1 else self.hold_color
                 next_color = self.hold_color if i % 2 == 1 else self.breath_color
                 color = self.interpolate_color(prev_color, next_color, alpha)
                 break
-        if t < fade_half:  # Handle loop from end to beginning
-            alpha = (t + fade_half) / self.fade_duration
+        if t < self._fade_half:  # Handle loop from end to beginning
+            alpha = (t + self._fade_half) / self.fade_duration
             color = self.interpolate_color(self.hold_color, self.breath_color, alpha)
 
         # Render the circle
@@ -293,15 +325,24 @@ class BouncyBallAnimation(Animation):
         if hasattr(cr, "fill"):
             cr.fill()
 
-        # Render phase cue if active
+        # Render phase cue if active (only when phase changes)
         current_phase = 0
-        for i, end in enumerate(phase_ends[1:]):
+        for i, end in enumerate(self._phase_ends[1:]):
             if t <= end:
                 current_phase = i
                 break
 
-        # Check if cue is enabled for current phase
-        if self.phase_cues[current_phase] is not None:
+        # Check if cue is enabled for current phase and phase has changed
+        if self.phase_cues[current_phase] is not None and self._last_phase != current_phase:
+            self._last_phase = current_phase
+            self._last_cue_text = self.phase_cues[current_phase]
+            self._render_phase_cue(cr, current_phase, width, height)
+        elif (
+            self.phase_cues[current_phase] is not None
+            and self._last_phase == current_phase
+            and self._last_cue_text == self.phase_cues[current_phase]
+        ):
+            # Phase hasn't changed, render the same cue again
             self._render_phase_cue(cr, current_phase, width, height)
 
     def _render_phase_cue(self, cr: CairoContext, phase_index: int, _width: int, height: int) -> None:
