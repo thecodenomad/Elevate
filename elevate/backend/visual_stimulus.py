@@ -59,6 +59,8 @@ class VisualStimulus(GObject.Object):
         self._last_ts: Optional[float] = None
         self._animation: Optional[Animation] = None
         self._time = 0.0  # Accumulated time for animations
+        self._cached_width = 0
+        self._cached_height = 0
 
     @GObject.Property(type=bool, default=False)
     def enable_visual_stimuli(self):
@@ -140,6 +142,23 @@ class VisualStimulus(GObject.Object):
             widget: The GTK widget to render on.
         """
         self._widget = widget
+        # Reset cached dimensions when widget changes
+        if hasattr(self, "_cached_width"):
+            delattr(self, "_cached_width")
+        if hasattr(self, "_cached_height"):
+            delattr(self, "_cached_height")
+
+    def set_brain_wave_state(self, state: str):
+        """Set the brain wave state for the current animation.
+
+        Args:
+            state (str): Brain wave state (delta, theta, alpha, beta, gamma)
+        """
+        if self._animation:
+            try:
+                self._animation.set_brain_wave_state(state)
+            except AttributeError:
+                print("Animation does not support setting a brain wave state type")
 
     # pylint: disable=E1120
     def _start_animation(self):
@@ -170,7 +189,7 @@ class VisualStimulus(GObject.Object):
         """Animation callback.
 
         Called periodically to update the animation state and trigger
-        widget redraws.
+        widget redraws. Optimized to reduce unnecessary operations.
 
         Returns:
             bool: GLib.SOURCE_CONTINUE to continue the animation loop.
@@ -179,19 +198,25 @@ class VisualStimulus(GObject.Object):
             now = GLib.get_monotonic_time() / 1_000_000.0
             dt = max(0.0, min(0.1, (now - (self._last_ts or now))))
             self._last_ts = now
-            # Determine width/height for non-GTK test widgets
-            if hasattr(self._widget, "get_allocation"):
-                alloc = self._widget.get_allocation()
-                width = getattr(alloc, "width", 0)
-                height = getattr(alloc, "height", 0)
-            else:
-                width = getattr(self._widget, "width", 0)
-                height = getattr(self._widget, "height", 0)
+
+            # Cache widget dimensions to avoid repeated allocation queries
+            if not hasattr(self, "_cached_width") or not hasattr(self, "_cached_height"):
+                if hasattr(self._widget, "get_allocation"):
+                    alloc = self._widget.get_allocation()
+                    self._cached_width = getattr(alloc, "width", 0)
+                    self._cached_height = getattr(alloc, "height", 0)
+                else:
+                    self._cached_width = getattr(self._widget, "width", 0)
+                    self._cached_height = getattr(self._widget, "height", 0)
+
             if self._animation is not None:
-                self._animation.update(dt, width, height)
+                self._animation.update(dt, self._cached_width, self._cached_height)
                 self._time += dt  # Accumulate time
+
+            # Always queue draw for now - could be further optimized by checking if visual state changed
             if hasattr(self._widget, "queue_draw"):
                 self._widget.queue_draw()
+
             return GLib.SOURCE_CONTINUE
         return GLib.SOURCE_REMOVE
 

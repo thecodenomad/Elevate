@@ -1,5 +1,7 @@
+from elevate.constants import StateType
 import math
-from elevate.backend.animations.bouncy_ball import BouncyBallAnimation, SOFT_BLUE, LAVENDER, DEEP_INDIGO
+from elevate.backend.animations.bouncy_ball import BouncyBallAnimation, BRAIN_WAVE_COLORS
+from elevate.constants import StateType
 
 
 class MockCairoContext:
@@ -42,9 +44,9 @@ def test_bouncy_ball_initialization():
     """Test BouncyBallAnimation initialization with default values."""
     anim = BouncyBallAnimation()
     
-    assert anim.breath_color == SOFT_BLUE
-    assert anim.hold_color == LAVENDER
-    assert anim.background == DEEP_INDIGO
+    assert anim.breath_color == BRAIN_WAVE_COLORS[StateType.THETA]["breath"]
+    assert anim.hold_color == BRAIN_WAVE_COLORS[StateType.THETA]["hold"]
+    assert anim.background == BRAIN_WAVE_COLORS[StateType.THETA]["background"]
     assert anim._t == 0.0
     assert anim.phase_durations == (4.0, 4.0, 4.0, 4.0)
     assert anim.pulse_factor == 0.05
@@ -163,19 +165,19 @@ def test_bouncy_ball_phase1():
     # At start of phase
     radius, color = anim.phase1(0.0, max_radius)
     assert radius == 0.0
-    assert color == SOFT_BLUE
+    assert color == BRAIN_WAVE_COLORS[StateType.THETA]["breath"]
     
     # Mid phase
     radius, color = anim.phase1(1.0, max_radius)
     expected_radius = (1.0 / 2.0) * max_radius * (1.0 - anim.pulse_factor)
     assert abs(radius - expected_radius) < 0.001
-    assert color == SOFT_BLUE
+    assert color == BRAIN_WAVE_COLORS[StateType.THETA]["breath"]
     
     # At end of phase
     radius, color = anim.phase1(2.0, max_radius)
     expected_radius = max_radius * (1.0 - anim.pulse_factor)
     assert abs(radius - expected_radius) < 0.001
-    assert color == SOFT_BLUE
+    assert color == BRAIN_WAVE_COLORS[StateType.THETA]["breath"]
 
 
 def test_bouncy_ball_phase1_zero_duration():
@@ -186,7 +188,7 @@ def test_bouncy_ball_phase1_zero_duration():
     
     radius, color = anim.phase1(0.0, max_radius)
     assert radius == 0.0
-    assert color == SOFT_BLUE
+    assert color == BRAIN_WAVE_COLORS[StateType.THETA]["breath"]
 
 
 def test_bouncy_ball_phase2():
@@ -197,7 +199,7 @@ def test_bouncy_ball_phase2():
     
     # Test pulsation behavior
     radius, color = anim.phase2(2.1, max_radius)  # 0.1 seconds into hold phase
-    assert color == LAVENDER
+    assert color == BRAIN_WAVE_COLORS[StateType.THETA]["hold"]
     
     # Test that radius is within expected range
     min_radius = max_radius * (1.0 - anim.pulse_factor)
@@ -214,18 +216,18 @@ def test_bouncy_ball_phase3():
     radius, color = anim.phase3(3.0, max_radius)
     expected_radius = max_radius * (1.0 - anim.pulse_factor)
     assert abs(radius - expected_radius) < 0.001
-    assert color == SOFT_BLUE
+    assert color == BRAIN_WAVE_COLORS[StateType.THETA]["breath"]
     
     # Mid phase
     radius, color = anim.phase3(4.0, max_radius)
     expected_radius = 0.5 * max_radius * (1.0 - anim.pulse_factor)
     assert abs(radius - expected_radius) < 0.001
-    assert color == SOFT_BLUE
+    assert color == BRAIN_WAVE_COLORS[StateType.THETA]["breath"]
     
     # At end of phase
     radius, color = anim.phase3(5.0, max_radius)
     assert radius == 0.0
-    assert color == SOFT_BLUE
+    assert color == BRAIN_WAVE_COLORS[StateType.THETA]["breath"]
 
 
 def test_bouncy_ball_phase3_zero_duration():
@@ -236,7 +238,7 @@ def test_bouncy_ball_phase3_zero_duration():
     
     radius, color = anim.phase3(3.0, max_radius)
     assert radius == 0.0
-    assert color == SOFT_BLUE
+    assert color == BRAIN_WAVE_COLORS[StateType.THETA]["breath"]
 
 
 def test_bouncy_ball_phase4():
@@ -248,7 +250,7 @@ def test_bouncy_ball_phase4():
     # At start of phase (t=5.0)
     radius, color = anim.phase4(5.0, max_radius)
     # Should be pulsating around max_radius * pulse_factor
-    assert color == LAVENDER
+    assert color == BRAIN_WAVE_COLORS[StateType.THETA]["hold"]
     
     # Test that radius is within expected range (0 to max_radius * pulse_factor)
     max_expected_radius = max_radius * anim.pulse_factor

@@ -93,7 +93,10 @@ class Sidebar(Gtk.Box):
             f"{STATE_TYPE_NAMES[state_idx]} ({STATE_DATA[state_type][DEFAULT]} Hz)"
         )
 
-        # Set Default Channel Offset
+        # Set the brain wave state to ensure animation colors are updated
+        state_name = state_type.name.lower()
+        self.controller.set_brain_wave_state(state_name)
+
         default_offset = STATE_DATA[state_type][DEFAULT]
         self.channel_offset_scale.set_value(default_offset)
 
@@ -120,6 +123,7 @@ class Sidebar(Gtk.Box):
         1. Map the selection to a StateType enum
         2. Set the channel_offset_scale to the default value for that state
         3. Update the settings with the new intended state
+        4. Notify the controller to update the animation state
         """
 
         selected_index = combo.get_selected()
@@ -142,6 +146,10 @@ class Sidebar(Gtk.Box):
                 adjustment = self.channel_offset_scale.get_adjustment()
                 adjustment.set_value(default_value)
                 print(f"User set state: {state_type.name} with offset: {default_value}")
+
+                state_name = state_type.name.lower()
+                self.controller.set_brain_wave_state(state_name)
+
             except (IndexError, KeyError) as e:
                 print(f"Error setting state: {e}")
 
@@ -196,6 +204,10 @@ class Sidebar(Gtk.Box):
         self.intended_state_combo.set_title(
             f"{STATE_TYPE_NAMES[state_index]} ({STATE_DATA[state_type][DEFAULT]} Hz)"
         )
+
+        # Set the brain wave state to ensure animation colors are updated
+        state_name = state_type.name.lower()
+        self.controller.set_brain_wave_state(state_name)
 
     def set_bindings(self):
         """Helper method for establishing bindings for the relevant widgets."""
