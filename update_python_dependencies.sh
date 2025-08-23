@@ -20,4 +20,4 @@ sed -i '/platform_system == "Darwin"/d; /platform_system == "Windows"/d' require
 # req2flatpak --requirements-file=dev-requirements.txt --outfile python-build-deps.json --target-platform '312-x86_64'
 
 # Create the Project dependencies
-req2flatpak --requirements-file=requirements.txt --outfile python-deps.json --target-platform '312-x86_64'
+req2flatpak --requirements-file=requirements.txt --outfile python-deps.json --target-platforms '312-x86_64' '312-aarch64'
