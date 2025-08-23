@@ -1,5 +1,5 @@
 project('elevate',
-  version: '0.0.0', # Placeholder version, updated below
+  version: '0.1.13', # Placeholder version, updated below
   meson_version: '>= 1.4.0',
   default_options: [ 'warning_level=2', 'werror=false' ],
 )
