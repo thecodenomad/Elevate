@@ -304,3 +304,27 @@ class ElevateSettings(GObject.Object):
             value (int): The stimuli type to set (e.g., 0 for color, 1 for breath patterns).
         """
         self.app_config.set_int("stimuli-type", value)
+
+    @GObject.Property(type=str, default=None)
+    def version(self) -> str:
+        """The version of the application
+
+        Returns:
+            str: The application version.
+        """
+        try:
+            return self.app_config.get_string("version")
+        except GLib.Error as e:
+            print(f"Error reading version: {e}")
+            return None
+
+    # TODO: Entry for when the version bump occurs
+    @version.setter
+    def version(self, value: str) -> None:
+        """Set the version number
+
+        Args:
+            value (str): The version to set.
+        """
+        print(f"Setting version to: {value}")
+        self.app_config.set_string("version", value)

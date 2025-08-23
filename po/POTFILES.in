@@ -5,15 +5,15 @@ data/io.github.thecodenomad.elevate.desktop.in
 data/io.github.thecodenomad.elevate.metainfo.xml.in
 data/io.github.thecodenomad.elevate.gschema.xml
 
-src/main.py
-src/window.py
-src/view/preferences_window.py
-src/view/sidebar.py
-src/view/stimuli_renderer.py
+elevate/main.py.in
+elevate/window.py
+elevate/view/preferences_window.py
+elevate/view/sidebar.py
+elevate/view/stimuli_renderer.py
 
 # Blueprint/UIs compiled into resources
-src/blueprints/epileptic_warning_dialog.blp
-src/blueprints/preferences_window.blp
-src/blueprints/sidebar.blp
-src/blueprints/stimuli_renderer.blp
-src/blueprints/window.blp
+elevate/blueprints/epileptic_warning_dialog.blp
+elevate/blueprints/preferences_window.blp
+elevate/blueprints/sidebar.blp
+elevate/blueprints/stimuli_renderer.blp
+elevate/blueprints/window.blp
